@@ -353,6 +353,11 @@ Located in bottom-right corner (200×200 pixels):
 - Stockpile resources in preparation
 - Super zombies make late-game harder - manufacture cure sooner!
 
+**Draw Zombies Away**
+- Utilize scouts to draw zombies away from cities or other units.
+- Zombies have sight distance of 2 tiles and share knowledge.
+- Zombies will head towards the closest known player unit.
+
 ## Technical Details
 
 ### Procedural Generation
@@ -391,22 +396,3 @@ zombie_strategy_game/
 ├── requirements.txt      # Python dependencies (pygame)
 └── README.md            # This file
 ```
-
-## Credits
-
-Created as a turn-based zombie survival strategy game with procedural generation, fog of war, XP/leveling system, escalating difficulty, and multiple victory conditions using Python and Pygame.
-
-**Key Features:**
-- Turn-based tactical gameplay
-- Procedural map generation
-- Fog of war exploration
-- Unit XP and leveling system
-- Escalating zombie difficulty
-- Super zombie bosses (2×2 units)
-- Resource management and city building
-- Multiple unit classes with unique abilities
-- Cure victory condition
-- High score and leaderboard systems
-- Clickable mini-map
-- Save/load with exit protection
-- Building upgrades and terrain bonuses
