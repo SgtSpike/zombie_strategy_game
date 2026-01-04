@@ -44,6 +44,7 @@ class ZombieStrategyGame:
         self.load_menu_open = False
         self.menu_input_text = ""
         self.available_saves = []
+        self.save_list_scroll_offset = 0  # Scroll position for save file list
 
         # Game over state
         self.game_over = False
@@ -66,6 +67,12 @@ class ZombieStrategyGame:
         # Console message log
         self.message_log = []
         self.message_log_open = False
+
+        # Animation state for zombie movements
+        self.animating_zombies = False
+        self.zombie_animations = []  # List of (unit, start_x, start_y, end_x, end_y, progress)
+        self.animation_start_time = 0
+        self.animation_duration = 1.0  # 1 second per tile
 
         # Add welcome message
         self.log_message("Welcome to Zombie Apocalypse Strategy!")
@@ -185,7 +192,17 @@ class ZombieStrategyGame:
 
                 # End turn
                 elif event.key == pygame.K_e:
-                    self.game_state.end_turn()
+                    if self.game_state.current_team == 'player':
+                        # Player ending turn - switch to enemy and start animation
+                        self.game_state.current_team = 'enemy'
+                        for unit in self.game_state.units:
+                            if unit.team == 'enemy':
+                                unit.reset_moves()
+                        # Start zombie turn with animation
+                        self.start_zombie_turn_animated()
+                    else:
+                        # Enemy turn ending
+                        self.game_state.end_turn()
                     self.selected_unit = None
                     self.has_unsaved_changes = True  # Mark that changes have been made
 
@@ -319,64 +336,86 @@ class ZombieStrategyGame:
 
                 # Enter building placement mode
                 elif event.key == pygame.K_1:  # Farm
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot build during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'farm'
                         self.log_message("Select adjacent tile to place Farm (click tile or ESC to cancel)")
 
                 elif event.key == pygame.K_2:  # Workshop
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot build during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'workshop'
                         self.log_message("Select adjacent tile to place Workshop (click tile or ESC to cancel)")
 
                 elif event.key == pygame.K_3:  # Hospital
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot build during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'hospital'
                         self.log_message("Select adjacent tile to place Hospital (click tile or ESC to cancel)")
 
                 elif event.key == pygame.K_4:  # Wall
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot build during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'wall'
-                        self.log_message("Select adjacent tile to place Wall (click tile or ESC to cancel)")
+                        self.log_message("Select tile within 6 tiles (with LOS) to place Wall (click tile or ESC to cancel)")
 
                 elif event.key == pygame.K_5:  # Dock
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot build during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'dock'
                         self.log_message("Select water tile to place Dock (click tile or ESC to cancel)")
 
                 elif event.key == pygame.K_6:  # Recruit Survivor
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot recruit units during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'survivor'
                         self.log_message("Recruit Survivor unit at city location")
 
                 elif event.key == pygame.K_7:  # Recruit Scout
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot recruit units during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'scout'
                         self.log_message("Recruit Scout unit at city location")
 
                 elif event.key == pygame.K_8:  # Recruit Soldier
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot recruit units during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'soldier'
                         self.log_message("Recruit Soldier unit at city location")
 
                 elif event.key == pygame.K_9:  # Recruit Medic
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot recruit units during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'medic'
                         self.log_message("Recruit Medic unit at city location")
 
                 elif event.key == pygame.K_u:  # Upgrade building
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot upgrade buildings during enemy turn!")
+                    elif self.selected_city:
                         self.building_placement_mode = 'upgrade'
                         self.log_message("Click on a building to upgrade it (max level 3)")
 
                 elif event.key == pygame.K_c:  # Manufacture Cure
-                    if self.selected_city:
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot manufacture cure during enemy turn!")
+                    elif self.selected_city:
                         # Check if city has hospital and the cure
                         if 'hospital' in self.selected_city.buildings and self.selected_city.resources.get('cure', 0) > 0:
                             if self.selected_city.can_build('manufacture_cure'):
                                 self.building_placement_mode = 'manufacture_cure'
                                 self.log_message("🧪 Initiating cure manufacturing... Click city to confirm!")
                             else:
-                                self.log_message("Not enough resources! Need 1000 food, 1000 materials, and 1 cure.")
+                                self.log_message("Not enough resources! Need 1000 food, 1000 materials, 200 medicine, and 1 cure.")
                         else:
                             if 'hospital' not in self.selected_city.buildings:
                                 self.log_message("City needs a hospital to manufacture the cure!")
@@ -409,6 +448,7 @@ class ZombieStrategyGame:
                     self.save_menu_open = True
                     self.load_menu_open = False
                     self.menu_input_text = ""
+                    self.save_list_scroll_offset = 0
                     self.refresh_save_list()
 
                 # Load game (Ctrl+L) - Open load menu
@@ -416,7 +456,17 @@ class ZombieStrategyGame:
                     self.load_menu_open = True
                     self.save_menu_open = False
                     self.menu_input_text = ""
+                    self.save_list_scroll_offset = 0
                     self.refresh_save_list()
+
+            elif event.type == pygame.MOUSEWHEEL:
+                # Handle mouse wheel scrolling for save/load menus
+                if self.save_menu_open or self.load_menu_open:
+                    # event.y is positive for scroll up, negative for scroll down
+                    self.save_list_scroll_offset -= event.y
+                    # Clamp scroll offset to valid range
+                    max_scroll = max(0, len(self.available_saves) - 10)
+                    self.save_list_scroll_offset = max(0, min(self.save_list_scroll_offset, max_scroll))
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -545,12 +595,27 @@ class ZombieStrategyGame:
 
                                 self.building_placement_mode = None
                         else:
-                            # Regular building placement - requires adjacent tile
+                            # Regular building placement
                             from map_generator import TileType
                             dist = max(abs(tile_x - self.selected_city.x), abs(tile_y - self.selected_city.y))
-                            if dist == 1:  # Adjacent tile
+
+                            # Walls have special placement rules: up to 6 tiles with line-of-sight
+                            if building_type == 'wall':
+                                max_dist = 6
+                            else:
+                                max_dist = 1  # Adjacent tile for other buildings
+
+                            if dist <= max_dist:
+                                # For walls, check line-of-sight
+                                has_los = True
+                                if building_type == 'wall' and dist > 1:
+                                    has_los = self.game_state.visible[tile_y][tile_x]
+
+                                if not has_los:
+                                    self.log_message("Wall placement requires line-of-sight from city!")
+                                    self.building_placement_mode = None
                                 # Check if tile is not occupied
-                                if not self.game_state.get_unit_at(tile_x, tile_y) and \
+                                elif not self.game_state.get_unit_at(tile_x, tile_y) and \
                                    not self.game_state.get_city_at(tile_x, tile_y) and \
                                    not self.game_state.get_building_at(tile_x, tile_y):
 
@@ -584,7 +649,10 @@ class ZombieStrategyGame:
                                 else:
                                     self.log_message("Cannot build here - tile is occupied!")
                             else:
-                                self.log_message("Building must be adjacent to city!")
+                                if building_type == 'wall':
+                                    self.log_message("Wall must be within 6 tiles of city!")
+                                else:
+                                    self.log_message("Building must be adjacent to city!")
                                 self.building_placement_mode = None
                     else:
                         # Normal selection mode
@@ -692,10 +760,44 @@ class ZombieStrategyGame:
                                 if not self.selected_unit.can_move():
                                     self.auto_select_timer = self.auto_select_delay
 
+    def start_zombie_turn_animated(self):
+        """Start the animated zombie turn"""
+        self.animating_zombies = True
+        self.animation_start_time = pygame.time.get_ticks()
+        # Execute AI turn immediately, but we'll animate the display
+        self.game_state.execute_ai_turn()
+
     def update(self):
         """Update game logic"""
         # Get delta time for timer
         dt = self.clock.get_time() / 1000.0  # Convert to seconds
+
+        # Handle zombie animation
+        if self.animating_zombies:
+            elapsed = (pygame.time.get_ticks() - self.animation_start_time) / 1000.0
+            if elapsed >= self.animation_duration:
+                # Animation complete, end enemy turn
+                self.animating_zombies = False
+                # Now end enemy turn and start player turn
+                self.game_state.current_team = 'player'
+                self.game_state.turn += 1
+                # Reset player unit moves
+                for unit in self.game_state.units:
+                    if unit.team == 'player':
+                        unit.reset_moves()
+                # Autosave at the start of player's turn
+                self.game_state.autosave()
+                # Produce resources in all cities
+                for city in self.game_state.cities:
+                    production = city.produce_resources()
+                    if any(production.values()):
+                        prod_str = ', '.join([f"{k}: +{v}" for k, v in production.items() if v > 0])
+                        self.log_message(f"{city.name} produced: {prod_str}")
+                # Spawn new zombies
+                self.game_state.spawn_zombies()
+                # Update fog of war
+                self.game_state.update_visibility()
+            return  # Skip normal updates during animation
 
         # Update hovered tile based on mouse position
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -750,7 +852,10 @@ class ZombieStrategyGame:
         menu_y = 200
         list_y = menu_y + 120
 
-        for i, save_file in enumerate(self.available_saves[:10]):  # Show max 10 saves
+        # Calculate which saves are visible based on scroll offset
+        visible_saves = self.available_saves[self.save_list_scroll_offset:self.save_list_scroll_offset + 10]
+
+        for i, save_file in enumerate(visible_saves):
             file_y = list_y + i * 30
             if menu_x <= mouse_x <= menu_x + 500 and file_y <= mouse_y <= file_y + 25:
                 return save_file
@@ -857,13 +962,23 @@ class ZombieStrategyGame:
 
         # Existing saves list
         list_y = menu_y + 150
-        list_label = label_font.render("Existing saves (click to overwrite):", True, (200, 200, 200))
+        list_label_text = f"Existing saves (click to overwrite) - {len(self.available_saves)} total:"
+        list_label = label_font.render(list_label_text, True, (200, 200, 200))
         self.screen.blit(list_label, (menu_x + 20, list_y))
 
-        # Render save files
+        # Scroll indicator
+        if len(self.available_saves) > 10:
+            scroll_info_font = pygame.font.Font(None, 16)
+            scroll_text = f"Showing {self.save_list_scroll_offset + 1}-{min(self.save_list_scroll_offset + 10, len(self.available_saves))} (scroll with mouse wheel)"
+            scroll_surface = scroll_info_font.render(scroll_text, True, (150, 200, 255))
+            self.screen.blit(scroll_surface, (menu_x + 20, list_y + 22))
+
+        # Render save files with scrolling
         file_font = pygame.font.Font(None, 20)
-        for i, save_file in enumerate(self.available_saves[:10]):
-            file_y = list_y + 30 + i * 25
+        visible_saves = self.available_saves[self.save_list_scroll_offset:self.save_list_scroll_offset + 10]
+
+        for i, save_file in enumerate(visible_saves):
+            file_y = list_y + 45 + i * 25
             # Highlight on hover
             mouse_x, mouse_y = pygame.mouse.get_pos()
             if menu_x + 20 <= mouse_x <= menu_x + menu_width - 20 and file_y <= mouse_y <= file_y + 20:
@@ -917,17 +1032,27 @@ class ZombieStrategyGame:
 
         # Available saves list
         list_y = menu_y + 150
-        list_label = label_font.render("Available saves (click to load):", True, (200, 200, 200))
+        list_label_text = f"Available saves (click to load) - {len(self.available_saves)} total:"
+        list_label = label_font.render(list_label_text, True, (200, 200, 200))
         self.screen.blit(list_label, (menu_x + 20, list_y))
 
-        # Render save files
+        # Scroll indicator
+        if len(self.available_saves) > 10:
+            scroll_info_font = pygame.font.Font(None, 16)
+            scroll_text = f"Showing {self.save_list_scroll_offset + 1}-{min(self.save_list_scroll_offset + 10, len(self.available_saves))} (scroll with mouse wheel)"
+            scroll_surface = scroll_info_font.render(scroll_text, True, (150, 200, 255))
+            self.screen.blit(scroll_surface, (menu_x + 20, list_y + 22))
+
+        # Render save files with scrolling
         file_font = pygame.font.Font(None, 20)
         if not self.available_saves:
             no_saves = file_font.render("No save files found", True, (150, 150, 150))
-            self.screen.blit(no_saves, (menu_x + 30, list_y + 35))
+            self.screen.blit(no_saves, (menu_x + 30, list_y + 50))
         else:
-            for i, save_file in enumerate(self.available_saves[:10]):
-                file_y = list_y + 30 + i * 25
+            visible_saves = self.available_saves[self.save_list_scroll_offset:self.save_list_scroll_offset + 10]
+
+            for i, save_file in enumerate(visible_saves):
+                file_y = list_y + 45 + i * 25
                 # Highlight on hover
                 mouse_x, mouse_y = pygame.mouse.get_pos()
                 if menu_x + 20 <= mouse_x <= menu_x + menu_width - 20 and file_y <= mouse_y <= file_y + 20:

@@ -57,6 +57,9 @@ class Unit:
         # Track tiles explored by this unit (for scout XP)
         self.tiles_explored = set()
 
+        # Track age for zombie leveling (zombies level up over time)
+        self.age_in_turns = 0  # How many turns this unit has been alive
+
     def reset_moves(self):
         """Reset movement points at start of turn"""
         self.moves_remaining = self.max_moves
@@ -104,6 +107,37 @@ class Unit:
 
         return leveled_up
 
+    def zombie_age_level_up(self):
+        """Level up zombie based on age (for enemy zombies only)"""
+        if self.team != 'enemy' or self.unit_type not in ['zombie', 'super_zombie']:
+            return False
+
+        leveled_up = False
+        target_level = 1
+
+        # Determine target level based on age
+        if self.age_in_turns >= 75:
+            target_level = 4
+        elif self.age_in_turns >= 50:
+            target_level = 3
+        elif self.age_in_turns >= 25:
+            target_level = 2
+
+        # Level up if needed
+        while self.level < target_level:
+            self.level += 1
+            leveled_up = True
+
+            # Increase stats on level up (same as XP leveling)
+            hp_boost = int(self.max_health * 0.1)
+            attack_boost = int(self.attack_power * 0.1) + 1
+
+            self.max_health += hp_boost
+            self.health += hp_boost  # Also heal when leveling up
+            self.attack_power += attack_boost
+
+        return leveled_up
+
 class City:
     def __init__(self, x, y, name):
         self.x = x
@@ -123,13 +157,13 @@ class City:
             'farm': {'materials': 30},
             'workshop': {'materials': 50},
             'hospital': {'materials': 40},
-            'wall': {'materials': 25},
+            'wall': {'materials': 10},
             'dock': {'materials': 40},
             'survivor': {'food': 20, 'materials': 10},
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
             'medic': {'food': 25, 'materials': 15, 'medicine': 10},
-            'manufacture_cure': {'food': 1000, 'materials': 1000, 'cure': 1}
+            'manufacture_cure': {'food': 1000, 'materials': 1000, 'medicine': 200, 'cure': 1}
         }
 
         # Special requirement: can only manufacture cure if city has a hospital
@@ -152,13 +186,13 @@ class City:
             'farm': {'materials': 30},
             'workshop': {'materials': 50},
             'hospital': {'materials': 40},
-            'wall': {'materials': 25},
+            'wall': {'materials': 10},
             'dock': {'materials': 40},
             'survivor': {'food': 20, 'materials': 10},
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
             'medic': {'food': 25, 'materials': 15, 'medicine': 10},
-            'manufacture_cure': {'food': 1000, 'materials': 1000, 'cure': 1}
+            'manufacture_cure': {'food': 1000, 'materials': 1000, 'medicine': 200, 'cure': 1}
         }
 
         if self.can_build(building_type):
@@ -175,12 +209,14 @@ class City:
                 return 'cure_manufactured'
             else:
                 self.buildings.append(building_type)
+                # Walls have 200 HP, other buildings have 20 HP
+                health = 200 if building_type == 'wall' else 20
                 self.building_locations[(tile_x, tile_y)] = {
                     'type': building_type,
                     'terrain': terrain_type,
                     'level': 1,
-                    'health': 20,
-                    'max_health': 20
+                    'health': health,
+                    'max_health': health
                 }
 
                 # If building a wall at city location, double city HP
@@ -340,9 +376,10 @@ class GameState:
         for i in range(3):
             survivor = Unit(5 + i, 5, 'survivor', 'player')
             # Give each survivor some starting resources
-            survivor.inventory['food'] = 15
-            survivor.inventory['materials'] = 30
-            survivor.inventory['medicine'] = 3
+            # Medicine cannot be found - must be produced by hospitals
+            survivor.inventory['food'] = 20
+            survivor.inventory['materials'] = 40
+            survivor.inventory['medicine'] = 0
             self.units.append(survivor)
 
         # Spawn some zombies scattered around
@@ -552,6 +589,9 @@ class GameState:
                 if unit.team == 'player':
                     unit.reset_moves()
 
+            # Autosave at the start of player's turn
+            self.autosave()
+
             # Produce resources in all cities at the start of player's turn
             for city in self.cities:
                 production = city.produce_resources()
@@ -585,9 +625,166 @@ class GameState:
 
         return visible_player_units
 
+    def collect_zombie_movements(self):
+        """Collect zombie movements for animation without executing them
+        Returns a list of (unit, old_x, old_y, new_x, new_y, action_type, action_data)"""
+        import random
+
+        movements = []
+
+        # Age all zombies and check for level-ups (instant, no animation needed)
+        for unit in self.units:
+            if unit.team == 'enemy' and (unit.unit_type == 'zombie' or unit.unit_type == 'super_zombie'):
+                unit.age_in_turns += 1
+                if unit.zombie_age_level_up():
+                    print(f"🧟 {unit.unit_type} leveled up to level {unit.level}! (Age: {unit.age_in_turns} turns)")
+
+        # Get shared visible targets (zombies share vision network)
+        visible_player_units = self.get_ai_visible_targets()
+
+        # Calculate map center for wandering behavior
+        map_center_x = len(self.map_grid[0]) // 2
+        map_center_y = len(self.map_grid) // 2
+
+        # Collect all movements for each zombie
+        for unit in self.units[:]:  # Use slice to avoid modification during iteration
+            if unit.team == 'enemy' and (unit.unit_type == 'zombie' or unit.unit_type == 'super_zombie'):
+                while unit.can_move():
+                    old_x, old_y = unit.x, unit.y
+                    movement = self._calculate_single_zombie_move(unit, visible_player_units, map_center_x, map_center_y)
+                    if movement:
+                        movements.append(movement)
+                    else:
+                        break  # No valid move found
+
+        return movements
+
+    def _calculate_single_zombie_move(self, unit, visible_player_units, map_center_x, map_center_y):
+        """Calculate a single zombie move and return movement data
+        Returns (unit, old_x, old_y, new_x, new_y, action_type, action_data) or None"""
+        import random
+
+        old_x, old_y = unit.x, unit.y
+        targets = []
+
+        # Add visible player units as targets (fog of war)
+        for pu in visible_player_units:
+            targets.append(('unit', pu, abs(pu.x - unit.x) + abs(pu.y - unit.y)))
+
+        # Add cities as targets (permanent knowledge)
+        for city in self.cities:
+            targets.append(('city', city, abs(city.x - unit.x) + abs(city.y - unit.y)))
+
+        # Add buildings as targets (permanent knowledge)
+        # Walls are deprioritized with a large distance penalty
+        for city in self.cities:
+            for (bx, by), building in city.building_locations.items():
+                distance = abs(bx - unit.x) + abs(by - unit.y)
+                # Add large penalty to walls so they're only targeted if nothing else is available
+                if building['type'] == 'wall':
+                    distance += 1000
+                targets.append(('building', (city, bx, by, building), distance))
+
+        if targets:
+            # Find nearest target (walls will have +1000 distance penalty)
+            target_type, target_data, _ = min(targets, key=lambda t: t[2])
+
+            if target_type == 'unit':
+                target_x, target_y = target_data.x, target_data.y
+            elif target_type == 'city':
+                target_x, target_y = target_data.x, target_data.y
+            else:  # building
+                _, target_x, target_y, _ = target_data
+
+            # Calculate preferred direction toward target
+            dx = 1 if target_x > unit.x else -1 if target_x < unit.x else 0
+            dy = 1 if target_y > unit.y else -1 if target_y < unit.y else 0
+
+            # Random movement if same position
+            if dx == 0 and dy == 0:
+                dx = random.choice([-1, 0, 1])
+                dy = random.choice([-1, 0, 1])
+
+            # Try primary direction first, then perpendicular directions if blocked by friendly
+            move_options = []
+
+            if dx != 0 and dy != 0:
+                move_options = [(dx, dy), (dx, 0), (0, dy)]
+            elif dx != 0:
+                move_options = [(dx, 0), (dx, 1), (dx, -1)]
+            elif dy != 0:
+                move_options = [(0, dy), (1, dy), (-1, dy)]
+            else:
+                move_options = [(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))]
+
+            # Try each move option
+            for try_dx, try_dy in move_options:
+                if try_dx == 0 and try_dy == 0:
+                    continue
+
+                new_x = unit.x + try_dx
+                new_y = unit.y + try_dy
+
+                # Check bounds
+                unit_size = getattr(unit, 'size', 1)
+                bounds_ok = True
+                if unit_size > 1:
+                    for sy in range(unit_size):
+                        for sx in range(unit_size):
+                            if not (0 <= new_x + sx < len(self.map_grid[0]) and
+                                   0 <= new_y + sy < len(self.map_grid)):
+                                bounds_ok = False
+                                break
+                        if not bounds_ok:
+                            break
+                else:
+                    bounds_ok = (0 <= new_x < len(self.map_grid[0]) and
+                                0 <= new_y < len(self.map_grid))
+
+                if not bounds_ok:
+                    continue
+
+                # Check what's at the target position
+                if unit_size > 1:
+                    target_unit, target_city, target_building = self.check_collision_for_multitile_unit(unit, new_x, new_y)
+                else:
+                    target_unit = self.get_unit_at(new_x, new_y, exclude_unit=unit)
+                    target_city = self.get_city_at(new_x, new_y)
+                    target_building = self.get_building_at(new_x, new_y)
+
+                if target_unit and target_unit.team != unit.team:
+                    # Return attack action
+                    return (unit, old_x, old_y, new_x, new_y, 'attack_unit', target_unit)
+                elif target_city:
+                    # Return attack city action
+                    return (unit, old_x, old_y, new_x, new_y, 'attack_city', target_city)
+                elif target_building:
+                    # Check if there's a player unit on this building (prioritize unit)
+                    unit_on_building = self.get_unit_at(new_x, new_y, exclude_unit=unit)
+                    if unit_on_building and unit_on_building.team == 'player':
+                        return (unit, old_x, old_y, new_x, new_y, 'attack_unit_on_building', (unit_on_building, target_building))
+                    else:
+                        return (unit, old_x, old_y, new_x, new_y, 'attack_building', target_building)
+                elif not target_unit:
+                    # Check if target is a wall (impassable to zombies)
+                    if target_building and target_building['type'] == 'wall':
+                        continue
+                    # Return move action
+                    terrain = self.map_grid[new_y][new_x]
+                    return (unit, old_x, old_y, new_x, new_y, 'move', terrain)
+
+        return None  # No valid move found
+
     def execute_ai_turn(self):
         """AI for zombie movement with fog of war"""
         import random
+
+        # Age all zombies and check for level-ups
+        for unit in self.units:
+            if unit.team == 'enemy' and (unit.unit_type == 'zombie' or unit.unit_type == 'super_zombie'):
+                unit.age_in_turns += 1
+                if unit.zombie_age_level_up():
+                    print(f"🧟 {unit.unit_type} leveled up to level {unit.level}! (Age: {unit.age_in_turns} turns)")
 
         # Get shared visible targets (zombies share vision network)
         visible_player_units = self.get_ai_visible_targets()
@@ -610,12 +807,17 @@ class GameState:
                         targets.append(('city', city, abs(city.x - unit.x) + abs(city.y - unit.y)))
 
                     # Add buildings as targets (permanent knowledge)
+                    # Walls are deprioritized with a large distance penalty
                     for city in self.cities:
                         for (bx, by), building in city.building_locations.items():
-                            targets.append(('building', (city, bx, by, building), abs(bx - unit.x) + abs(by - unit.y)))
+                            distance = abs(bx - unit.x) + abs(by - unit.y)
+                            # Add large penalty to walls so they're only targeted if nothing else is available
+                            if building['type'] == 'wall':
+                                distance += 1000
+                            targets.append(('building', (city, bx, by, building), distance))
 
                     if targets:
-                        # Find nearest target
+                        # Find nearest target (walls will have +1000 distance penalty)
                         target_type, target_data, _ = min(targets, key=lambda t: t[2])
 
                         if target_type == 'unit':
@@ -625,6 +827,7 @@ class GameState:
                         else:  # building
                             _, target_x, target_y, _ = target_data
 
+                        # Calculate preferred direction toward target
                         dx = 1 if target_x > unit.x else -1 if target_x < unit.x else 0
                         dy = 1 if target_y > unit.y else -1 if target_y < unit.y else 0
 
@@ -633,27 +836,51 @@ class GameState:
                             dx = random.choice([-1, 0, 1])
                             dy = random.choice([-1, 0, 1])
 
-                        new_x = unit.x + dx
-                        new_y = unit.y + dy
+                        # Try primary direction first, then perpendicular directions if blocked by friendly
+                        # This prevents zombies from bunching in single file lines
+                        move_options = []
 
-                        # Check bounds (for multi-tile units, check all tiles)
-                        unit_size = getattr(unit, 'size', 1)
-                        bounds_ok = True
-                        if unit_size > 1:
-                            # Check all tiles the unit would occupy
-                            for sy in range(unit_size):
-                                for sx in range(unit_size):
-                                    if not (0 <= new_x + sx < len(self.map_grid[0]) and
-                                           0 <= new_y + sy < len(self.map_grid)):
-                                        bounds_ok = False
-                                        break
-                                if not bounds_ok:
-                                    break
+                        # Primary diagonal move
+                        if dx != 0 and dy != 0:
+                            move_options = [(dx, dy), (dx, 0), (0, dy)]
+                        # Primary horizontal move
+                        elif dx != 0:
+                            move_options = [(dx, 0), (dx, 1), (dx, -1)]
+                        # Primary vertical move
+                        elif dy != 0:
+                            move_options = [(0, dy), (1, dy), (-1, dy)]
                         else:
-                            bounds_ok = (0 <= new_x < len(self.map_grid[0]) and
-                                        0 <= new_y < len(self.map_grid))
+                            move_options = [(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))]
 
-                        if bounds_ok:
+                        # Try each move option until we find a valid one
+                        moved = False
+                        for try_dx, try_dy in move_options:
+                            if try_dx == 0 and try_dy == 0:
+                                continue
+
+                            new_x = unit.x + try_dx
+                            new_y = unit.y + try_dy
+
+                            # Check bounds (for multi-tile units, check all tiles)
+                            unit_size = getattr(unit, 'size', 1)
+                            bounds_ok = True
+                            if unit_size > 1:
+                                # Check all tiles the unit would occupy
+                                for sy in range(unit_size):
+                                    for sx in range(unit_size):
+                                        if not (0 <= new_x + sx < len(self.map_grid[0]) and
+                                               0 <= new_y + sy < len(self.map_grid)):
+                                            bounds_ok = False
+                                            break
+                                    if not bounds_ok:
+                                        break
+                            else:
+                                bounds_ok = (0 <= new_x < len(self.map_grid[0]) and
+                                            0 <= new_y < len(self.map_grid))
+
+                            if not bounds_ok:
+                                continue  # Try next move option
+
                             # Check what's at the target position (for multi-tile units, check ALL tiles)
                             if unit_size > 1:
                                 target_unit, target_city, target_building = self.check_collision_for_multitile_unit(unit, new_x, new_y)
@@ -674,6 +901,8 @@ class GameState:
                                     print(f"{target_unit.unit_type} was killed by zombie!")
                                     self.update_visibility()
                                 unit.moves_remaining -= 1
+                                moved = True
+                                break
                             elif target_city:
                                 # Attack the city
                                 target_city.health -= unit.attack_power
@@ -683,78 +912,52 @@ class GameState:
                                     self.cities.remove(target_city)
                                     self.update_visibility()
                                 unit.moves_remaining -= 1
+                                moved = True
+                                break
                             elif target_building:
-                                # Attack the building
-                                target_building['health'] -= unit.attack_power
-                                print(f"Zombie attacks {target_building['type']}! Building Health: {target_building['health']}/{target_building['max_health']}")
-                                if target_building['health'] <= 0:
-                                    print(f"{target_building['type']} has been destroyed by zombies!")
-                                    # Find and remove the building
-                                    for city in self.cities:
-                                        if (new_x, new_y) in city.building_locations:
-                                            del city.building_locations[(new_x, new_y)]
-                                            if target_building['type'] in city.buildings:
-                                                city.buildings.remove(target_building['type'])
-                                            break
+                                # Check if there's a player unit on this building (prioritize unit)
+                                unit_on_building = self.get_unit_at(new_x, new_y, exclude_unit=unit)
+                                if unit_on_building and unit_on_building.team == 'player':
+                                    # Attack the unit instead of the building
+                                    unit_on_building.health -= unit.attack_power
+                                    print(f"Zombie attacks {unit_on_building.unit_type} on {target_building['type']}! Health: {unit_on_building.health}")
+                                    if unit_on_building.health <= 0:
+                                        # Drop inventory before removing unit
+                                        self.drop_unit_inventory(unit_on_building)
+                                        self.units.remove(unit_on_building)
+                                        print(f"{unit_on_building.unit_type} was killed by zombie!")
+                                        self.update_visibility()
+                                else:
+                                    # Attack the building
+                                    target_building['health'] -= unit.attack_power
+                                    print(f"Zombie attacks {target_building['type']}! Building Health: {target_building['health']}/{target_building['max_health']}")
+                                    if target_building['health'] <= 0:
+                                        print(f"{target_building['type']} has been destroyed by zombies!")
+                                        # Find and remove the building
+                                        for city in self.cities:
+                                            if (new_x, new_y) in city.building_locations:
+                                                del city.building_locations[(new_x, new_y)]
+                                                if target_building['type'] in city.buildings:
+                                                    city.buildings.remove(target_building['type'])
+                                                break
                                 unit.moves_remaining -= 1
+                                moved = True
+                                break
                             elif not target_unit:
+                                # Check if target is a wall (impassable to zombies)
+                                if target_building and target_building['type'] == 'wall':
+                                    # Walls are impassable to zombies, try next move option
+                                    continue
                                 # Move to empty tile
                                 terrain = self.map_grid[new_y][new_x]
-                                unit.move(dx, dy, terrain)
-                            else:
-                                # Blocked by friendly unit, stop moving
+                                unit.move(try_dx, try_dy, terrain)
+                                moved = True
                                 break
-                        else:
-                            # Out of bounds, try random movement instead
-                            # This helps super zombies at edges find valid moves
-                            attempts = 0
-                            moved = False
-                            while attempts < 8 and not moved:
-                                dx = random.choice([-1, 0, 1])
-                                dy = random.choice([-1, 0, 1])
-                                if dx == 0 and dy == 0:
-                                    attempts += 1
-                                    continue
+                            # else: blocked by friendly unit, try next move option
 
-                                new_x = unit.x + dx
-                                new_y = unit.y + dy
-
-                                # Check bounds for this random direction
-                                bounds_ok = True
-                                if unit_size > 1:
-                                    for sy in range(unit_size):
-                                        for sx in range(unit_size):
-                                            if not (0 <= new_x + sx < len(self.map_grid[0]) and
-                                                   0 <= new_y + sy < len(self.map_grid)):
-                                                bounds_ok = False
-                                                break
-                                        if not bounds_ok:
-                                            break
-                                else:
-                                    bounds_ok = (0 <= new_x < len(self.map_grid[0]) and
-                                                0 <= new_y < len(self.map_grid))
-
-                                if bounds_ok:
-                                    # Check if path is clear (for multi-tile units, check ALL tiles)
-                                    if unit_size > 1:
-                                        target_unit, target_city, target_building = self.check_collision_for_multitile_unit(unit, new_x, new_y)
-                                    else:
-                                        target_unit = self.get_unit_at(new_x, new_y, exclude_unit=unit)
-                                        target_city = self.get_city_at(new_x, new_y)
-                                        target_building = self.get_building_at(new_x, new_y)
-
-                                    if not target_unit or target_unit.team != unit.team:
-                                        if not target_unit and not target_city and not target_building:
-                                            # Move to empty tile
-                                            terrain = self.map_grid[new_y][new_x]
-                                            unit.move(dx, dy, terrain)
-                                            moved = True
-
-                                attempts += 1
-
-                            # If we couldn't find a valid move, stop trying
-                            if not moved:
-                                break
+                        # If no valid move found after trying all options, stop
+                        if not moved:
+                            break
                     else:
                         # No targets visible - wander randomly toward map center
                         # Calculate direction toward center with random variation
@@ -808,7 +1011,11 @@ class GameState:
                                 target_city = self.get_city_at(new_x, new_y)
                                 target_building = self.get_building_at(new_x, new_y)
 
-                            if not target_unit and not target_city and not target_building:
+                            if not target_unit and not target_city:
+                                # Check if it's a wall (impassable to zombies)
+                                if target_building and target_building['type'] == 'wall':
+                                    # Walls are impassable, stop moving
+                                    break
                                 # Move to empty tile
                                 terrain = self.map_grid[new_y][new_x]
                                 unit.move(dx, dy, terrain)
@@ -926,6 +1133,11 @@ class GameState:
 
         return total
 
+    def autosave(self):
+        """Automatically save the game to a single autosave file"""
+        # Always use the same filename for autosave
+        self.save_game('autosave.json')
+
     def save_game(self, filename='savegame.json'):
         """Save the game state to a JSON file"""
         from map_generator import TileType
@@ -984,7 +1196,9 @@ class GameState:
         with open(filepath, 'w') as f:
             json.dump(save_data, f, indent=2)
 
-        print(f"Game saved to {filepath}")
+        # Only print message if it's not an autosave
+        if filename != 'autosave.json':
+            print(f"Game saved to {filepath}")
         return filepath
 
     @staticmethod

@@ -131,19 +131,20 @@ class MapGenerator:
                 tile = map_grid[y][x]
 
                 # Buildings have higher chance of resources
+                # Medicine is not found on the map - must be produced by hospitals
                 if tile == TileType.BUILDING_RUINED:
                     if random.random() < 0.6:
                         resources[(x, y)] = {
-                            'food': random.randint(5, 15),
-                            'materials': random.randint(10, 25),
-                            'medicine': random.randint(0, 5)
+                            'food': random.randint(8, 20),
+                            'materials': random.randint(15, 35),
+                            'medicine': 0
                         }
                 elif tile == TileType.BUILDING_INTACT:
                     if random.random() < 0.8:
                         resources[(x, y)] = {
-                            'food': random.randint(10, 30),
-                            'materials': random.randint(15, 35),
-                            'medicine': random.randint(2, 10)
+                            'food': random.randint(15, 40),
+                            'materials': random.randint(20, 45),
+                            'medicine': 0
                         }
 
         return resources

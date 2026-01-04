@@ -410,6 +410,37 @@ class Renderer:
                                      (x + self.tile_size - 6, y + 6),
                                      4)
 
+                # Draw level indicator for all units with level > 1
+                if unit.level > 1:
+                    # Choose position based on unit size
+                    if unit_size == 1:
+                        level_x = x + 4
+                        level_y = y + 4
+                        font_size = 16
+                    else:
+                        # For 2x2 units, position in top-left
+                        level_x = x + 6
+                        level_y = y + 6
+                        font_size = 24
+
+                    # Background circle for visibility
+                    circle_radius = 10 if unit_size == 1 else 15
+                    pygame.draw.circle(screen, (0, 0, 0), (level_x + 8, level_y + 8), circle_radius)
+
+                    # Level number with color coding
+                    level_font = pygame.font.Font(None, font_size)
+                    # Color based on level: white (2), yellow (3), orange (4+)
+                    if unit.level == 2:
+                        level_color = (255, 255, 255)  # White
+                    elif unit.level == 3:
+                        level_color = (255, 255, 0)  # Yellow
+                    else:
+                        level_color = (255, 128, 0)  # Orange
+
+                    level_text = level_font.render(str(unit.level), True, level_color)
+                    level_rect = level_text.get_rect(center=(level_x + 8, level_y + 8))
+                    screen.blit(level_text, level_rect)
+
         # Render UI
         self.render_ui(screen, game_state, selected_unit, selected_city, selected_tile, hovered_tile, building_placement_mode)
 
@@ -567,35 +598,66 @@ class Renderer:
         """Render UI elements"""
         font = pygame.font.Font(None, 24)
 
+        # Prominent turn indicator with colored background
+        turn_panel_width = 350
+        turn_panel_height = 60
+        turn_panel_x = 10
+        turn_panel_y = 10
+
+        # Different colors for player and enemy turns
+        if game_state.current_team == 'player':
+            bg_color = (20, 60, 20)  # Dark green for player
+            border_color = (50, 200, 50)  # Bright green
+            text_color = (100, 255, 100)  # Light green
+        else:
+            bg_color = (60, 20, 20)  # Dark red for enemy
+            border_color = (200, 50, 50)  # Bright red
+            text_color = (255, 100, 100)  # Light red
+
+        # Draw turn panel
+        pygame.draw.rect(screen, bg_color, (turn_panel_x, turn_panel_y, turn_panel_width, turn_panel_height))
+        pygame.draw.rect(screen, border_color, (turn_panel_x, turn_panel_y, turn_panel_width, turn_panel_height), 3)
+
         # Turn counter and zombie count
         zombie_count = len([u for u in game_state.units if u.team == 'enemy' and u.unit_type == 'zombie'])
-        turn_text = font.render(f"Turn: {game_state.turn} | {game_state.current_team.upper()} | Zombies: {zombie_count}", True, (255, 255, 255))
-        screen.blit(turn_text, (10, 10))
 
-        # Total resources across all units and cities
+        # Large, prominent turn indicator
+        turn_font = pygame.font.Font(None, 32)
+        turn_text = turn_font.render(f"{game_state.current_team.upper()} TURN", True, text_color)
+        screen.blit(turn_text, (turn_panel_x + 10, turn_panel_y + 8))
+
+        # Turn number and zombie count below
+        info_font = pygame.font.Font(None, 20)
+        info_text = info_font.render(f"Turn {game_state.turn} | {zombie_count} Zombies", True, (220, 220, 220))
+        screen.blit(info_text, (turn_panel_x + 10, turn_panel_y + 38))
+
+        # Total resources across all units and cities (positioned to the right of turn panel)
         total_resources = game_state.get_total_resources()
         resources_text = f"Total Resources - Food: {total_resources['food']} | Materials: {total_resources['materials']} | Medicine: {total_resources['medicine']} | Cure: {total_resources.get('cure', 0)}"
         res_surface = font.render(resources_text, True, (255, 255, 255))
-        screen.blit(res_surface, (10, 40))
+        screen.blit(res_surface, (turn_panel_x + turn_panel_width + 20, turn_panel_y + 20))  # To the right of turn panel
 
-        # Selected unit info
+        # Selected unit info (positioned higher to avoid overlap with instructions)
         if selected_unit:
+            # Unit info - properly spaced to avoid overlaps
+            # Instructions can go up to screen_height - 136 (3 lines at -100, -118, -136)
+            # So unit info needs to end before that, leaving at least 10px gap
             info_text = f"Unit: {selected_unit.unit_type} | HP: {selected_unit.health}/{selected_unit.max_health} | Attack: {selected_unit.attack_power} | Moves: {selected_unit.moves_remaining}/{selected_unit.max_moves}"
             info_surface = font.render(info_text, True, (255, 255, 255))
-            screen.blit(info_surface, (10, self.screen_height - 95))
+            screen.blit(info_surface, (10, self.screen_height - 215))
 
-            # Unit level and XP
+            # Unit level and XP - 25px spacing from above
             xp_text = f"Level: {selected_unit.level} | XP: {selected_unit.xp}/{selected_unit.xp_to_next_level}"
             xp_surface = font.render(xp_text, True, (255, 215, 0))
-            screen.blit(xp_surface, (10, self.screen_height - 70))
+            screen.blit(xp_surface, (10, self.screen_height - 190))
 
-            # Unit inventory
+            # Unit inventory - 25px spacing from above
             cure_count = selected_unit.inventory.get('cure', 0)
             inv_text = f"Carrying - Food: {selected_unit.inventory['food']} | Materials: {selected_unit.inventory['materials']} | Med: {selected_unit.inventory['medicine']} | Cure: {cure_count}"
             # Highlight cure in gold if carrying it
             inv_color = (255, 215, 0) if cure_count > 0 else (200, 200, 255)
             inv_surface = font.render(inv_text, True, inv_color)
-            screen.blit(inv_surface, (10, self.screen_height - 40))
+            screen.blit(inv_surface, (10, self.screen_height - 165))
 
         # Selected city info and building menu
         if selected_city:
