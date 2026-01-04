@@ -97,7 +97,7 @@ class Renderer:
 
         return sprites
 
-    def render(self, screen, game_state, selected_unit=None, selected_city=None, selected_tile=None, hovered_tile=None, building_placement_mode=None, debug_reveal_map=False):
+    def render(self, screen, game_state, selected_unit=None, selected_city=None, selected_tile=None, hovered_tile=None, building_placement_mode=None, debug_reveal_map=False, game_instance=None):
         """Render the game world"""
         screen.fill((0, 0, 0))
 
@@ -338,8 +338,14 @@ class Renderer:
                         break
 
             if is_visible:
-                x = unit.x * self.tile_size - self.camera_x
-                y = unit.y * self.tile_size - self.camera_y
+                # Get render position (handles animation if active)
+                if game_instance:
+                    render_x, render_y = game_instance.get_unit_render_position(unit)
+                else:
+                    render_x, render_y = unit.x, unit.y
+
+                x = render_x * self.tile_size - self.camera_x
+                y = render_y * self.tile_size - self.camera_y
 
                 # Determine size of unit
                 unit_size = getattr(unit, 'size', 1)
@@ -700,7 +706,7 @@ class Renderer:
                 ("1: Farm", "30 mat (place on tile)"),
                 ("2: Workshop", "50 mat (place on tile)"),
                 ("3: Hospital", "40 mat (place on tile)"),
-                ("4: Wall", "25 mat (place on tile)"),
+                ("4: Wall", "10 mat (place on tile)"),
                 ("5: Dock", "40 mat (place on water)"),
                 ("6: Survivor", "20 food, 10 mat"),
                 ("7: Scout", "15 food, 5 mat (fast)"),
@@ -711,7 +717,7 @@ class Renderer:
 
             # Add cure manufacturing option if city has hospital and the cure
             if selected_city and 'hospital' in selected_city.buildings and selected_city.resources.get('cure', 0) > 0:
-                buildings.append(("C: MANUFACTURE CURE", "1000 food, 1000 mat, 1 cure"))
+                buildings.append(("C: MANUFACTURE CURE", "500 food, 500 mat, 200 med, 1 cure"))
 
             option_font = pygame.font.Font(None, 16)
             for i, (name, cost) in enumerate(buildings):

@@ -163,7 +163,7 @@ class City:
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
             'medic': {'food': 25, 'materials': 15, 'medicine': 10},
-            'manufacture_cure': {'food': 1000, 'materials': 1000, 'medicine': 200, 'cure': 1}
+            'manufacture_cure': {'food': 500, 'materials': 500, 'medicine': 200, 'cure': 1}
         }
 
         # Special requirement: can only manufacture cure if city has a hospital
@@ -192,7 +192,7 @@ class City:
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
             'medic': {'food': 25, 'materials': 15, 'medicine': 10},
-            'manufacture_cure': {'food': 1000, 'materials': 1000, 'medicine': 200, 'cure': 1}
+            'manufacture_cure': {'food': 500, 'materials': 500, 'medicine': 200, 'cure': 1}
         }
 
         if self.can_build(building_type):

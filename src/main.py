@@ -1,5 +1,6 @@
 import pygame
 import sys
+import math
 from map_generator import MapGenerator
 from game_state import GameState, Unit
 from renderer import Renderer
@@ -70,9 +71,11 @@ class ZombieStrategyGame:
 
         # Animation state for zombie movements
         self.animating_zombies = False
-        self.zombie_animations = []  # List of (unit, start_x, start_y, end_x, end_y, progress)
+        self.zombie_animations = {}  # Dict: unit -> {'type': 'move'/'attack', 'start': (x,y), 'end': (x,y), 'attack_count': int}
         self.animation_start_time = 0
-        self.animation_duration = 1.0  # 1 second per tile
+        self.animation_duration = 1.0  # 1 second total for all movements
+        self.zombie_positions_snapshot = {}  # Dict: unit -> (x, y) before AI turn
+        self.zombie_action_log = {}  # Dict: unit -> list of actions taken during turn
 
         # Add welcome message
         self.log_message("Welcome to Zombie Apocalypse Strategy!")
@@ -762,10 +765,167 @@ class ZombieStrategyGame:
 
     def start_zombie_turn_animated(self):
         """Start the animated zombie turn"""
+        # Capture all zombie positions and moves before AI turn
+        self.zombie_positions_snapshot = {}
+        self.zombie_action_log = {}
+
+        for unit in self.game_state.units:
+            if unit.team == 'enemy' and (unit.unit_type == 'zombie' or unit.unit_type == 'super_zombie'):
+                self.zombie_positions_snapshot[unit] = (unit.x, unit.y)
+                # Track initial moves to count attacks
+                self.zombie_action_log[unit] = {'start_moves': unit.max_moves, 'actions': []}
+
+        # Execute AI turn - zombies will move to new positions
+        self.game_state.execute_ai_turn()
+
+        # Build animation dict with start and end positions, and count actions
+        self.zombie_animations = {}
+        for unit in self.game_state.units:
+            if unit.team == 'enemy' and (unit.unit_type == 'zombie' or unit.unit_type == 'super_zombie'):
+                if unit in self.zombie_positions_snapshot:
+                    start_x, start_y = self.zombie_positions_snapshot[unit]
+                    end_x, end_y = unit.x, unit.y
+
+                    # Calculate how many moves were used
+                    if unit in self.zombie_action_log:
+                        moves_used = self.zombie_action_log[unit]['start_moves'] - unit.moves_remaining
+                    else:
+                        moves_used = 0
+
+                    # Calculate distance moved (Chebyshev distance)
+                    distance_moved = max(abs(end_x - start_x), abs(end_y - start_y))
+
+                    # If moves used exceeds distance moved, zombie attacked
+                    attacks_made = max(0, moves_used - distance_moved)
+
+                    # Determine animation type
+                    if distance_moved > 0 and attacks_made == 0:
+                        # Pure movement - show moving to final position
+                        self.zombie_animations[unit] = {
+                            'type': 'move',
+                            'start': (start_x, start_y),
+                            'end': (end_x, end_y),
+                            'attack_count': 0
+                        }
+                    elif distance_moved > 0 and attacks_made > 0:
+                        # Moved and attacked - show move then attack from final position
+                        attack_target = self._find_nearest_target_for_attack_animation(unit)
+                        if attack_target:
+                            self.zombie_animations[unit] = {
+                                'type': 'move_attack',
+                                'start': (start_x, start_y),
+                                'end': (end_x, end_y),
+                                'attack_target': attack_target,
+                                'attack_count': attacks_made
+                            }
+                        else:
+                            # No target found, just show movement
+                            self.zombie_animations[unit] = {
+                                'type': 'move',
+                                'start': (start_x, start_y),
+                                'end': (end_x, end_y),
+                                'attack_count': 0
+                            }
+                    elif distance_moved == 0 and attacks_made > 0:
+                        # Pure attack - no movement
+                        attack_target = self._find_nearest_target_for_attack_animation(unit)
+                        if attack_target:
+                            self.zombie_animations[unit] = {
+                                'type': 'attack',
+                                'start': (end_x, end_y),
+                                'end': attack_target,
+                                'attack_count': attacks_made
+                            }
+
+        # Start animation
         self.animating_zombies = True
         self.animation_start_time = pygame.time.get_ticks()
-        # Execute AI turn immediately, but we'll animate the display
-        self.game_state.execute_ai_turn()
+
+    def _find_nearest_target_for_attack_animation(self, zombie):
+        """Find the nearest target tile for attack animation"""
+        # Check all adjacent tiles for units, cities, or buildings
+        for dy in [-1, 0, 1]:
+            for dx in [-1, 0, 1]:
+                if dx == 0 and dy == 0:
+                    continue
+                check_x = zombie.x + dx
+                check_y = zombie.y + dy
+
+                # Check if there's a unit, city, or building there
+                target_unit = self.game_state.get_unit_at(check_x, check_y)
+                if target_unit and target_unit.team != zombie.team:
+                    return (check_x, check_y)
+
+                target_city = self.game_state.get_city_at(check_x, check_y)
+                if target_city:
+                    return (check_x, check_y)
+
+                target_building = self.game_state.get_building_at(check_x, check_y)
+                if target_building:
+                    return (check_x, check_y)
+
+        return None
+
+    def get_unit_render_position(self, unit):
+        """Get the position where a unit should be rendered (handles animation)"""
+        if self.animating_zombies and unit in self.zombie_animations:
+            elapsed = (pygame.time.get_ticks() - self.animation_start_time) / 1000.0
+            progress = min(1.0, elapsed / self.animation_duration)
+
+            anim = self.zombie_animations[unit]
+
+            if anim['type'] == 'move':
+                # Linear interpolation for movement
+                start_x, start_y = anim['start']
+                end_x, end_y = anim['end']
+                render_x = start_x + (end_x - start_x) * progress
+                render_y = start_y + (end_y - start_y) * progress
+                return (render_x, render_y)
+
+            elif anim['type'] == 'attack':
+                # Bumping animation for attacks
+                start_x, start_y = anim['start']
+                end_x, end_y = anim['end']
+                attack_count = anim['attack_count']
+                # Each attack gets equal time in the 1-second duration
+                time_per_attack = 1.0 / max(1, attack_count)
+                # Progress within current attack cycle (0 to 1)
+                cycle_progress = (progress % time_per_attack) / time_per_attack
+
+                # Bump 30% toward target, then return (sine wave for smooth motion)
+                bump_amount = 0.3 * math.sin(cycle_progress * math.pi)
+                render_x = start_x + (end_x - start_x) * bump_amount
+                render_y = start_y + (end_y - start_y) * bump_amount
+                return (render_x, render_y)
+
+            elif anim['type'] == 'move_attack':
+                # Combined movement and attack animation
+                # First half: move to final position
+                # Second half: attack from final position
+                start_x, start_y = anim['start']
+                end_x, end_y = anim['end']
+                attack_target_x, attack_target_y = anim['attack_target']
+                attack_count = anim['attack_count']
+
+                if progress < 0.5:
+                    # First half: movement (0 to 0.5 progress maps to 0 to 1 movement)
+                    move_progress = progress * 2.0
+                    render_x = start_x + (end_x - start_x) * move_progress
+                    render_y = start_y + (end_y - start_y) * move_progress
+                    return (render_x, render_y)
+                else:
+                    # Second half: attack animation (0.5 to 1.0 progress maps to attack cycle)
+                    attack_progress = (progress - 0.5) * 2.0  # Normalize to 0-1
+                    time_per_attack = 1.0 / max(1, attack_count)
+                    cycle_progress = (attack_progress % time_per_attack) / time_per_attack
+
+                    # Bump 30% toward target, then return
+                    bump_amount = 0.3 * math.sin(cycle_progress * math.pi)
+                    render_x = end_x + (attack_target_x - end_x) * bump_amount
+                    render_y = end_y + (attack_target_y - end_y) * bump_amount
+                    return (render_x, render_y)
+        else:
+            return (unit.x, unit.y)
 
     def update(self):
         """Update game logic"""
@@ -778,6 +938,7 @@ class ZombieStrategyGame:
             if elapsed >= self.animation_duration:
                 # Animation complete, end enemy turn
                 self.animating_zombies = False
+                self.zombie_animations = {}
                 # Now end enemy turn and start player turn
                 self.game_state.current_team = 'player'
                 self.game_state.turn += 1
@@ -882,7 +1043,7 @@ class ZombieStrategyGame:
 
     def render(self):
         """Render the game"""
-        self.renderer.render(self.screen, self.game_state, self.selected_unit, self.selected_city, self.selected_tile, self.hovered_tile, self.building_placement_mode, self.debug_reveal_map)
+        self.renderer.render(self.screen, self.game_state, self.selected_unit, self.selected_city, self.selected_tile, self.hovered_tile, self.building_placement_mode, self.debug_reveal_map, self)
 
         # Render victory banner if panel is closed
         if self.game_won and not self.victory_panel_open:

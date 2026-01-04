@@ -1,5 +1,5 @@
 {
-  "turn": 22,
+  "turn": 28,
   "current_team": "player",
   "game_won": false,
   "research_lab_pos": [
@@ -2689,25 +2689,11 @@
       "materials": 33,
       "medicine": 0
     },
-    "44,38": {
-      "food": 13,
-      "materials": 23,
-      "medicine": 0
-    },
-    "40,39": {
-      "food": 21,
-      "materials": 41,
-      "medicine": 0
-    },
-    "42,39": {
-      "food": 27,
-      "materials": 25,
-      "medicine": 0
-    },
     "43,40": {
-      "food": 14,
-      "materials": 24,
-      "medicine": 0
+      "food": 62,
+      "materials": 90,
+      "medicine": 0,
+      "cure": 0
     },
     "33,41": {
       "food": 39,
@@ -2743,12 +2729,6 @@
       "food": 11,
       "materials": 19,
       "medicine": 0
-    },
-    "21,30": {
-      "food": 0,
-      "materials": 0,
-      "medicine": 0,
-      "cure": 1
     }
   },
   "explored": [
@@ -2905,7 +2885,7 @@
       true,
       true,
       true,
-      false,
+      true,
       false
     ],
     [
@@ -2957,8 +2937,8 @@
       true,
       true,
       true,
-      false,
-      false
+      true,
+      true
     ],
     [
       false,
@@ -3009,8 +2989,8 @@
       true,
       true,
       true,
-      false,
-      false
+      true,
+      true
     ],
     [
       false,
@@ -3061,8 +3041,8 @@
       true,
       true,
       true,
-      false,
-      false
+      true,
+      true
     ],
     [
       false,
@@ -3113,8 +3093,8 @@
       true,
       true,
       true,
-      false,
-      false
+      true,
+      true
     ],
     [
       false,
@@ -3165,14 +3145,13 @@
       true,
       true,
       true,
-      false,
-      false
+      true,
+      true
     ],
     [
       false,
       false,
       false,
-      false,
       true,
       true,
       true,
@@ -3214,18 +3193,17 @@
       true,
       true,
       true,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
       false,
-      false,
-      false,
       true,
       true,
       true,
@@ -3251,7 +3229,6 @@
       true,
       true,
       true,
-      false,
       true,
       true,
       true,
@@ -3265,19 +3242,20 @@
       true,
       true,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
       false,
-      false,
-      false,
       true,
       true,
       true,
@@ -3302,13 +3280,12 @@
       true,
       true,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
@@ -3320,16 +3297,17 @@
       false,
       false,
       false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
       false,
-      false,
-      false,
       true,
       true,
       true,
@@ -3352,6 +3330,14 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
@@ -3364,23 +3350,15 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
-      false,
-      false,
       true,
       true,
       true,
@@ -3403,6 +3381,14 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
@@ -3416,23 +3402,15 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
-      false,
-      false,
       true,
       true,
       true,
@@ -3454,6 +3432,14 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
@@ -3468,23 +3454,15 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
-      false,
-      false,
       true,
       true,
       true,
@@ -3505,6 +3483,15 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
@@ -3519,72 +3506,21 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       false,
       false,
-      false,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       true,
       true,
       true,
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
       true,
       true,
       true,
@@ -3608,14 +3544,6 @@
       true,
       true,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
       false,
       false,
       false,
@@ -3630,63 +3558,11 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       true,
       true,
       true,
       true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true
     ],
     [
       true,
@@ -3720,165 +3596,6 @@
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       false,
       false,
       false,
@@ -3893,60 +3610,11 @@
       false,
       false,
       false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       true,
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true
     ],
     [
       true,
@@ -3994,115 +3662,11 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
       true,
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true
     ],
     [
       true,
@@ -4150,11 +3714,427 @@
       false,
       false,
       false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
       false,
-      false
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       true,
@@ -4192,6 +4172,8 @@
       true,
       true,
       true,
+      true,
+      true,
       false,
       false,
       false,
@@ -4200,13 +4182,11 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       true,
@@ -4245,6 +4225,8 @@
       true,
       true,
       true,
+      true,
+      true,
       false,
       false,
       false,
@@ -4252,13 +4234,11 @@
       false,
       false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
+      true,
+      true,
+      true,
+      true,
+      true
     ],
     [
       true,
@@ -4297,6 +4277,786 @@
       true,
       true,
       true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true
+    ],
+    [
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
       false,
       false,
       false,
@@ -4332,23 +5092,6 @@
       true,
       true,
       true,
-      true,
-      true,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       false,
       false,
       false,
@@ -4362,45 +5105,10 @@
       false,
       false,
       false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       false,
       false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
+      false,
+      false,
       false,
       false,
       false,
@@ -4417,739 +5125,11 @@
       false
     ],
     [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
       true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      true,
-      true,
       true,
       true,
       true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      true,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false
-    ],
-    [
-      false,
-      false,
-      false,
-      false,
-      false,
       true,
       true,
       true,
@@ -5198,13 +5178,13 @@
     ],
     [
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       true,
       true,
       true,
@@ -5250,13 +5230,13 @@
     ],
     [
       false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
-      false,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
+      true,
       false,
       false,
       false,
@@ -5355,8 +5335,8 @@
   ],
   "units": [
     {
-      "x": 12,
-      "y": 22,
+      "x": 14,
+      "y": 21,
       "unit_type": "survivor",
       "team": "player",
       "health": 110,
@@ -5376,7 +5356,7 @@
       "tiles_explored": []
     },
     {
-      "x": 17,
+      "x": 10,
       "y": 22,
       "unit_type": "survivor",
       "team": "player",
@@ -5385,8 +5365,8 @@
       "attack_power": 12,
       "moves_remaining": 3,
       "inventory": {
-        "food": 66,
-        "materials": 101,
+        "food": 0,
+        "materials": 0,
         "medicine": 0,
         "cure": 0
       },
@@ -5397,8 +5377,8 @@
       "tiles_explored": []
     },
     {
-      "x": 21,
-      "y": 21,
+      "x": 13,
+      "y": 30,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -5418,8 +5398,8 @@
       "tiles_explored": []
     },
     {
-      "x": 12,
-      "y": 32,
+      "x": 31,
+      "y": 34,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -5439,339 +5419,11 @@
       "tiles_explored": []
     },
     {
-      "x": 4,
-      "y": 39,
-      "unit_type": "scout",
-      "team": "player",
-      "health": 5,
-      "max_health": 75,
-      "attack_power": 8,
-      "moves_remaining": 5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 66,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": [
-        [
-          11,
-          36
-        ],
-        [
-          10,
-          34
-        ],
-        [
-          13,
-          27
-        ],
-        [
-          15,
-          30
-        ],
-        [
-          9,
-          42
-        ],
-        [
-          16,
-          29
-        ],
-        [
-          10,
-          43
-        ],
-        [
-          8,
-          43
-        ],
-        [
-          2,
-          42
-        ],
-        [
-          1,
-          37
-        ],
-        [
-          1,
-          34
-        ],
-        [
-          1,
-          31
-        ],
-        [
-          15,
-          42
-        ],
-        [
-          16,
-          41
-        ],
-        [
-          12,
-          37
-        ],
-        [
-          4,
-          33
-        ],
-        [
-          11,
-          23
-        ],
-        [
-          4,
-          39
-        ],
-        [
-          14,
-          43
-        ],
-        [
-          8,
-          33
-        ],
-        [
-          5,
-          40
-        ],
-        [
-          1,
-          30
-        ],
-        [
-          13,
-          29
-        ],
-        [
-          2,
-          35
-        ],
-        [
-          15,
-          32
-        ],
-        [
-          1,
-          39
-        ],
-        [
-          16,
-          31
-        ],
-        [
-          15,
-          29
-        ],
-        [
-          13,
-          32
-        ],
-        [
-          13,
-          38
-        ],
-        [
-          13,
-          44
-        ],
-        [
-          11,
-          44
-        ],
-        [
-          1,
-          36
-        ],
-        [
-          1,
-          33
-        ],
-        [
-          12,
-          33
-        ],
-        [
-          14,
-          30
-        ],
-        [
-          6,
-          41
-        ],
-        [
-          14,
-          27
-        ],
-        [
-          4,
-          38
-        ],
-        [
-          17,
-          29
-        ],
-        [
-          4,
-          41
-        ],
-        [
-          11,
-          22
-        ],
-        [
-          14,
-          39
-        ],
-        [
-          5,
-          36
-        ],
-        [
-          11,
-          25
-        ],
-        [
-          9,
-          34
-        ],
-        [
-          10,
-          35
-        ],
-        [
-          1,
-          32
-        ],
-        [
-          11,
-          34
-        ],
-        [
-          2,
-          31
-        ],
-        [
-          16,
-          30
-        ],
-        [
-          15,
-          28
-        ],
-        [
-          11,
-          24
-        ],
-        [
-          2,
-          40
-        ],
-        [
-          1,
-          38
-        ],
-        [
-          1,
-          41
-        ],
-        [
-          15,
-          40
-        ],
-        [
-          12,
-          26
-        ],
-        [
-          7,
-          42
-        ],
-        [
-          14,
-          32
-        ],
-        [
-          4,
-          34
-        ],
-        [
-          3,
-          32
-        ],
-        [
-          5,
-          35
-        ],
-        [
-          4,
-          37
-        ],
-        [
-          12,
-          44
-        ],
-        [
-          3,
-          41
-        ]
-      ]
-    },
-    {
-      "x": 23,
-      "y": 27,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 23,
-      "y": 26,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 24,
+      "x": 15,
       "y": 22,
       "unit_type": "zombie",
       "team": "enemy",
-      "health": 100,
+      "health": 41,
       "max_health": 100,
       "attack_power": 10,
       "moves_remaining": 0,
@@ -5788,14 +5440,35 @@
       "tiles_explored": []
     },
     {
-      "x": 11,
+      "x": 15,
+      "y": 20,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 70,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 15,
       "y": 13,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
       "max_health": 100,
       "attack_power": 10,
-      "moves_remaining": 0,
+      "moves_remaining": -0.5,
       "inventory": {
         "food": 0,
         "materials": 0,
@@ -5809,11 +5482,11 @@
       "tiles_explored": []
     },
     {
-      "x": 13,
+      "x": 9,
       "y": 22,
       "unit_type": "soldier",
       "team": "player",
-      "health": 62,
+      "health": 112,
       "max_health": 132,
       "attack_power": 23,
       "moves_remaining": 2,
@@ -5830,155 +5503,8 @@
       "tiles_explored": []
     },
     {
-      "x": 24,
-      "y": 27,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 12,
-      "y": 33,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 19,
-      "y": 39,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": -0.5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 17,
-      "y": 21,
-      "unit_type": "soldier",
-      "team": "player",
-      "health": 132,
-      "max_health": 132,
-      "attack_power": 23,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 100,
-      "level": 2,
-      "xp_to_next_level": 150,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 18,
-      "y": 39,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": -0.5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 24,
-      "y": 21,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 18,
-      "y": 21,
-      "unit_type": "survivor",
-      "team": "player",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 3,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 16,
-      "y": 36,
+      "x": 32,
+      "y": 34,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -5999,7 +5525,7 @@
     },
     {
       "x": 13,
-      "y": 32,
+      "y": 29,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -6019,91 +5545,7 @@
       "tiles_explored": []
     },
     {
-      "x": 11,
-      "y": 11,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 18,
-      "y": 40,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0.0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 16,
-      "y": 21,
-      "unit_type": "medic",
-      "team": "player",
-      "health": 96,
-      "max_health": 96,
-      "attack_power": 7,
-      "moves_remaining": 3,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 170,
-      "level": 3,
-      "xp_to_next_level": 225,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 11,
-      "y": 14,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 23,
+      "x": 29,
       "y": 38,
       "unit_type": "zombie",
       "team": "enemy",
@@ -6124,8 +5566,50 @@
       "tiles_explored": []
     },
     {
-      "x": 11,
-      "y": 10,
+      "x": 13,
+      "y": 24,
+      "unit_type": "soldier",
+      "team": "player",
+      "health": 125,
+      "max_health": 145,
+      "attack_power": 26,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 3,
+      "xp_to_next_level": 225,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 29,
+      "y": 39,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 15,
+      "y": 23,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -6145,7 +5629,154 @@
       "tiles_explored": []
     },
     {
-      "x": 16,
+      "x": 14,
+      "y": 20,
+      "unit_type": "survivor",
+      "team": "player",
+      "health": 80,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 3,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 28,
+      "y": 40,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 14,
+      "y": 24,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 18,
+      "y": 13,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 25,
+      "y": 39,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 10,
+      "y": 21,
+      "unit_type": "medic",
+      "team": "player",
+      "health": 96,
+      "max_health": 96,
+      "attack_power": 7,
+      "moves_remaining": 3,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 1
+      },
+      "xp": 170,
+      "level": 3,
+      "xp_to_next_level": 225,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 18,
+      "y": 15,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 33,
       "y": 38,
       "unit_type": "zombie",
       "team": "enemy",
@@ -6167,6 +5798,132 @@
     },
     {
       "x": 15,
+      "y": 14,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 29,
+      "y": 40,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 1.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 15,
+      "y": 30,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 33,
+      "y": 39,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 10,
+      "y": 26,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 32,
+      "y": 9,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 26,
       "y": 37,
       "unit_type": "zombie",
       "team": "enemy",
@@ -6187,14 +5944,348 @@
       "tiles_explored": []
     },
     {
-      "x": 22,
+      "x": 46,
       "y": 38,
+      "unit_type": "scout",
+      "team": "player",
+      "health": 65,
+      "max_health": 75,
+      "attack_power": 8,
+      "moves_remaining": 5,
+      "inventory": {
+        "food": 13,
+        "materials": 23,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 78,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": [
+        [
+          47,
+          7
+        ],
+        [
+          48,
+          36
+        ],
+        [
+          43,
+          3
+        ],
+        [
+          48,
+          8
+        ],
+        [
+          44,
+          38
+        ],
+        [
+          48,
+          29
+        ],
+        [
+          42,
+          4
+        ],
+        [
+          48,
+          38
+        ],
+        [
+          17,
+          14
+        ],
+        [
+          40,
+          6
+        ],
+        [
+          15,
+          16
+        ],
+        [
+          16,
+          15
+        ],
+        [
+          34,
+          5
+        ],
+        [
+          45,
+          5
+        ],
+        [
+          48,
+          22
+        ],
+        [
+          48,
+          31
+        ],
+        [
+          30,
+          4
+        ],
+        [
+          48,
+          40
+        ],
+        [
+          14,
+          17
+        ],
+        [
+          46,
+          6
+        ],
+        [
+          49,
+          11
+        ],
+        [
+          48,
+          15
+        ],
+        [
+          48,
+          24
+        ],
+        [
+          48,
+          33
+        ],
+        [
+          48,
+          17
+        ],
+        [
+          48,
+          26
+        ],
+        [
+          46,
+          38
+        ],
+        [
+          48,
+          35
+        ],
+        [
+          41,
+          5
+        ],
+        [
+          24,
+          7
+        ],
+        [
+          45,
+          39
+        ],
+        [
+          48,
+          10
+        ],
+        [
+          31,
+          3
+        ],
+        [
+          48,
+          19
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          22,
+          9
+        ],
+        [
+          48,
+          28
+        ],
+        [
+          23,
+          8
+        ],
+        [
+          28,
+          4
+        ],
+        [
+          48,
+          37
+        ],
+        [
+          46,
+          40
+        ],
+        [
+          32,
+          4
+        ],
+        [
+          19,
+          13
+        ],
+        [
+          26,
+          6
+        ],
+        [
+          13,
+          18
+        ],
+        [
+          48,
+          21
+        ],
+        [
+          48,
+          30
+        ],
+        [
+          48,
+          39
+        ],
+        [
+          12,
+          19
+        ],
+        [
+          33,
+          5
+        ],
+        [
+          47,
+          40
+        ],
+        [
+          11,
+          20
+        ],
+        [
+          48,
+          14
+        ],
+        [
+          34,
+          6
+        ],
+        [
+          48,
+          23
+        ],
+        [
+          48,
+          32
+        ],
+        [
+          35,
+          4
+        ],
+        [
+          29,
+          3
+        ],
+        [
+          48,
+          16
+        ],
+        [
+          48,
+          25
+        ],
+        [
+          37,
+          4
+        ],
+        [
+          48,
+          34
+        ],
+        [
+          27,
+          5
+        ],
+        [
+          45,
+          38
+        ],
+        [
+          48,
+          9
+        ],
+        [
+          39,
+          6
+        ],
+        [
+          48,
+          18
+        ],
+        [
+          20,
+          11
+        ],
+        [
+          48,
+          27
+        ],
+        [
+          21,
+          10
+        ],
+        [
+          25,
+          7
+        ],
+        [
+          48,
+          20
+        ],
+        [
+          18,
+          13
+        ],
+        [
+          36,
+          3
+        ],
+        [
+          44,
+          4
+        ],
+        [
+          48,
+          13
+        ],
+        [
+          49,
+          12
+        ],
+        [
+          38,
+          5
+        ]
+      ]
+    },
+    {
+      "x": 31,
+      "y": 39,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
       "max_health": 100,
       "attack_power": 10,
-      "moves_remaining": 0,
+      "moves_remaining": 0.0,
       "inventory": {
         "food": 0,
         "materials": 0,
@@ -6208,50 +6299,8 @@
       "tiles_explored": []
     },
     {
-      "x": 12,
-      "y": 13,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 10,
-      "y": 34,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 36,
-      "y": 16,
+      "x": 30,
+      "y": 37,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -6272,13 +6321,13 @@
     },
     {
       "x": 16,
-      "y": 39,
+      "y": 16,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
       "max_health": 100,
       "attack_power": 10,
-      "moves_remaining": 0,
+      "moves_remaining": -0.5,
       "inventory": {
         "food": 0,
         "materials": 0,
@@ -6290,420 +6339,6 @@
       "xp_to_next_level": 100,
       "size": 1,
       "tiles_explored": []
-    },
-    {
-      "x": 23,
-      "y": 39,
-      "unit_type": "scout",
-      "team": "player",
-      "health": 45,
-      "max_health": 75,
-      "attack_power": 8,
-      "moves_remaining": 5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 25,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": [
-        [
-          13,
-          30
-        ],
-        [
-          15,
-          36
-        ],
-        [
-          14,
-          31
-        ],
-        [
-          22,
-          38
-        ],
-        [
-          14,
-          34
-        ],
-        [
-          11,
-          23
-        ],
-        [
-          9,
-          26
-        ],
-        [
-          17,
-          36
-        ],
-        [
-          10,
-          24
-        ],
-        [
-          10,
-          27
-        ],
-        [
-          19,
-          36
-        ],
-        [
-          20,
-          37
-        ],
-        [
-          14,
-          33
-        ],
-        [
-          23,
-          39
-        ],
-        [
-          14,
-          36
-        ],
-        [
-          11,
-          22
-        ],
-        [
-          11,
-          28
-        ],
-        [
-          16,
-          36
-        ],
-        [
-          18,
-          36
-        ],
-        [
-          12,
-          29
-        ],
-        [
-          20,
-          36
-        ],
-        [
-          14,
-          32
-        ],
-        [
-          21,
-          38
-        ],
-        [
-          14,
-          35
-        ],
-        [
-          10,
-          25
-        ]
-      ]
-    },
-    {
-      "x": 44,
-      "y": 4,
-      "unit_type": "scout",
-      "team": "player",
-      "health": 65,
-      "max_health": 75,
-      "attack_power": 8,
-      "moves_remaining": 5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 36,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": [
-        [
-          20,
-          11
-        ],
-        [
-          21,
-          10
-        ],
-        [
-          12,
-          19
-        ],
-        [
-          33,
-          5
-        ],
-        [
-          43,
-          3
-        ],
-        [
-          25,
-          7
-        ],
-        [
-          11,
-          20
-        ],
-        [
-          34,
-          6
-        ],
-        [
-          18,
-          13
-        ],
-        [
-          36,
-          3
-        ],
-        [
-          42,
-          4
-        ],
-        [
-          17,
-          14
-        ],
-        [
-          41,
-          5
-        ],
-        [
-          44,
-          4
-        ],
-        [
-          35,
-          4
-        ],
-        [
-          24,
-          7
-        ],
-        [
-          40,
-          6
-        ],
-        [
-          29,
-          3
-        ],
-        [
-          15,
-          16
-        ],
-        [
-          16,
-          15
-        ],
-        [
-          31,
-          3
-        ],
-        [
-          20,
-          12
-        ],
-        [
-          22,
-          9
-        ],
-        [
-          34,
-          5
-        ],
-        [
-          23,
-          8
-        ],
-        [
-          37,
-          4
-        ],
-        [
-          28,
-          4
-        ],
-        [
-          27,
-          5
-        ],
-        [
-          30,
-          4
-        ],
-        [
-          14,
-          17
-        ],
-        [
-          32,
-          4
-        ],
-        [
-          19,
-          13
-        ],
-        [
-          26,
-          6
-        ],
-        [
-          38,
-          5
-        ],
-        [
-          13,
-          18
-        ],
-        [
-          39,
-          6
-        ]
-      ]
-    },
-    {
-      "x": 32,
-      "y": 31,
-      "unit_type": "scout",
-      "team": "player",
-      "health": 5,
-      "max_health": 75,
-      "attack_power": 8,
-      "moves_remaining": 5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 26,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": [
-        [
-          32,
-          31
-        ],
-        [
-          22,
-          23
-        ],
-        [
-          14,
-          25
-        ],
-        [
-          23,
-          25
-        ],
-        [
-          27,
-          28
-        ],
-        [
-          24,
-          26
-        ],
-        [
-          15,
-          26
-        ],
-        [
-          16,
-          25
-        ],
-        [
-          29,
-          28
-        ],
-        [
-          18,
-          25
-        ],
-        [
-          11,
-          22
-        ],
-        [
-          30,
-          29
-        ],
-        [
-          25,
-          27
-        ],
-        [
-          26,
-          28
-        ],
-        [
-          21,
-          23
-        ],
-        [
-          23,
-          23
-        ],
-        [
-          12,
-          23
-        ],
-        [
-          20,
-          24
-        ],
-        [
-          31,
-          30
-        ],
-        [
-          22,
-          24
-        ],
-        [
-          24,
-          24
-        ],
-        [
-          28,
-          28
-        ],
-        [
-          19,
-          25
-        ],
-        [
-          17,
-          25
-        ],
-        [
-          25,
-          26
-        ],
-        [
-          13,
-          24
-        ]
-      ]
     },
     {
       "x": 25,
@@ -6727,76 +6362,13 @@
       "tiles_explored": []
     },
     {
-      "x": 21,
-      "y": 39,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 12,
-      "y": 10,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 15,
-      "y": 39,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 12,
-      "y": 23,
+      "x": 14,
+      "y": 22,
       "unit_type": "soldier",
       "team": "player",
-      "health": 120,
-      "max_health": 120,
-      "attack_power": 20,
+      "health": 92,
+      "max_health": 132,
+      "attack_power": 23,
       "moves_remaining": 2,
       "inventory": {
         "food": 0,
@@ -6804,9 +6376,9 @@
         "medicine": 0,
         "cure": 0
       },
-      "xp": 50,
-      "level": 1,
-      "xp_to_next_level": 100,
+      "xp": 0,
+      "level": 2,
+      "xp_to_next_level": 150,
       "size": 1,
       "tiles_explored": []
     },
@@ -6832,8 +6404,8 @@
       "tiles_explored": []
     },
     {
-      "x": 35,
-      "y": 8,
+      "x": 32,
+      "y": 6,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -6853,14 +6425,14 @@
       "tiles_explored": []
     },
     {
-      "x": 2,
-      "y": 24,
+      "x": 5,
+      "y": 16,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
       "max_health": 100,
       "attack_power": 10,
-      "moves_remaining": 0,
+      "moves_remaining": 2,
       "inventory": {
         "food": 0,
         "materials": 0,
@@ -6874,7 +6446,7 @@
       "tiles_explored": []
     },
     {
-      "x": 36,
+      "x": 34,
       "y": 38,
       "unit_type": "zombie",
       "team": "enemy",
@@ -6895,8 +6467,29 @@
       "tiles_explored": []
     },
     {
-      "x": 1,
-      "y": 24,
+      "x": 9,
+      "y": 19,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 13,
+      "y": 32,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -6916,207 +6509,8 @@
       "tiles_explored": []
     },
     {
-      "x": 1,
-      "y": 41,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 1,
-      "y": 9,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 40,
-      "y": 11,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 38,
-      "y": 7,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 21,
-      "y": 40,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0.0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 1,
-      "y": 25,
-      "unit_type": "scout",
-      "team": "player",
-      "health": 35,
-      "max_health": 75,
-      "attack_power": 8,
-      "moves_remaining": 5,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 18,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": [
-        [
-          7,
-          23
-        ],
-        [
-          2,
-          23
-        ],
-        [
-          2,
-          20
-        ],
-        [
-          9,
-          22
-        ],
-        [
-          6,
-          24
-        ],
-        [
-          4,
-          22
-        ],
-        [
-          5,
-          23
-        ],
-        [
-          2,
-          21
-        ],
-        [
-          4,
-          21
-        ],
-        [
-          7,
-          22
-        ],
-        [
-          3,
-          19
-        ],
-        [
-          2,
-          22
-        ],
-        [
-          8,
-          22
-        ],
-        [
-          2,
-          25
-        ],
-        [
-          10,
-          22
-        ],
-        [
-          1,
-          25
-        ],
-        [
-          2,
-          24
-        ],
-        [
-          4,
-          20
-        ]
-      ]
-    },
-    {
-      "x": 11,
-      "y": 7,
+      "x": 5,
+      "y": 18,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7137,133 +6531,7 @@
     },
     {
       "x": 31,
-      "y": 43,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 42,
-      "y": 10,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 42,
-      "y": 38,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 44,
-      "y": 27,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 1,
-      "y": 33,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 44,
-      "y": 14,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 0,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 1,
-      "y": 42,
+      "y": 6,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7284,7 +6552,7 @@
     },
     {
       "x": 34,
-      "y": 45,
+      "y": 6,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7304,13 +6572,223 @@
       "tiles_explored": []
     },
     {
-      "x": 12,
+      "x": 31,
+      "y": 38,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 18,
+      "y": 12,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 33,
+      "y": 36,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 33,
+      "y": 6,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 39,
+      "y": 38,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 38,
+      "y": 35,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 10,
+      "y": 30,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 37,
+      "y": 23,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 14,
+      "y": 32,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 37,
+      "y": 38,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 13,
       "y": 21,
       "unit_type": "medic",
       "team": "player",
-      "health": 88,
-      "max_health": 88,
-      "attack_power": 6,
+      "health": 96,
+      "max_health": 96,
+      "attack_power": 7,
       "moves_remaining": 3,
       "inventory": {
         "food": 0,
@@ -7318,14 +6796,14 @@
         "medicine": 0,
         "cure": 0
       },
-      "xp": 40,
-      "level": 2,
-      "xp_to_next_level": 150,
+      "xp": 70,
+      "level": 3,
+      "xp_to_next_level": 225,
       "size": 1,
       "tiles_explored": []
     },
     {
-      "x": 46,
+      "x": 38,
       "y": 38,
       "unit_type": "zombie",
       "team": "enemy",
@@ -7347,7 +6825,7 @@
     },
     {
       "x": 32,
-      "y": 2,
+      "y": 5,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7367,8 +6845,478 @@
       "tiles_explored": []
     },
     {
-      "x": 1,
-      "y": 23,
+      "x": 8,
+      "y": 20,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0.0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 18,
+      "y": 11,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 25,
+      "y": 37,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 34,
+      "y": 13,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 19,
+      "y": 12,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 36,
+      "y": 5,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 9,
+      "y": 20,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0.0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 38,
+      "y": 12,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 15,
+      "y": 12,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 8,
+      "y": 13,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 8,
+      "y": 22,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 80,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 12,
+      "y": 36,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 34,
+      "y": 5,
+      "unit_type": "scout",
+      "team": "player",
+      "health": 45,
+      "max_health": 75,
+      "attack_power": 8,
+      "moves_remaining": 5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 28,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": [
+        [
+          18,
+          17
+        ],
+        [
+          20,
+          17
+        ],
+        [
+          23,
+          16
+        ],
+        [
+          28,
+          9
+        ],
+        [
+          22,
+          17
+        ],
+        [
+          27,
+          13
+        ],
+        [
+          30,
+          6
+        ],
+        [
+          27,
+          10
+        ],
+        [
+          33,
+          5
+        ],
+        [
+          26,
+          14
+        ],
+        [
+          29,
+          7
+        ],
+        [
+          12,
+          21
+        ],
+        [
+          27,
+          9
+        ],
+        [
+          27,
+          12
+        ],
+        [
+          17,
+          17
+        ],
+        [
+          32,
+          5
+        ],
+        [
+          19,
+          17
+        ],
+        [
+          25,
+          15
+        ],
+        [
+          31,
+          6
+        ],
+        [
+          15,
+          19
+        ],
+        [
+          16,
+          18
+        ],
+        [
+          34,
+          5
+        ],
+        [
+          21,
+          17
+        ],
+        [
+          27,
+          11
+        ],
+        [
+          14,
+          20
+        ],
+        [
+          24,
+          15
+        ],
+        [
+          13,
+          21
+        ],
+        [
+          29,
+          8
+        ]
+      ]
+    },
+    {
+      "x": 11,
+      "y": 36,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 30,
+      "y": 6,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 34,
+      "y": 39,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 36,
+      "y": 38,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 23,
+      "y": 6,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7389,7 +7337,7 @@
     },
     {
       "x": 11,
-      "y": 2,
+      "y": 37,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7409,7 +7357,415 @@
       "tiles_explored": []
     },
     {
-      "x": 16,
+      "x": 7,
+      "y": 9,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 32,
+      "y": 4,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 29,
+      "y": 5,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 8,
+      "y": 17,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 41,
+      "y": 38,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 8,
+      "y": 21,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 40,
+      "y": 38,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": -0.5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 6,
+      "y": 33,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 6,
+      "y": 16,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 6,
+      "y": 31,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 35,
+      "y": 43,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 5,
+      "y": 17,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 8,
+      "y": 9,
+      "unit_type": "scout",
+      "team": "player",
+      "health": 55,
+      "max_health": 75,
+      "attack_power": 8,
+      "moves_remaining": 5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 15,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": [
+        [
+          6,
+          12
+        ],
+        [
+          6,
+          18
+        ],
+        [
+          5,
+          15
+        ],
+        [
+          7,
+          20
+        ],
+        [
+          6,
+          11
+        ],
+        [
+          7,
+          10
+        ],
+        [
+          8,
+          20
+        ],
+        [
+          6,
+          14
+        ],
+        [
+          6,
+          17
+        ],
+        [
+          10,
+          20
+        ],
+        [
+          6,
+          13
+        ],
+        [
+          5,
+          16
+        ],
+        [
+          8,
+          9
+        ],
+        [
+          6,
+          19
+        ],
+        [
+          9,
+          20
+        ]
+      ]
+    },
+    {
+      "x": 14,
+      "y": 30,
+      "unit_type": "scout",
+      "team": "player",
+      "health": 45,
+      "max_health": 75,
+      "attack_power": 8,
+      "moves_remaining": 5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 13,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": [
+        [
+          14,
+          30
+        ],
+        [
+          9,
+          29
+        ],
+        [
+          8,
+          27
+        ],
+        [
+          10,
+          24
+        ],
+        [
+          11,
+          29
+        ],
+        [
+          10,
+          23
+        ],
+        [
+          11,
+          22
+        ],
+        [
+          10,
+          29
+        ],
+        [
+          8,
+          28
+        ],
+        [
+          10,
+          25
+        ],
+        [
+          13,
+          31
+        ],
+        [
+          12,
+          30
+        ],
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "x": 4,
       "y": 47,
       "unit_type": "zombie",
       "team": "enemy",
@@ -7431,7 +7787,7 @@
     },
     {
       "x": 46,
-      "y": 13,
+      "y": 12,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7451,8 +7807,8 @@
       "tiles_explored": []
     },
     {
-      "x": 10,
-      "y": 2,
+      "x": 44,
+      "y": 47,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
@@ -7472,139 +7828,122 @@
       "tiles_explored": []
     },
     {
-      "x": 49,
-      "y": 0,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 0,
-      "y": 22,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 49,
-      "y": 18,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 7,
-      "y": 0,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 1,
-      "y": 0,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 0,
-      "y": 29,
-      "unit_type": "zombie",
-      "team": "enemy",
-      "health": 100,
-      "max_health": 100,
-      "attack_power": 10,
-      "moves_remaining": 2,
-      "inventory": {
-        "food": 0,
-        "materials": 0,
-        "medicine": 0,
-        "cure": 0
-      },
-      "xp": 0,
-      "level": 1,
-      "xp_to_next_level": 100,
-      "size": 1,
-      "tiles_explored": []
-    },
-    {
-      "x": 0,
+      "x": 42,
       "y": 47,
       "unit_type": "zombie",
       "team": "enemy",
       "health": 100,
       "max_health": 100,
       "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 2,
+      "y": 15,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 46,
+      "y": 25,
+      "unit_type": "super_zombie",
+      "team": "enemy",
+      "health": 200,
+      "max_health": 200,
+      "attack_power": 50,
+      "moves_remaining": 0,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 2,
+      "tiles_explored": []
+    },
+    {
+      "x": 16,
+      "y": 15,
+      "unit_type": "scout",
+      "team": "player",
+      "health": 75,
+      "max_health": 75,
+      "attack_power": 8,
+      "moves_remaining": 5,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 6,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": [
+        [
+          16,
+          16
+        ],
+        [
+          12,
+          20
+        ],
+        [
+          15,
+          17
+        ],
+        [
+          13,
+          19
+        ],
+        [
+          16,
+          15
+        ],
+        [
+          14,
+          18
+        ]
+      ]
+    },
+    {
+      "x": 0,
+      "y": 49,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
       "moves_remaining": 2,
       "inventory": {
         "food": 0,
@@ -7616,6 +7955,132 @@
       "level": 1,
       "xp_to_next_level": 100,
       "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 23,
+      "y": 0,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 48,
+      "y": 49,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 49,
+      "y": 42,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 23,
+      "y": 49,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 47,
+      "y": 0,
+      "unit_type": "zombie",
+      "team": "enemy",
+      "health": 100,
+      "max_health": 100,
+      "attack_power": 10,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 1,
+      "tiles_explored": []
+    },
+    {
+      "x": 27,
+      "y": 0,
+      "unit_type": "super_zombie",
+      "team": "enemy",
+      "health": 200,
+      "max_health": 200,
+      "attack_power": 50,
+      "moves_remaining": 2,
+      "inventory": {
+        "food": 0,
+        "materials": 0,
+        "medicine": 0,
+        "cure": 0
+      },
+      "xp": 0,
+      "level": 1,
+      "xp_to_next_level": 100,
+      "size": 2,
       "tiles_explored": []
     }
   ],
@@ -7629,13 +8094,18 @@
         "shelter",
         "workshop",
         "farm",
-        "hospital"
+        "hospital",
+        "farm",
+        "wall",
+        "wall",
+        "wall",
+        "wall"
       ],
       "building_locations": {
         "11,20": {
           "type": "workshop",
           "terrain": 3,
-          "level": 2,
+          "level": 3,
           "health": 20,
           "max_health": 20
         },
@@ -7649,15 +8119,50 @@
         "12,21": {
           "type": "hospital",
           "terrain": 3,
+          "level": 2,
+          "health": 20,
+          "max_health": 20
+        },
+        "12,22": {
+          "type": "farm",
+          "terrain": 0,
           "level": 1,
           "health": 20,
           "max_health": 20
+        },
+        "14,20": {
+          "type": "wall",
+          "terrain": 1,
+          "level": 1,
+          "health": 200,
+          "max_health": 200
+        },
+        "14,21": {
+          "type": "wall",
+          "terrain": 0,
+          "level": 1,
+          "health": 200,
+          "max_health": 200
+        },
+        "10,23": {
+          "type": "wall",
+          "terrain": 0,
+          "level": 1,
+          "health": 200,
+          "max_health": 200
+        },
+        "11,23": {
+          "type": "wall",
+          "terrain": 0,
+          "level": 1,
+          "health": 200,
+          "max_health": 200
         }
       },
       "resources": {
-        "food": 50,
-        "materials": 40,
-        "medicine": 64,
+        "food": 143,
+        "materials": 27,
+        "medicine": 106,
         "cure": 0
       },
       "level": 1,
