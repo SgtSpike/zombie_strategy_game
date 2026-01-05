@@ -18,15 +18,15 @@ class ZombieStrategyGame:
         self.clock = pygame.time.Clock()
         self.running = True
 
-        # Generate map
-        map_gen = MapGenerator(width=50, height=50)
-        map_grid = map_gen.generate()
+        # Difficulty configuration
+        self.difficulty_dialog_open = True
+        self.difficulty = None  # Will be set to 'easy', 'medium', or 'hard'
+        self.selected_difficulty_button = 'medium'  # Default highlight
 
-        # Initialize game state with research lab position
-        self.game_state = GameState(map_grid, map_gen.resources, map_gen.research_lab_pos)
-
-        # Initialize renderer
-        self.renderer = Renderer(self.screen_width, self.screen_height, self.tile_size)
+        # Map and game state will be initialized after difficulty selection
+        self.game_state = None
+        self.renderer = None
+        self.map_gen = None
 
         # Game state
         self.selected_unit = None
@@ -77,8 +77,24 @@ class ZombieStrategyGame:
         self.zombie_positions_snapshot = {}  # Dict: unit -> (x, y) before AI turn
         self.zombie_action_log = {}  # Dict: unit -> list of actions taken during turn
 
+    def initialize_game(self, difficulty):
+        """Initialize the game with the selected difficulty"""
+        self.difficulty = difficulty
+        self.difficulty_dialog_open = False
+
+        # Generate map
+        self.map_gen = MapGenerator(width=50, height=50)
+        map_grid = self.map_gen.generate()
+
+        # Initialize game state with research lab position and difficulty
+        self.game_state = GameState(map_grid, self.map_gen.resources, self.map_gen.research_lab_pos, difficulty)
+
+        # Initialize renderer
+        self.renderer = Renderer(self.screen_width, self.screen_height, self.tile_size)
+
         # Add welcome message
         self.log_message("Welcome to Zombie Apocalypse Strategy!")
+        self.log_message(f"Difficulty: {difficulty.upper()}")
         self.log_message("Find the Research Lab and manufacture The Cure to save humanity!")
 
     def handle_events(self):
@@ -88,6 +104,34 @@ class ZombieStrategyGame:
                 self.running = False
 
             elif event.type == pygame.KEYDOWN:
+                # Handle difficulty selection dialog
+                if self.difficulty_dialog_open:
+                    # Allow load menu from difficulty dialog
+                    if event.key == pygame.K_l and (pygame.key.get_mods() & pygame.KMOD_CTRL):
+                        self.load_menu_open = True
+                        self.save_menu_open = False
+                        self.menu_input_text = ""
+                        self.save_list_scroll_offset = 0
+                        self.refresh_save_list()
+                        continue
+                    elif event.key == pygame.K_1 or event.key == pygame.K_e:
+                        self.initialize_game('easy')
+                    elif event.key == pygame.K_2 or event.key == pygame.K_m:
+                        self.initialize_game('medium')
+                    elif event.key == pygame.K_3 or event.key == pygame.K_h:
+                        self.initialize_game('hard')
+                    elif event.key == pygame.K_UP:
+                        difficulties = ['easy', 'medium', 'hard']
+                        idx = difficulties.index(self.selected_difficulty_button)
+                        self.selected_difficulty_button = difficulties[(idx - 1) % 3]
+                    elif event.key == pygame.K_DOWN:
+                        difficulties = ['easy', 'medium', 'hard']
+                        idx = difficulties.index(self.selected_difficulty_button)
+                        self.selected_difficulty_button = difficulties[(idx + 1) % 3]
+                    elif event.key == pygame.K_RETURN:
+                        self.initialize_game(self.selected_difficulty_button)
+                    continue
+
                 # Handle victory screen
                 if self.game_won:
                     if event.key == pygame.K_n:
@@ -474,13 +518,20 @@ class ZombieStrategyGame:
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
 
+                # Handle difficulty dialog clicks (only if load menu is not open)
+                if self.difficulty_dialog_open and not self.load_menu_open:
+                    difficulty_clicked = self.get_difficulty_button_clicked(mouse_x, mouse_y)
+                    if difficulty_clicked:
+                        self.initialize_game(difficulty_clicked)
+                    continue
+
                 # Check if click is on message box (toggle message log)
                 if self.is_message_box_clicked(mouse_x, mouse_y):
                     self.message_log_open = not self.message_log_open
                     continue
 
                 # Check if click is on mini-map (takes priority)
-                if self.renderer.is_click_on_minimap(mouse_x, mouse_y):
+                if self.game_state and self.renderer and self.renderer.is_click_on_minimap(mouse_x, mouse_y):
                     map_width = len(self.game_state.map_grid[0])
                     map_height = len(self.game_state.map_grid)
                     world_coords = self.renderer.minimap_click_to_world_coords(mouse_x, mouse_y, map_width, map_height)
@@ -500,6 +551,13 @@ class ZombieStrategyGame:
                             loaded_state = GameState.load_game(clicked_save)
                             if loaded_state:
                                 self.game_state = loaded_state
+                                self.difficulty = loaded_state.difficulty  # Update main game difficulty
+                                self.difficulty_dialog_open = False  # Game is now started
+
+                                # Initialize renderer if not already done
+                                if not self.renderer:
+                                    self.renderer = Renderer(self.screen_width, self.screen_height, self.tile_size)
+
                                 self.selected_unit = None
                                 self.selected_city = None
                                 self.selected_tile = None
@@ -559,7 +617,7 @@ class ZombieStrategyGame:
                                 if result == 'cure_manufactured':
                                     self.game_state.manufacture_cure()
                                     # Save to cure leaderboard and set victory state
-                                    self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn)
+                                    self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
                                     self.game_won = True
                                     self.victory_panel_open = True
                                     self.final_score = self.game_state.turn
@@ -589,7 +647,7 @@ class ZombieStrategyGame:
                                 if can_afford:
                                     for res, amt in cost.items():
                                         self.selected_city.resources[res] -= amt
-                                    new_unit = Unit(self.selected_city.x, self.selected_city.y, building_type, 'player')
+                                    new_unit = Unit(self.selected_city.x, self.selected_city.y, building_type, 'player', self.difficulty)
                                     self.game_state.units.append(new_unit)
                                     self.log_message(f"Recruited {building_type.capitalize()} at {self.selected_city.name}!")
                                 else:
@@ -637,7 +695,7 @@ class ZombieStrategyGame:
                                             if result == 'cure_manufactured':
                                                 self.game_state.manufacture_cure()
                                                 # Save to cure leaderboard and set victory state
-                                                self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn)
+                                                self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
                                                 self.game_won = True
                                                 self.victory_panel_open = True
                                                 self.final_score = self.game_state.turn
@@ -929,6 +987,10 @@ class ZombieStrategyGame:
 
     def update(self):
         """Update game logic"""
+        # Skip updates if difficulty dialog is open
+        if self.difficulty_dialog_open:
+            return
+
         # Get delta time for timer
         dt = self.clock.get_time() / 1000.0  # Convert to seconds
 
@@ -1009,16 +1071,17 @@ class ZombieStrategyGame:
 
     def get_clicked_save_file(self, mouse_x, mouse_y):
         """Check if a save file was clicked in the menu"""
-        menu_x = self.screen_width // 2 - 250
-        menu_y = 200
-        list_y = menu_y + 120
+        menu_width = 500
+        menu_x = self.screen_width // 2 - menu_width // 2
+        menu_y = 150  # Match render_load_menu
+        list_y = menu_y + 150
 
         # Calculate which saves are visible based on scroll offset
         visible_saves = self.available_saves[self.save_list_scroll_offset:self.save_list_scroll_offset + 10]
 
         for i, save_file in enumerate(visible_saves):
-            file_y = list_y + i * 30
-            if menu_x <= mouse_x <= menu_x + 500 and file_y <= mouse_y <= file_y + 25:
+            file_y = list_y + 45 + i * 25  # Match render_load_menu spacing
+            if menu_x + 20 <= mouse_x <= menu_x + menu_width - 20 and file_y <= mouse_y <= file_y + 22:
                 return save_file
         return None
 
@@ -1033,6 +1096,26 @@ class ZombieStrategyGame:
         # Also print to console
         print(message)
 
+    def get_difficulty_button_clicked(self, mouse_x, mouse_y):
+        """Check if a difficulty button was clicked and return the difficulty level"""
+        dialog_width = 600
+        dialog_height = 400
+        dialog_x = self.screen_width // 2 - dialog_width // 2
+        dialog_y = self.screen_height // 2 - dialog_height // 2
+
+        # Button dimensions
+        button_width = 400
+        button_height = 60
+        button_x = dialog_x + (dialog_width - button_width) // 2
+
+        # Check each button
+        difficulties = ['easy', 'medium', 'hard']
+        for i, diff in enumerate(difficulties):
+            button_y = dialog_y + 120 + i * 80
+            if button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height:
+                return diff
+        return None
+
     def is_message_box_clicked(self, mouse_x, mouse_y):
         """Check if the message box in top right was clicked"""
         box_width = 500
@@ -1043,6 +1126,16 @@ class ZombieStrategyGame:
 
     def render(self):
         """Render the game"""
+        # Show difficulty dialog if game not started
+        if self.difficulty_dialog_open:
+            self.render_difficulty_dialog()
+            # Also render load menu if open
+            if self.load_menu_open:
+                self.render_load_menu()
+            pygame.display.flip()
+            return
+
+        # Normal game rendering
         self.renderer.render(self.screen, self.game_state, self.selected_unit, self.selected_city, self.selected_tile, self.hovered_tile, self.building_placement_mode, self.debug_reveal_map, self)
 
         # Render victory banner if panel is closed
@@ -1082,6 +1175,88 @@ class ZombieStrategyGame:
             self.render_game_over()
 
         pygame.display.flip()
+
+    def render_difficulty_dialog(self):
+        """Render the difficulty selection dialog"""
+        # Black background
+        self.screen.fill((20, 20, 30))
+
+        # Dialog panel
+        dialog_width = 600
+        dialog_height = 500
+        dialog_x = self.screen_width // 2 - dialog_width // 2
+        dialog_y = self.screen_height // 2 - dialog_height // 2
+
+        pygame.draw.rect(self.screen, (40, 40, 60), (dialog_x, dialog_y, dialog_width, dialog_height))
+        pygame.draw.rect(self.screen, (100, 150, 200), (dialog_x, dialog_y, dialog_width, dialog_height), 4)
+
+        # Title
+        title_font = pygame.font.Font(None, 48)
+        title = title_font.render("Select Difficulty", True, (150, 200, 255))
+        title_rect = title.get_rect(center=(self.screen_width // 2, dialog_y + 50))
+        self.screen.blit(title, title_rect)
+
+        # Button dimensions
+        button_width = 400
+        button_height = 60
+        button_x = dialog_x + (dialog_width - button_width) // 2
+
+        # Difficulty descriptions
+        descriptions = {
+            'easy': 'Fewer zombies, more resources',
+            'medium': 'Balanced gameplay',
+            'hard': 'More zombies, fewer resources'
+        }
+
+        # Render buttons
+        difficulties = ['easy', 'medium', 'hard']
+        button_colors = {
+            'easy': (50, 150, 50),
+            'medium': (150, 150, 50),
+            'hard': (150, 50, 50)
+        }
+
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        for i, diff in enumerate(difficulties):
+            button_y = dialog_y + 120 + i * 80
+
+            # Check if mouse is hovering or if it's selected
+            is_hovering = button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height
+            is_selected = self.selected_difficulty_button == diff
+
+            # Button background
+            if is_hovering or is_selected:
+                pygame.draw.rect(self.screen, button_colors[diff], (button_x, button_y, button_width, button_height))
+                pygame.draw.rect(self.screen, (200, 200, 200), (button_x, button_y, button_width, button_height), 3)
+            else:
+                color = tuple(c // 2 for c in button_colors[diff])
+                pygame.draw.rect(self.screen, color, (button_x, button_y, button_width, button_height))
+                pygame.draw.rect(self.screen, (100, 100, 100), (button_x, button_y, button_width, button_height), 2)
+
+            # Button text
+            button_font = pygame.font.Font(None, 36)
+            button_text = button_font.render(diff.upper(), True, (255, 255, 255))
+            button_text_rect = button_text.get_rect(center=(button_x + button_width // 2, button_y + 20))
+            self.screen.blit(button_text, button_text_rect)
+
+            # Description
+            desc_font = pygame.font.Font(None, 20)
+            desc_text = desc_font.render(descriptions[diff], True, (180, 180, 180))
+            desc_rect = desc_text.get_rect(center=(button_x + button_width // 2, button_y + 45))
+            self.screen.blit(desc_text, desc_rect)
+
+        # Instructions
+        inst_font = pygame.font.Font(None, 22)
+        inst_text = inst_font.render("Click a difficulty or press 1/2/3 • Use Arrow Keys to navigate • Press Enter to confirm", True, (150, 150, 150))
+        inst_rect = inst_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 50))
+        self.screen.blit(inst_text, inst_rect)
+
+        # Load game hint
+        load_font = pygame.font.Font(None, 20)
+        load_text = load_font.render("Or press Ctrl+L to load a saved game", True, (120, 120, 150))
+        load_rect = load_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 25))
+        self.screen.blit(load_text, load_rect)
 
     def render_save_menu(self):
         """Render the save game menu"""
@@ -1359,13 +1534,20 @@ class ZombieStrategyGame:
         # Your score
         score_font = pygame.font.Font(None, 36)
         score_text = score_font.render(f"Turns to Victory: {self.final_score}", True, (255, 215, 0))
-        score_rect = score_text.get_rect(center=(self.screen_width // 2, menu_y + 190))
+        score_rect = score_text.get_rect(center=(self.screen_width // 2, menu_y + 180))
         self.screen.blit(score_text, score_rect)
+
+        # Difficulty display
+        diff_font = pygame.font.Font(None, 28)
+        diff_color = {'easy': (50, 200, 50), 'medium': (200, 200, 50), 'hard': (200, 50, 50)}.get(self.game_state.difficulty, (200, 200, 200))
+        diff_text = diff_font.render(f"Difficulty: {self.game_state.difficulty.upper()}", True, diff_color)
+        diff_rect = diff_text.get_rect(center=(self.screen_width // 2, menu_y + 215))
+        self.screen.blit(diff_text, diff_rect)
 
         # Cure leaderboard title
         lb_title_font = pygame.font.Font(None, 32)
-        lb_title = lb_title_font.render("Cure Leaderboard (Fastest Victories)", True, (255, 215, 0))
-        lb_title_rect = lb_title.get_rect(center=(self.screen_width // 2, menu_y + 240))
+        lb_title = lb_title_font.render(f"Cure Leaderboard - {self.game_state.difficulty.capitalize()}", True, (255, 215, 0))
+        lb_title_rect = lb_title.get_rect(center=(self.screen_width // 2, menu_y + 250))
         self.screen.blit(lb_title, lb_title_rect)
 
         # Display cure leaderboard

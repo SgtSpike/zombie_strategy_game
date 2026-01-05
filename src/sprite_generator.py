@@ -36,18 +36,18 @@ def create_sprites():
     pygame.draw.rect(scout, (50, 130, 50), (17, 26, 4, 6))
     sprites['scout'] = scout
     
-    # Soldier - Dark blue humanoid with armor
+    # Soldier - Orange humanoid with armor
     soldier = pygame.Surface((sprite_size, sprite_size), pygame.SRCALPHA)
     # Helmet
-    pygame.draw.rect(soldier, (40, 40, 80), (11, 7, 10, 10))
+    pygame.draw.rect(soldier, (200, 100, 0), (11, 7, 10, 10))
     # Body armor
-    pygame.draw.rect(soldier, (50, 50, 100), (9, 16, 14, 11))
+    pygame.draw.rect(soldier, (255, 150, 0), (9, 16, 14, 11))
     # Arms
-    pygame.draw.rect(soldier, (50, 50, 100), (7, 18, 5, 9))
-    pygame.draw.rect(soldier, (50, 50, 100), (20, 18, 5, 9))
+    pygame.draw.rect(soldier, (255, 150, 0), (7, 18, 5, 9))
+    pygame.draw.rect(soldier, (255, 150, 0), (20, 18, 5, 9))
     # Legs
-    pygame.draw.rect(soldier, (40, 40, 80), (11, 27, 4, 5))
-    pygame.draw.rect(soldier, (40, 40, 80), (17, 27, 4, 5))
+    pygame.draw.rect(soldier, (200, 100, 0), (11, 27, 4, 5))
+    pygame.draw.rect(soldier, (200, 100, 0), (17, 27, 4, 5))
     # Weapon
     pygame.draw.rect(soldier, (100, 100, 100), (24, 16, 2, 10))
     sprites['soldier'] = soldier

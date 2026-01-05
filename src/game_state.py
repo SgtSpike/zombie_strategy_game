@@ -2,12 +2,23 @@ import json
 import os
 
 class Unit:
-    def __init__(self, x, y, unit_type, team):
+    def __init__(self, x, y, unit_type, team, difficulty='medium'):
         self.x = x
         self.y = y
         self.unit_type = unit_type  # 'survivor', 'scout', 'soldier', 'medic', 'zombie', 'super_zombie'
         self.team = team  # 'player' or 'enemy'
         self.inventory = {'food': 0, 'materials': 0, 'medicine': 0, 'cure': 0}
+
+        # Determine difficulty multiplier for zombie stats
+        if difficulty == 'easy':
+            zombie_health_multiplier = 0.7
+            zombie_attack_multiplier = 0.7
+        elif difficulty == 'hard':
+            zombie_health_multiplier = 1.4
+            zombie_attack_multiplier = 1.4
+        else:  # medium
+            zombie_health_multiplier = 1.0
+            zombie_attack_multiplier = 1.0
 
         # Set unit stats based on type
         if unit_type == 'scout':
@@ -29,16 +40,16 @@ class Unit:
             self.attack_power = 5
             self.size = 1
         elif unit_type == 'zombie':
-            self.health = 100
-            self.max_health = 100
+            self.health = int(100 * zombie_health_multiplier)
+            self.max_health = int(100 * zombie_health_multiplier)
             self.max_moves = 2
-            self.attack_power = 10
+            self.attack_power = int(10 * zombie_attack_multiplier)
             self.size = 1
         elif unit_type == 'super_zombie':
-            self.health = 200
-            self.max_health = 200
+            self.health = int(200 * zombie_health_multiplier)
+            self.max_health = int(200 * zombie_health_multiplier)
             self.max_moves = 2
-            self.attack_power = 50
+            self.attack_power = int(50 * zombie_attack_multiplier)
             self.size = 2  # Super zombies are 2x2
         else:  # 'survivor' or default
             self.health = 100
@@ -339,13 +350,31 @@ class City:
         return True
 
 class GameState:
-    def __init__(self, map_grid, resources, research_lab_pos=None):
+    def __init__(self, map_grid, resources, research_lab_pos=None, difficulty='medium'):
         self.map_grid = map_grid
         self.resources = resources
         self.research_lab_pos = research_lab_pos
         self.turn = 0
         self.current_team = 'player'
         self.game_won = False  # Track if player has won via cure
+        self.difficulty = difficulty  # 'easy', 'medium', or 'hard'
+
+        # Difficulty settings
+        if difficulty == 'easy':
+            self.zombie_spawn_rate = 0.15  # 15% chance per turn
+            self.zombie_spawn_count_min = 1
+            self.zombie_spawn_count_max = 2
+            self.starting_resources_multiplier = 1.5
+        elif difficulty == 'hard':
+            self.zombie_spawn_rate = 0.35  # 35% chance per turn
+            self.zombie_spawn_count_min = 2
+            self.zombie_spawn_count_max = 4
+            self.starting_resources_multiplier = 0.7
+        else:  # medium
+            self.zombie_spawn_rate = 0.25  # 25% chance per turn
+            self.zombie_spawn_count_min = 1
+            self.zombie_spawn_count_max = 3
+            self.starting_resources_multiplier = 1.0
 
         # Add the cure to the research lab as a resource
         if research_lab_pos:
@@ -374,11 +403,11 @@ class GameState:
         """Spawn starting survivors and zombies"""
         # Spawn 3 player survivors with starting resources
         for i in range(3):
-            survivor = Unit(5 + i, 5, 'survivor', 'player')
-            # Give each survivor some starting resources
+            survivor = Unit(5 + i, 5, 'survivor', 'player', self.difficulty)
+            # Give each survivor some starting resources (adjusted by difficulty)
             # Medicine cannot be found - must be produced by hospitals
-            survivor.inventory['food'] = 20
-            survivor.inventory['materials'] = 40
+            survivor.inventory['food'] = int(20 * self.starting_resources_multiplier)
+            survivor.inventory['materials'] = int(40 * self.starting_resources_multiplier)
             survivor.inventory['medicine'] = 0
             self.units.append(survivor)
 
@@ -387,14 +416,18 @@ class GameState:
         for _ in range(5):
             x = random.randint(10, len(self.map_grid[0]) - 5)
             y = random.randint(10, len(self.map_grid) - 5)
-            zombie = Unit(x, y, 'zombie', 'enemy')
+            zombie = Unit(x, y, 'zombie', 'enemy', self.difficulty)
             self.units.append(zombie)
 
     def spawn_zombies(self):
-        """Spawn zombies at map edges, escalating with turn count"""
+        """Spawn zombies at map edges, escalating with turn count and difficulty"""
         import random
 
-        # Calculate spawn count based on turn (escalating difficulty)
+        # Spawn zombies based on difficulty spawn rate
+        if random.random() > self.zombie_spawn_rate:
+            return  # No zombies this turn
+
+        # Calculate base spawn count based on turn (escalating difficulty)
         # Turn 1-5: 1-2 zombies per turn
         # Turn 6-10: 2-3 zombies per turn
         # Turn 11-15: 3-4 zombies per turn
@@ -403,21 +436,24 @@ class GameState:
         # Turn 31-40: 7-10 zombies per turn
         # Turn 41+: 10-15 zombies per turn
 
-        spawn_count = 0
+        base_spawn_count = 0
         if self.turn <= 5:
-            spawn_count = random.randint(1, 2)
+            base_spawn_count = random.randint(1, 2)
         elif self.turn <= 10:
-            spawn_count = random.randint(2, 3)
+            base_spawn_count = random.randint(2, 3)
         elif self.turn <= 15:
-            spawn_count = random.randint(3, 4)
+            base_spawn_count = random.randint(3, 4)
         elif self.turn <= 20:
-            spawn_count = random.randint(4, 5)
+            base_spawn_count = random.randint(4, 5)
         elif self.turn <= 30:
-            spawn_count = random.randint(5, 7)
+            base_spawn_count = random.randint(5, 7)
         elif self.turn <= 40:
-            spawn_count = random.randint(7, 10)
+            base_spawn_count = random.randint(7, 10)
         else:
-            spawn_count = random.randint(10, 15)
+            base_spawn_count = random.randint(10, 15)
+
+        # Apply difficulty modifier - add some randomness within difficulty range
+        spawn_count = base_spawn_count + random.randint(self.zombie_spawn_count_min, self.zombie_spawn_count_max) - 1
 
         map_width = len(self.map_grid[0])
         map_height = len(self.map_grid)
@@ -441,7 +477,7 @@ class GameState:
 
             # Make sure there's not already a unit at this position
             if not self.get_unit_at(x, y):
-                zombie = Unit(x, y, 'zombie', 'enemy')
+                zombie = Unit(x, y, 'zombie', 'enemy', self.difficulty)
                 self.units.append(zombie)
 
         if spawn_count > 0:
@@ -484,9 +520,10 @@ class GameState:
                         break
 
                 if tiles_free:
-                    super_zombie = Unit(x, y, 'super_zombie', 'enemy')
+                    super_zombie = Unit(x, y, 'super_zombie', 'enemy', self.difficulty)
                     self.units.append(super_zombie)
-                    print(f"💀 A SUPER ZOMBIE has appeared! (HP: 200, Attack: 50)")
+                    # Display stats based on difficulty
+                    print(f"💀 A SUPER ZOMBIE has appeared! (HP: {super_zombie.max_health}, Attack: {super_zombie.attack_power})")
 
     def get_unit_at(self, x, y, exclude_unit=None):
         """Get unit at position, accounting for multi-tile units"""
@@ -1146,6 +1183,7 @@ class GameState:
             'turn': self.turn,
             'current_team': self.current_team,
             'game_won': self.game_won,
+            'difficulty': self.difficulty,
             'research_lab_pos': list(self.research_lab_pos) if self.research_lab_pos else None,
             'map_grid': [[int(tile) for tile in row] for row in self.map_grid],
             'resources': {f"{x},{y}": res for (x, y), res in self.resources.items()},
@@ -1214,8 +1252,17 @@ class GameState:
             print(f"Save file not found: {filepath}")
             return None
 
-        with open(filepath, 'r') as f:
-            save_data = json.load(f)
+        try:
+            with open(filepath, 'r') as f:
+                save_data = json.load(f)
+        except Exception as e:
+            print(f"Error loading save file {filepath}: {e}")
+            return None
+
+        # Validate save_data is a dictionary
+        if not isinstance(save_data, dict):
+            print(f"Invalid save file format: expected dictionary, got {type(save_data)}")
+            return None
 
         # Reconstruct map_grid with TileType values
         map_grid = [[tile for tile in row] for row in save_data['map_grid']]
@@ -1230,14 +1277,32 @@ class GameState:
         game_state.turn = save_data['turn']
         game_state.current_team = save_data['current_team']
         game_state.game_won = save_data.get('game_won', False)
+        game_state.difficulty = save_data.get('difficulty', 'medium')  # Default to medium if not present
         game_state.research_lab_pos = tuple(save_data['research_lab_pos']) if save_data.get('research_lab_pos') else None
         game_state.explored = [[bool(cell) for cell in row] for row in save_data['explored']]
         game_state.visible = [[False for _ in range(len(map_grid[0]))] for _ in range(len(map_grid))]
 
+        # Re-initialize difficulty settings based on loaded difficulty
+        if game_state.difficulty == 'easy':
+            game_state.zombie_spawn_rate = 0.15
+            game_state.zombie_spawn_count_min = 1
+            game_state.zombie_spawn_count_max = 2
+            game_state.starting_resources_multiplier = 1.5
+        elif game_state.difficulty == 'hard':
+            game_state.zombie_spawn_rate = 0.35
+            game_state.zombie_spawn_count_min = 2
+            game_state.zombie_spawn_count_max = 4
+            game_state.starting_resources_multiplier = 0.7
+        else:  # medium
+            game_state.zombie_spawn_rate = 0.25
+            game_state.zombie_spawn_count_min = 1
+            game_state.zombie_spawn_count_max = 3
+            game_state.starting_resources_multiplier = 1.0
+
         # Reconstruct units
         game_state.units = []
         for unit_data in save_data['units']:
-            unit = Unit(unit_data['x'], unit_data['y'], unit_data['unit_type'], unit_data['team'])
+            unit = Unit(unit_data['x'], unit_data['y'], unit_data['unit_type'], unit_data['team'], game_state.difficulty)
             unit.health = unit_data['health']
             unit.max_health = unit_data.get('max_health', unit.max_health)
             unit.attack_power = unit_data.get('attack_power', unit.attack_power)
@@ -1327,13 +1392,13 @@ class GameState:
         return []
 
     @staticmethod
-    def save_cure_victory(turns_to_cure):
-        """Save a cure victory to the cure leaderboard"""
+    def save_cure_victory(turns_to_cure, difficulty='medium'):
+        """Save a cure victory to the cure leaderboard (separate by difficulty)"""
         import datetime
 
         scores_dir = os.path.join(os.path.dirname(__file__), '..', 'saves')
         os.makedirs(scores_dir, exist_ok=True)
-        scores_file = os.path.join(scores_dir, 'cure_leaderboard.json')
+        scores_file = os.path.join(scores_dir, f'cure_leaderboard_{difficulty}.json')
 
         # Load existing scores
         scores = []
@@ -1347,6 +1412,7 @@ class GameState:
         # Add new score
         new_score = {
             'turns': turns_to_cure,
+            'difficulty': difficulty,
             'date': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         }
         scores.append(new_score)
@@ -1362,10 +1428,10 @@ class GameState:
         return scores
 
     @staticmethod
-    def load_cure_leaderboard():
-        """Load cure victories from file"""
+    def load_cure_leaderboard(difficulty='medium'):
+        """Load cure victories from file for a specific difficulty"""
         scores_dir = os.path.join(os.path.dirname(__file__), '..', 'saves')
-        scores_file = os.path.join(scores_dir, 'cure_leaderboard.json')
+        scores_file = os.path.join(scores_dir, f'cure_leaderboard_{difficulty}.json')
 
         if os.path.exists(scores_file):
             try:
