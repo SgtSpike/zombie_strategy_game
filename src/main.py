@@ -12,7 +12,8 @@ class ZombieStrategyGame:
         self.screen_width = 1800
         self.screen_height = 1000
         self.tile_size = 40
-        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
+        self.fullscreen = False
+        self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
         pygame.display.set_caption("Zombie Apocalypse Strategy")
 
         self.clock = pygame.time.Clock()
@@ -97,13 +98,48 @@ class ZombieStrategyGame:
         self.log_message(f"Difficulty: {difficulty.upper()}")
         self.log_message("Find the Research Lab and manufacture The Cure to save humanity!")
 
+    def toggle_fullscreen(self):
+        """Toggle between fullscreen and windowed mode"""
+        self.fullscreen = not self.fullscreen
+        if self.fullscreen:
+            self.screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+            # Get actual fullscreen resolution
+            info = pygame.display.Info()
+            self.screen_width = info.current_w
+            self.screen_height = info.current_h
+            self.log_message(f"Fullscreen mode enabled ({self.screen_width}x{self.screen_height})")
+        else:
+            self.screen_width = 1800
+            self.screen_height = 1000
+            self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
+            self.log_message("Windowed mode enabled")
+
+        # Update renderer if it exists
+        if self.renderer:
+            self.renderer.screen_width = self.screen_width
+            self.renderer.screen_height = self.screen_height
+
     def handle_events(self):
         """Handle user input"""
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 self.running = False
 
+            elif event.type == pygame.VIDEORESIZE:
+                # Handle window resize
+                self.screen_width = event.w
+                self.screen_height = event.h
+                self.screen = pygame.display.set_mode((self.screen_width, self.screen_height), pygame.RESIZABLE)
+                # Update renderer if it exists
+                if self.renderer:
+                    self.renderer.screen_width = self.screen_width
+                    self.renderer.screen_height = self.screen_height
+
             elif event.type == pygame.KEYDOWN:
+                # Toggle fullscreen with F11
+                if event.key == pygame.K_F11:
+                    self.toggle_fullscreen()
+                    continue
                 # Handle difficulty selection dialog
                 if self.difficulty_dialog_open:
                     # Allow load menu from difficulty dialog

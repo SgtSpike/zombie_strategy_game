@@ -14,7 +14,7 @@ After the zombie apocalypse, you lead a small group of survivors who must:
 
 ## Installation
 
-1. Install Python 3.8 or higher
+1. Install Python 3.8 or higher (but not higher than 3.11, as versions beyond this are not yet supported by pygame)
 2. Install dependencies:
 ```bash
 pip install -r requirements.txt
