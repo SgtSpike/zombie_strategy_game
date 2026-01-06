@@ -1,6 +1,9 @@
 # Save game files
 saves/
 
+#claude
+.claude/
+
 # Python cache
 __pycache__/
 *.pyc
