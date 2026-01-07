@@ -778,7 +778,7 @@ class ZombieStrategyGame:
                                     self.selected_unit = unit
                                     self.selected_city = None
                                     if unit.team != self.game_state.current_team:
-                                        self.log_message(f"Selected enemy {unit.unit_type} - HP: {unit.health}/{unit.max_health}, Attack: {unit.attack}")
+                                        self.log_message(f"Selected enemy {unit.unit_type} - HP: {unit.health}/{unit.max_health}, Attack: {unit.attack_power}")
                                 else:
                                     self.selected_unit = None
                                     self.selected_city = None
@@ -789,7 +789,7 @@ class ZombieStrategyGame:
                                 self.selected_unit = unit
                                 self.selected_city = None
                                 if unit.team != self.game_state.current_team:
-                                    self.log_message(f"Selected enemy {unit.unit_type} - HP: {unit.health}/{unit.max_health}, Attack: {unit.attack}")
+                                    self.log_message(f"Selected enemy {unit.unit_type} - HP: {unit.health}/{unit.max_health}, Attack: {unit.attack_power}")
                             else:
                                 # No unit, check for city
                                 city = self.game_state.get_city_at(tile_x, tile_y)
