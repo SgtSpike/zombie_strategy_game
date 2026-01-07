@@ -745,8 +745,8 @@ class Renderer:
             help_surface = help_font.render(instruction, True, (200, 200, 200))
             screen.blit(help_surface, (10, self.screen_height - 100 - i * 18))
 
-        # Tile information panel (use hovered tile during building placement, otherwise selected tile)
-        display_tile = hovered_tile if (hovered_tile and building_placement_mode and building_placement_mode not in ['survivor', 'scout', 'soldier', 'medic', 'upgrade']) else selected_tile
+        # Tile information panel (use hovered tile during building placement or upgrade, otherwise selected tile)
+        display_tile = hovered_tile if (hovered_tile and building_placement_mode and building_placement_mode not in ['survivor', 'scout', 'soldier', 'medic']) else selected_tile
         if display_tile:
             tile_x, tile_y = display_tile
             # Only show if tile is explored
@@ -871,6 +871,99 @@ class Renderer:
                     elif preview_building == 'wall':
                         preview_text = preview_font.render(f"PREVIEW: {preview_building.capitalize()} (defensive structure)", True, (100, 255, 100))
                         screen.blit(preview_text, (panel_x + 10, panel_y + y_offset))
+
+                # Show upgrade preview in upgrade mode
+                elif building_placement_mode == 'upgrade' and display_tile == hovered_tile:
+                    building = game_state.get_building_at(tile_x, tile_y)
+                    if building:
+                        building_type = building['type']
+                        terrain = building['terrain']
+                        current_level = building.get('level', 1)
+
+                        if current_level < 3:
+                            next_level = current_level + 1
+                            upgrade_cost = 20 * current_level  # Cost increases per level
+
+                            # Calculate current and next production
+                            if building_type == 'farm':
+                                current_prod = 0
+                                if terrain == TileType.GRASS:
+                                    current_prod = 6
+                                elif terrain == TileType.FOREST:
+                                    current_prod = 3
+                                current_prod *= current_level
+                                next_prod = current_prod // current_level * next_level if current_level > 0 else 0
+
+                                upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
+                                screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                cost_text = preview_font.render(f"Cost: {upgrade_cost} materials", True, (255, 200, 100))
+                                screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                prod_text = preview_font.render(f"Production: {current_prod} → {next_prod} food/turn", True, (100, 255, 100))
+                                screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
+
+                            elif building_type == 'dock':
+                                current_prod = 12 * current_level
+                                next_prod = 12 * next_level
+
+                                upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
+                                screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                cost_text = preview_font.render(f"Cost: {upgrade_cost} materials", True, (255, 200, 100))
+                                screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                prod_text = preview_font.render(f"Production: {current_prod} → {next_prod} food/turn", True, (100, 255, 100))
+                                screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
+
+                            elif building_type == 'workshop':
+                                current_prod = 0
+                                if terrain == TileType.RUBBLE:
+                                    current_prod = 2
+                                elif terrain in [TileType.BUILDING_RUINED, TileType.ROAD]:
+                                    current_prod = 4
+                                elif terrain == TileType.BUILDING_INTACT:
+                                    current_prod = 8
+                                current_prod *= current_level
+                                next_prod = current_prod // current_level * next_level if current_level > 0 else 0
+
+                                upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
+                                screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                cost_text = preview_font.render(f"Cost: {upgrade_cost} materials", True, (255, 200, 100))
+                                screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                prod_text = preview_font.render(f"Production: {current_prod} → {next_prod} materials/turn", True, (100, 255, 100))
+                                screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
+
+                            elif building_type == 'hospital':
+                                current_prod = 2
+                                if terrain == TileType.BUILDING_INTACT:
+                                    current_prod += 4
+                                current_prod *= current_level
+                                next_prod = current_prod // current_level * next_level if current_level > 0 else 0
+
+                                upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
+                                screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                cost_text = preview_font.render(f"Cost: {upgrade_cost} materials", True, (255, 200, 100))
+                                screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                prod_text = preview_font.render(f"Production: {current_prod} → {next_prod} medicine/turn", True, (100, 255, 100))
+                                screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
+
+                            elif building_type == 'wall':
+                                upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
+                                screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                cost_text = preview_font.render(f"Cost: {upgrade_cost} materials", True, (255, 200, 100))
+                                screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                prod_text = preview_font.render(f"Effect: Increased defensive bonus", True, (100, 255, 100))
+                                screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
+                        else:
+                            max_text = preview_font.render(f"{building_type.capitalize()} is at MAX LEVEL", True, (255, 100, 100))
+                            screen.blit(max_text, (panel_x + 10, panel_y + y_offset))
 
                 # Show current building production if there's a building here
                 elif not building_placement_mode:

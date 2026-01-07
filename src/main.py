@@ -23,6 +23,7 @@ class ZombieStrategyGame:
         self.difficulty_dialog_open = True
         self.difficulty = None  # Will be set to 'easy', 'medium', or 'hard'
         self.selected_difficulty_button = 'medium'  # Default highlight
+        self.selected_map_size = 50  # Default map size: 30, 50, or 100
 
         # Map and game state will be initialized after difficulty selection
         self.game_state = None
@@ -83,8 +84,8 @@ class ZombieStrategyGame:
         self.difficulty = difficulty
         self.difficulty_dialog_open = False
 
-        # Generate map
-        self.map_gen = MapGenerator(width=50, height=50)
+        # Generate map with selected size
+        self.map_gen = MapGenerator(width=self.selected_map_size, height=self.selected_map_size)
         map_grid = self.map_gen.generate()
 
         # Initialize game state with research lab position and difficulty
@@ -711,40 +712,47 @@ class ZombieStrategyGame:
                                 if not has_los:
                                     self.log_message("Wall placement requires line-of-sight from city!")
                                     self.building_placement_mode = None
-                                # Check if tile is not occupied
-                                elif not self.game_state.get_unit_at(tile_x, tile_y) and \
-                                   not self.game_state.get_city_at(tile_x, tile_y) and \
-                                   not self.game_state.get_building_at(tile_x, tile_y):
-
-                                    terrain = self.game_state.map_grid[tile_y][tile_x]
-
-                                    # Special validation for dock - must be on water
-                                    if building_type == 'dock' and terrain != TileType.WATER:
-                                        self.log_message("Docks can only be built on water!")
-                                        self.building_placement_mode = None
-                                    else:
-                                        # Regular building placement using city resources
-                                        if self.selected_city.can_build(building_type):
-                                            result = self.selected_city.build(building_type, tile_x, tile_y, terrain)
-
-                                            # Check if cure was manufactured (special win condition)
-                                            if result == 'cure_manufactured':
-                                                self.game_state.manufacture_cure()
-                                                # Save to cure leaderboard and set victory state
-                                                self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
-                                                self.game_won = True
-                                                self.victory_panel_open = True
-                                                self.final_score = self.game_state.turn
-                                                self.log_message(f"🎉 VICTORY! Cure manufactured on turn {self.game_state.turn}!")
-                                            else:
-                                                self.log_message(f"Built {building_type} at ({tile_x}, {tile_y})!")
-                                        else:
-                                            self.log_message(f"Not enough city resources!")
-
-                                        self.building_placement_mode = None
-                                        self.game_state.update_visibility()
+                                # Check if tile is not occupied by city, building, or enemy unit
                                 else:
-                                    self.log_message("Cannot build here - tile is occupied!")
+                                    unit_at_tile = self.game_state.get_unit_at(tile_x, tile_y)
+                                    enemy_unit_blocking = unit_at_tile and unit_at_tile.team != 'player'
+
+                                    if not enemy_unit_blocking and \
+                                       not self.game_state.get_city_at(tile_x, tile_y) and \
+                                       not self.game_state.get_building_at(tile_x, tile_y):
+
+                                        terrain = self.game_state.map_grid[tile_y][tile_x]
+
+                                        # Special validation for dock - must be on water
+                                        if building_type == 'dock' and terrain != TileType.WATER:
+                                            self.log_message("Docks can only be built on water!")
+                                            self.building_placement_mode = None
+                                        else:
+                                            # Regular building placement using city resources
+                                            if self.selected_city.can_build(building_type):
+                                                result = self.selected_city.build(building_type, tile_x, tile_y, terrain)
+
+                                                # Check if cure was manufactured (special win condition)
+                                                if result == 'cure_manufactured':
+                                                    self.game_state.manufacture_cure()
+                                                    # Save to cure leaderboard and set victory state
+                                                    self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
+                                                    self.game_won = True
+                                                    self.victory_panel_open = True
+                                                    self.final_score = self.game_state.turn
+                                                    self.log_message(f"🎉 VICTORY! Cure manufactured on turn {self.game_state.turn}!")
+                                                else:
+                                                    self.log_message(f"Built {building_type} at ({tile_x}, {tile_y})!")
+                                            else:
+                                                self.log_message(f"Not enough city resources!")
+
+                                            self.building_placement_mode = None
+                                            self.game_state.update_visibility()
+                                    else:
+                                        if enemy_unit_blocking:
+                                            self.log_message("Cannot build here - enemy unit in the way!")
+                                        else:
+                                            self.log_message("Cannot build here - tile is occupied!")
                             else:
                                 if building_type == 'wall':
                                     self.log_message("Wall must be within 6 tiles of city!")
@@ -764,20 +772,24 @@ class ZombieStrategyGame:
                                 self.selected_unit = None
                                 self.log_message(f"Selected {city.name} - Buildings: {', '.join(city.buildings)}")
                             else:
-                                # No city, check for unit
+                                # No city, check for unit (allow selecting any unit)
                                 unit = self.game_state.get_unit_at(tile_x, tile_y)
-                                if unit and unit.team == self.game_state.current_team:
+                                if unit:
                                     self.selected_unit = unit
                                     self.selected_city = None
+                                    if unit.team != self.game_state.current_team:
+                                        self.log_message(f"Selected enemy {unit.unit_type} - HP: {unit.health}/{unit.max_health}, Attack: {unit.attack}")
                                 else:
                                     self.selected_unit = None
                                     self.selected_city = None
                         else:
-                            # Normal click: prioritize units
+                            # Normal click: prioritize units (allow selecting any unit)
                             unit = self.game_state.get_unit_at(tile_x, tile_y)
-                            if unit and unit.team == self.game_state.current_team:
+                            if unit:
                                 self.selected_unit = unit
                                 self.selected_city = None
+                                if unit.team != self.game_state.current_team:
+                                    self.log_message(f"Selected enemy {unit.unit_type} - HP: {unit.health}/{unit.max_health}, Attack: {unit.attack}")
                             else:
                                 # No unit, check for city
                                 city = self.game_state.get_city_at(tile_x, tile_y)
@@ -1134,8 +1146,8 @@ class ZombieStrategyGame:
 
     def get_difficulty_button_clicked(self, mouse_x, mouse_y):
         """Check if a difficulty button was clicked and return the difficulty level"""
-        dialog_width = 600
-        dialog_height = 400
+        dialog_width = 650
+        dialog_height = 650
         dialog_x = self.screen_width // 2 - dialog_width // 2
         dialog_y = self.screen_height // 2 - dialog_height // 2
 
@@ -1144,12 +1156,38 @@ class ZombieStrategyGame:
         button_height = 60
         button_x = dialog_x + (dialog_width - button_width) // 2
 
-        # Check each button
+        # Check each difficulty button
         difficulties = ['easy', 'medium', 'hard']
         for i, diff in enumerate(difficulties):
             button_y = dialog_y + 120 + i * 80
             if button_x <= mouse_x <= button_x + button_width and button_y <= mouse_y <= button_y + button_height:
-                return diff
+                self.selected_difficulty_button = diff
+                return None  # Don't start immediately, wait for START button
+
+        # Check map size buttons
+        map_sizes = [30, 50, 100]
+        small_button_width = 180
+        small_button_height = 70
+        spacing = 20
+        total_width = small_button_width * 3 + spacing * 2
+        start_x = dialog_x + (dialog_width - total_width) // 2
+        map_button_y = dialog_y + 430
+
+        for i, size in enumerate(map_sizes):
+            map_button_x = start_x + i * (small_button_width + spacing)
+            if map_button_x <= mouse_x <= map_button_x + small_button_width and map_button_y <= mouse_y <= map_button_y + small_button_height:
+                self.selected_map_size = size
+                return None  # Don't start immediately, wait for START button
+
+        # Check START button
+        start_button_width = 200
+        start_button_height = 50
+        start_button_x = dialog_x + (dialog_width - start_button_width) // 2
+        start_button_y = dialog_y + dialog_height - 50
+
+        if start_button_x <= mouse_x <= start_button_x + start_button_width and start_button_y <= mouse_y <= start_button_y + start_button_height:
+            return self.selected_difficulty_button  # Start the game with selected settings
+
         return None
 
     def is_message_box_clicked(self, mouse_x, mouse_y):
@@ -1217,9 +1255,9 @@ class ZombieStrategyGame:
         # Black background
         self.screen.fill((20, 20, 30))
 
-        # Dialog panel
-        dialog_width = 600
-        dialog_height = 500
+        # Dialog panel (larger to fit map size options)
+        dialog_width = 650
+        dialog_height = 650
         dialog_x = self.screen_width // 2 - dialog_width // 2
         dialog_y = self.screen_height // 2 - dialog_height // 2
 
@@ -1228,9 +1266,15 @@ class ZombieStrategyGame:
 
         # Title
         title_font = pygame.font.Font(None, 48)
-        title = title_font.render("Select Difficulty", True, (150, 200, 255))
-        title_rect = title.get_rect(center=(self.screen_width // 2, dialog_y + 50))
+        title = title_font.render("New Game Setup", True, (150, 200, 255))
+        title_rect = title.get_rect(center=(self.screen_width // 2, dialog_y + 40))
         self.screen.blit(title, title_rect)
+
+        # Difficulty section title
+        section_font = pygame.font.Font(None, 32)
+        diff_title = section_font.render("Difficulty", True, (200, 200, 200))
+        diff_title_rect = diff_title.get_rect(center=(self.screen_width // 2, dialog_y + 85))
+        self.screen.blit(diff_title, diff_title_rect)
 
         # Button dimensions
         button_width = 400
@@ -1244,7 +1288,7 @@ class ZombieStrategyGame:
             'hard': 'More zombies, fewer resources'
         }
 
-        # Render buttons
+        # Render difficulty buttons
         difficulties = ['easy', 'medium', 'hard']
         button_colors = {
             'easy': (50, 150, 50),
@@ -1282,16 +1326,80 @@ class ZombieStrategyGame:
             desc_rect = desc_text.get_rect(center=(button_x + button_width // 2, button_y + 45))
             self.screen.blit(desc_text, desc_rect)
 
+        # Map Size section
+        map_title = section_font.render("Map Size", True, (200, 200, 200))
+        map_title_rect = map_title.get_rect(center=(self.screen_width // 2, dialog_y + 390))
+        self.screen.blit(map_title, map_title_rect)
+
+        # Map size buttons (horizontal layout)
+        map_sizes = [30, 50, 100]
+        map_descriptions = {
+            30: 'Small - Quick games',
+            50: 'Medium - Balanced',
+            100: 'Large - Epic battles'
+        }
+
+        small_button_width = 180
+        small_button_height = 70
+        spacing = 20
+        total_width = small_button_width * 3 + spacing * 2
+        start_x = dialog_x + (dialog_width - total_width) // 2
+        map_button_y = dialog_y + 430
+
+        for i, size in enumerate(map_sizes):
+            map_button_x = start_x + i * (small_button_width + spacing)
+
+            # Check if hovering or selected
+            is_hovering = map_button_x <= mouse_x <= map_button_x + small_button_width and map_button_y <= mouse_y <= map_button_y + small_button_height
+            is_selected = self.selected_map_size == size
+
+            # Button background
+            button_color = (80, 100, 150) if (is_hovering or is_selected) else (40, 50, 80)
+            border_color = (200, 200, 200) if (is_hovering or is_selected) else (100, 100, 100)
+            border_width = 3 if (is_hovering or is_selected) else 2
+
+            pygame.draw.rect(self.screen, button_color, (map_button_x, map_button_y, small_button_width, small_button_height))
+            pygame.draw.rect(self.screen, border_color, (map_button_x, map_button_y, small_button_width, small_button_height), border_width)
+
+            # Button text
+            size_font = pygame.font.Font(None, 32)
+            size_text = size_font.render(f"{size}x{size}", True, (255, 255, 255))
+            size_rect = size_text.get_rect(center=(map_button_x + small_button_width // 2, map_button_y + 25))
+            self.screen.blit(size_text, size_rect)
+
+            # Description
+            desc_small_font = pygame.font.Font(None, 16)
+            desc_small_text = desc_small_font.render(map_descriptions[size], True, (180, 180, 180))
+            desc_small_rect = desc_small_text.get_rect(center=(map_button_x + small_button_width // 2, map_button_y + 50))
+            self.screen.blit(desc_small_text, desc_small_rect)
+
         # Instructions
-        inst_font = pygame.font.Font(None, 22)
-        inst_text = inst_font.render("Click a difficulty or press 1/2/3 • Use Arrow Keys to navigate • Press Enter to confirm", True, (150, 150, 150))
-        inst_rect = inst_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 50))
+        inst_font = pygame.font.Font(None, 20)
+        inst_text = inst_font.render("Select difficulty and map size, then click START or press Enter", True, (150, 150, 150))
+        inst_rect = inst_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 70))
         self.screen.blit(inst_text, inst_rect)
 
-        # Load game hint
-        load_font = pygame.font.Font(None, 20)
-        load_text = load_font.render("Or press Ctrl+L to load a saved game", True, (120, 120, 150))
-        load_rect = load_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 25))
+        # Start button
+        start_button_width = 200
+        start_button_height = 50
+        start_button_x = dialog_x + (dialog_width - start_button_width) // 2
+        start_button_y = dialog_y + dialog_height - 50
+
+        is_start_hovering = start_button_x <= mouse_x <= start_button_x + start_button_width and start_button_y <= mouse_y <= start_button_y + start_button_height
+        start_color = (50, 200, 50) if is_start_hovering else (30, 120, 30)
+
+        pygame.draw.rect(self.screen, start_color, (start_button_x, start_button_y, start_button_width, start_button_height))
+        pygame.draw.rect(self.screen, (200, 200, 200), (start_button_x, start_button_y, start_button_width, start_button_height), 3)
+
+        start_font = pygame.font.Font(None, 36)
+        start_text = start_font.render("START", True, (255, 255, 255))
+        start_rect = start_text.get_rect(center=(start_button_x + start_button_width // 2, start_button_y + start_button_height // 2))
+        self.screen.blit(start_text, start_rect)
+
+        # Load game hint (moved to the side of START button)
+        load_font = pygame.font.Font(None, 18)
+        load_text = load_font.render("Ctrl+L to load a saved game", True, (120, 120, 150))
+        load_rect = load_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 20))
         self.screen.blit(load_text, load_rect)
 
     def render_save_menu(self):
