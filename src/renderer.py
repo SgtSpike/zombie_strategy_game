@@ -879,6 +879,7 @@ class Renderer:
                         building_type = building['type']
                         terrain = building['terrain']
                         current_level = building.get('level', 1)
+                        preview_font = pygame.font.Font(None, 22)
 
                         if current_level < 3:
                             next_level = current_level + 1
