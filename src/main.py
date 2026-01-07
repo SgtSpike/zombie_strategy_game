@@ -1183,7 +1183,7 @@ class ZombieStrategyGame:
         start_button_width = 200
         start_button_height = 50
         start_button_x = dialog_x + (dialog_width - start_button_width) // 2
-        start_button_y = dialog_y + dialog_height - 50
+        start_button_y = dialog_y + dialog_height - 70
 
         if start_button_x <= mouse_x <= start_button_x + start_button_width and start_button_y <= mouse_y <= start_button_y + start_button_height:
             return self.selected_difficulty_button  # Start the game with selected settings
@@ -1376,14 +1376,14 @@ class ZombieStrategyGame:
         # Instructions
         inst_font = pygame.font.Font(None, 20)
         inst_text = inst_font.render("Select difficulty and map size, then click START or press Enter", True, (150, 150, 150))
-        inst_rect = inst_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 70))
+        inst_rect = inst_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 100))
         self.screen.blit(inst_text, inst_rect)
 
         # Start button
         start_button_width = 200
         start_button_height = 50
         start_button_x = dialog_x + (dialog_width - start_button_width) // 2
-        start_button_y = dialog_y + dialog_height - 50
+        start_button_y = dialog_y + dialog_height - 70
 
         is_start_hovering = start_button_x <= mouse_x <= start_button_x + start_button_width and start_button_y <= mouse_y <= start_button_y + start_button_height
         start_color = (50, 200, 50) if is_start_hovering else (30, 120, 30)
@@ -1396,10 +1396,10 @@ class ZombieStrategyGame:
         start_rect = start_text.get_rect(center=(start_button_x + start_button_width // 2, start_button_y + start_button_height // 2))
         self.screen.blit(start_text, start_rect)
 
-        # Load game hint (moved to the side of START button)
+        # Load game hint (below START button)
         load_font = pygame.font.Font(None, 18)
-        load_text = load_font.render("Ctrl+L to load a saved game", True, (120, 120, 150))
-        load_rect = load_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 20))
+        load_text = load_font.render("Or press Ctrl+L to load a saved game", True, (120, 120, 150))
+        load_rect = load_text.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 15))
         self.screen.blit(load_text, load_rect)
 
     def render_save_menu(self):
