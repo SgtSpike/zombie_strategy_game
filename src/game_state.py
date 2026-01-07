@@ -243,8 +243,8 @@ class City:
         from map_generator import TileType
 
         production = {
-            'food': 0,
-            'materials': 0,
+            'food': 2,  # Base city production
+            'materials': 2,  # Base city production
             'medicine': 0
         }
 
@@ -289,6 +289,52 @@ class City:
         # Add production to city resources
         for resource, amount in production.items():
             self.resources[resource] += amount
+
+        return production
+
+    def calculate_production(self):
+        """Calculate total resource production per turn without actually producing"""
+        from map_generator import TileType
+
+        production = {
+            'food': 2,  # Base city production
+            'materials': 2,  # Base city production
+            'medicine': 0
+        }
+
+        # Calculate production from placed buildings with terrain bonuses
+        for location, building_info in self.building_locations.items():
+            building_type = building_info['type']
+            terrain = building_info['terrain']
+            level = building_info.get('level', 1)
+
+            if building_type == 'farm':
+                food_production = 0
+                if terrain == TileType.GRASS:
+                    food_production = 6
+                elif terrain == TileType.FOREST:
+                    food_production = 3
+                production['food'] += food_production * level
+
+            elif building_type == 'dock':
+                food_production = 12
+                production['food'] += food_production * level
+
+            elif building_type == 'workshop':
+                materials_production = 0
+                if terrain == TileType.RUBBLE:
+                    materials_production = 2
+                elif terrain in [TileType.BUILDING_RUINED, TileType.ROAD]:
+                    materials_production = 4
+                elif terrain == TileType.BUILDING_INTACT:
+                    materials_production = 8
+                production['materials'] += materials_production * level
+
+            elif building_type == 'hospital':
+                medicine_production = 2
+                if terrain == TileType.BUILDING_INTACT:
+                    medicine_production += 4
+                production['medicine'] += medicine_production * level
 
         return production
 

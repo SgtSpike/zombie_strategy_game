@@ -692,9 +692,16 @@ class Renderer:
                 stat_surface = stats_font.render(stat, True, (220, 220, 220))
                 screen.blit(stat_surface, (panel_x + 10, panel_y + 45 + i * 22))
 
+            # Production display
+            production = selected_city.calculate_production()
+            prod_font = pygame.font.Font(None, 20)
+            prod_text = f"Production/turn: +{production['food']} food, +{production['materials']} materials, +{production['medicine']} medicine"
+            prod_surface = prod_font.render(prod_text, True, (150, 255, 150))
+            screen.blit(prod_surface, (panel_x + 10, panel_y + 112))
+
             # Building menu
             menu_font = pygame.font.Font(None, 22)
-            menu_y = panel_y + 120
+            menu_y = panel_y + 142
             menu_title = menu_font.render("Build:", True, (255, 255, 255))
             screen.blit(menu_title, (panel_x + 10, menu_y))
 
