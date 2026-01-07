@@ -43,7 +43,7 @@ When a city is selected:
 - **1** - Build Farm (30 materials)
 - **2** - Build Workshop (50 materials)
 - **3** - Build Hospital (40 materials)
-- **4** - Build Wall (25 materials)
+- **4** - Build Wall (5 materials)
 - **5** - Build Dock (40 materials, must be on water)
 - **6** - Recruit Survivor (20 food, 10 materials)
 - **7** - Recruit Scout (15 food, 5 materials)
@@ -200,7 +200,7 @@ Buildings are placed on adjacent tiles to cities and provide production bonuses 
 - Intact Building: 6 medicine/turn
 - Other: 2 medicine/turn
 
-**Wall** (25 materials)
+**Wall** (5 materials)
 - When built on city tile: Doubles city HP to 100
 - Provides defensive bonus
 

@@ -706,7 +706,7 @@ class Renderer:
                 ("1: Farm", "30 mat (place on tile)"),
                 ("2: Workshop", "50 mat (place on tile)"),
                 ("3: Hospital", "40 mat (place on tile)"),
-                ("4: Wall", "10 mat (place on tile)"),
+                ("4: Wall", "5 mat (place on tile)"),
                 ("5: Dock", "40 mat (place on water)"),
                 ("6: Survivor", "20 food, 10 mat"),
                 ("7: Scout", "15 food, 5 mat (fast)"),
