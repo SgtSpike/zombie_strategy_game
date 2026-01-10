@@ -22,7 +22,7 @@ class ZombieStrategyGame:
         # Difficulty configuration
         self.difficulty_dialog_open = True
         self.difficulty = None  # Will be set to 'easy', 'medium', or 'hard'
-        self.selected_difficulty_button = 'medium'  # Default highlight
+        self.selected_difficulty_button = None  # No default selection
         self.selected_map_size = 50  # Default map size: 30, 50, or 100
 
         # Map and game state will be initialized after difficulty selection
@@ -159,14 +159,21 @@ class ZombieStrategyGame:
                         self.initialize_game('hard')
                     elif event.key == pygame.K_UP:
                         difficulties = ['easy', 'medium', 'hard']
-                        idx = difficulties.index(self.selected_difficulty_button)
-                        self.selected_difficulty_button = difficulties[(idx - 1) % 3]
+                        if self.selected_difficulty_button is None:
+                            self.selected_difficulty_button = 'hard'  # Wrap to last
+                        else:
+                            idx = difficulties.index(self.selected_difficulty_button)
+                            self.selected_difficulty_button = difficulties[(idx - 1) % 3]
                     elif event.key == pygame.K_DOWN:
                         difficulties = ['easy', 'medium', 'hard']
-                        idx = difficulties.index(self.selected_difficulty_button)
-                        self.selected_difficulty_button = difficulties[(idx + 1) % 3]
+                        if self.selected_difficulty_button is None:
+                            self.selected_difficulty_button = 'easy'  # Start at first
+                        else:
+                            idx = difficulties.index(self.selected_difficulty_button)
+                            self.selected_difficulty_button = difficulties[(idx + 1) % 3]
                     elif event.key == pygame.K_RETURN:
-                        self.initialize_game(self.selected_difficulty_button)
+                        if self.selected_difficulty_button is not None:
+                            self.initialize_game(self.selected_difficulty_button)
                     continue
 
                 # Handle victory screen
@@ -557,9 +564,11 @@ class ZombieStrategyGame:
 
                 # Handle difficulty dialog clicks (only if load menu is not open)
                 if self.difficulty_dialog_open and not self.load_menu_open:
-                    difficulty_clicked = self.get_difficulty_button_clicked(mouse_x, mouse_y)
-                    if difficulty_clicked:
-                        self.initialize_game(difficulty_clicked)
+                    # Only handle left clicks in difficulty dialog
+                    if event.button == 1:
+                        difficulty_clicked = self.get_difficulty_button_clicked(mouse_x, mouse_y)
+                        if difficulty_clicked:
+                            self.initialize_game(difficulty_clicked)
                     continue
 
                 # Check if click is on message box (toggle message log)
