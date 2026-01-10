@@ -425,6 +425,32 @@ class ZombieStrategyGame:
                     else:
                         self.log_message("Select a medic to heal")
 
+                # Triangulate lab signals (Q key - scouts only)
+                elif event.key == pygame.K_q:
+                    if self.selected_unit and self.selected_unit.team == 'player' and self.selected_unit.unit_type == 'scout':
+                        if self.selected_unit.moves_remaining >= self.selected_unit.max_moves:
+                            if self.game_state.triangulation_level < 4:
+                                # Use the scout's turn
+                                self.selected_unit.moves_remaining = 0
+                                self.game_state.triangulation_level += 1
+
+                                level_messages = {
+                                    1: "Scout detected faint radio signals from the lab. Area marked on minimap (very large radius).",
+                                    2: "Scout triangulated signals more precisely. Search area narrowed (large radius).",
+                                    3: "Scout is closing in on the signal source. Area significantly reduced (medium radius).",
+                                    4: "Scout pinpointed the exact lab location! Marked on minimap."
+                                }
+                                self.log_message(level_messages[self.game_state.triangulation_level])
+                                self.has_unsaved_changes = True
+                            else:
+                                self.log_message("Lab location already revealed!")
+                        else:
+                            self.log_message("Scout needs full movement points to triangulate signals")
+                    elif self.selected_unit and self.selected_unit.unit_type != 'scout':
+                        self.log_message("Only scouts can triangulate lab signals")
+                    else:
+                        self.log_message("Select a scout to triangulate")
+
                 # Enter building placement mode
                 elif event.key == pygame.K_1:  # Farm
                     if self.game_state.current_team != 'player':

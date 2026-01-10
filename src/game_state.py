@@ -435,6 +435,9 @@ class GameState:
         self.explored = [[False for _ in range(len(map_grid[0]))] for _ in range(len(map_grid))]
         self.visible = [[False for _ in range(len(map_grid[0]))] for _ in range(len(map_grid))]
 
+        # Lab triangulation state
+        self.triangulation_level = 0  # 0=not started, 1-3=partial, 4=revealed
+
         # Initialize player units
         self.units = []
         self.spawn_initial_units()
@@ -1231,6 +1234,7 @@ class GameState:
             'game_won': self.game_won,
             'difficulty': self.difficulty,
             'research_lab_pos': list(self.research_lab_pos) if self.research_lab_pos else None,
+            'triangulation_level': self.triangulation_level,
             'map_grid': [[int(tile) for tile in row] for row in self.map_grid],
             'resources': {f"{x},{y}": res for (x, y), res in self.resources.items()},
             'explored': [[bool(cell) for cell in row] for row in self.explored],
@@ -1327,6 +1331,9 @@ class GameState:
         game_state.research_lab_pos = tuple(save_data['research_lab_pos']) if save_data.get('research_lab_pos') else None
         game_state.explored = [[bool(cell) for cell in row] for row in save_data['explored']]
         game_state.visible = [[False for _ in range(len(map_grid[0]))] for _ in range(len(map_grid))]
+
+        # Load triangulation level (default to 0 for backwards compatibility with old saves)
+        game_state.triangulation_level = save_data.get('triangulation_level', 0)
 
         # Re-initialize difficulty settings based on loaded difficulty
         if game_state.difficulty == 'easy':

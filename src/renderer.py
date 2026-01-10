@@ -505,10 +505,29 @@ class Renderer:
                 pixel_y = minimap_y + int(city.y * scale_y)
                 pygame.draw.circle(screen, (255, 255, 0), (pixel_x, pixel_y), 3)
 
-        # Draw research lab
+        # Draw triangulation circles for lab location
+        if game_state.research_lab_pos and game_state.triangulation_level > 0 and game_state.triangulation_level < 4:
+            lab_x, lab_y = game_state.research_lab_pos
+            pixel_x = minimap_x + int(lab_x * scale_x)
+            pixel_y = minimap_y + int(lab_y * scale_y)
+
+            # Calculate radius based on triangulation level and map size
+            map_width = len(game_state.map_grid[0])
+            base_radius = minimap_size * 0.5  # Start with half the minimap
+
+            # Level 1: 50% of minimap, Level 2: 30%, Level 3: 15%
+            radius_percentages = {1: 0.50, 2: 0.30, 3: 0.15}
+            circle_radius = int(base_radius * radius_percentages[game_state.triangulation_level])
+
+            # Draw semi-transparent circle (draw multiple circles with varying alpha for effect)
+            for i in range(3):
+                alpha_color = (150 + i * 20, 100 + i * 20, 200 + i * 20)
+                pygame.draw.circle(screen, alpha_color, (pixel_x, pixel_y), circle_radius - i, 2)
+
+        # Draw research lab (only if explored or fully triangulated)
         if game_state.research_lab_pos:
             lab_x, lab_y = game_state.research_lab_pos
-            if game_state.explored[lab_y][lab_x]:
+            if game_state.explored[lab_y][lab_x] or game_state.triangulation_level >= 4:
                 pixel_x = minimap_x + int(lab_x * scale_x)
                 pixel_y = minimap_y + int(lab_y * scale_y)
                 pygame.draw.circle(screen, (200, 150, 255), (pixel_x, pixel_y), 4)

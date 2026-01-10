@@ -57,6 +57,7 @@ When a city is selected:
 - **R** - Scavenge resources from current tile
 - **T** - Transfer resources from unit to city (when on city tile)
 - **G** - Gather resources from city to unit (when on city tile)
+- **Q** - Triangulate lab signals (scouts only, requires full movement points)
 
 ### System
 - **Ctrl+S** - Open save menu
@@ -99,6 +100,7 @@ Your survivors can collect four types of resources:
 - Attack: 8 damage
 - Vision: 3 tiles (vs 2 for others)
 - XP Gain: 1 XP per new tile explored
+- Special Ability: Triangulate lab signals (Press Q)
 - Role: Map exploration and reconnaissance
 
 **Soldier** (Combat Specialist)
@@ -228,6 +230,30 @@ Buildings are placed on adjacent tiles to cities and provide production bonuses 
 - Scouts have vision range of 3 tiles
 - Other units have vision range of 2 tiles
 
+### Finding the Research Lab
+
+**Lab Triangulation (Scout Special Ability):**
+
+Scouts can use their turn to triangulate radio signals from the Research Lab, progressively narrowing down its location on the minimap:
+
+1. **Select a scout** with full movement points (hasn't moved this turn)
+2. **Press Q** to "Triangulate signals from lab"
+3. The scout uses their entire turn (movement set to 0)
+4. A circle appears on the minimap showing the possible lab location
+
+**Triangulation Levels:**
+- **Level 1:** Very large search area (50% of minimap)
+- **Level 2:** Large search area (30% of minimap)
+- **Level 3:** Medium search area (15% of minimap)
+- **Level 4:** Exact location revealed on minimap
+
+**Strategy:**
+- Use 4 scout triangulations to find the lab without exploring
+- Each triangulation narrows the search area significantly
+- The circle size scales with map size (larger on 100×100 maps)
+- Once found, you can plan your route to the lab efficiently
+- Balances the challenge of finding the lab on large maps
+
 ### Map Features
 
 **Terrain Types:**
@@ -306,10 +332,10 @@ Located in bottom-right corner (200×200 pixels):
 
 ### Early Game (Turns 1-10)
 1. Scavenge nearby ruined buildings for resources
-2. Scout the map to find the Research Lab
+2. Recruit scouts and use triangulation (Q key) to locate the Research Lab
 3. Found your first city in a defensible location
 4. Build farms to ensure food supply
-5. Recruit scouts for faster exploration
+5. Scout the map systematically to reveal terrain
 
 ### Mid Game (Turns 11-25)
 1. Build multiple cities for resource production
@@ -348,7 +374,8 @@ Located in bottom-right corner (200×200 pixels):
 - Cities and buildings can be destroyed - protect them!
 
 **Cure Route:**
-- Prioritize finding Research Lab early
+- Use scout triangulation (Q key) to find Research Lab quickly
+- Four triangulations reveal exact location without exploring
 - Build hospitals in multiple cities as backup
 - Stockpile resources in preparation
 - Super zombies make late-game harder - manufacture cure sooner!
