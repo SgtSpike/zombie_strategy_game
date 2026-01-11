@@ -450,9 +450,17 @@ class GameState:
 
     def spawn_initial_units(self):
         """Spawn starting survivors and zombies"""
-        # Spawn 3 player survivors with starting resources
+        import random
+
+        # Choose random starting location for survivors (avoid edges)
+        map_width = len(self.map_grid[0])
+        map_height = len(self.map_grid)
+        start_x = random.randint(10, map_width - 10)
+        start_y = random.randint(10, map_height - 10)
+
+        # Spawn 3 player survivors with starting resources (clustered together)
         for i in range(3):
-            survivor = Unit(5 + i, 5, 'survivor', 'player', self.difficulty)
+            survivor = Unit(start_x + i, start_y, 'survivor', 'player', self.difficulty)
             # Give each survivor some starting resources (adjusted by difficulty)
             # Medicine cannot be found - must be produced by hospitals
             survivor.inventory['food'] = int(20 * self.starting_resources_multiplier)
@@ -461,7 +469,6 @@ class GameState:
             self.units.append(survivor)
 
         # Spawn some zombies scattered around
-        import random
         for _ in range(5):
             x = random.randint(10, len(self.map_grid[0]) - 5)
             y = random.randint(10, len(self.map_grid) - 5)

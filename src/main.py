@@ -67,6 +67,15 @@ class ZombieStrategyGame:
         self.last_save_turn = 0  # Track turn number of last save
         self.has_unsaved_changes = False
 
+        # Standard notification dialog
+        self.notification_dialog_open = False
+        self.notification_dialog_data = {
+            'title': '',
+            'messages': [],
+            'type': 'info',  # 'info' or 'confirm'
+            'callback': None  # Function to call on confirmation
+        }
+
         # Console message log
         self.message_log = []
         self.message_log_open = False
@@ -120,6 +129,18 @@ class ZombieStrategyGame:
             self.renderer.screen_width = self.screen_width
             self.renderer.screen_height = self.screen_height
 
+    def confirm_end_turn(self):
+        """Actually end the player's turn (called after confirmation or if no units have moves)"""
+        # Player ending turn - switch to enemy and start animation
+        self.game_state.current_team = 'enemy'
+        for unit in self.game_state.units:
+            if unit.team == 'enemy':
+                unit.reset_moves()
+        # Start zombie turn with animation
+        self.start_zombie_turn_animated()
+        self.selected_unit = None
+        self.has_unsaved_changes = True  # Mark that changes have been made
+
     def handle_events(self):
         """Handle user input"""
         for event in pygame.event.get():
@@ -141,6 +162,23 @@ class ZombieStrategyGame:
                 if event.key == pygame.K_F11:
                     self.toggle_fullscreen()
                     continue
+
+                # Handle notification dialog (highest priority)
+                if self.notification_dialog_open:
+                    if self.notification_dialog_data['type'] == 'info':
+                        # Info dialog - close on SPACE or ESC
+                        if event.key == pygame.K_SPACE or event.key == pygame.K_ESCAPE:
+                            self.notification_dialog_open = False
+                    elif self.notification_dialog_data['type'] == 'confirm':
+                        # Confirm dialog - Y to confirm, N or ESC to cancel
+                        if event.key == pygame.K_y:
+                            if self.notification_dialog_data['callback']:
+                                self.notification_dialog_data['callback']()
+                            self.notification_dialog_open = False
+                        elif event.key == pygame.K_n or event.key == pygame.K_ESCAPE:
+                            self.notification_dialog_open = False
+                    continue
+
                 # Handle difficulty selection dialog
                 if self.difficulty_dialog_open:
                     # Allow load menu from difficulty dialog
@@ -284,18 +322,31 @@ class ZombieStrategyGame:
                 # End turn
                 elif event.key == pygame.K_e:
                     if self.game_state.current_team == 'player':
-                        # Player ending turn - switch to enemy and start animation
-                        self.game_state.current_team = 'enemy'
-                        for unit in self.game_state.units:
-                            if unit.team == 'enemy':
-                                unit.reset_moves()
-                        # Start zombie turn with animation
-                        self.start_zombie_turn_animated()
+                        # Check if any player units have moves remaining
+                        units_with_moves = [u for u in self.game_state.units if u.team == 'player' and u.moves_remaining > 0]
+
+                        if units_with_moves:
+                            # Show confirmation dialog
+                            unit_count = len(units_with_moves)
+                            self.notification_dialog_data = {
+                                'title': '⚠ Units Have Moves Remaining',
+                                'messages': [
+                                    f'{unit_count} unit(s) still have movement points.',
+                                    '',
+                                    'Are you sure you want to end your turn?'
+                                ],
+                                'type': 'confirm',
+                                'callback': self.confirm_end_turn
+                            }
+                            self.notification_dialog_open = True
+                        else:
+                            # No units with moves, end turn normally
+                            self.confirm_end_turn()
                     else:
                         # Enemy turn ending
                         self.game_state.end_turn()
-                    self.selected_unit = None
-                    self.has_unsaved_changes = True  # Mark that changes have been made
+                        self.selected_unit = None
+                        self.has_unsaved_changes = True
 
                 # Found city
                 elif event.key == pygame.K_f:
@@ -341,6 +392,16 @@ class ZombieStrategyGame:
                             for resource, amount in resources.items():
                                 self.selected_unit.inventory[resource] += amount
                             del self.game_state.resources[pos]
+
+                            # Show notification dialog with scavenged resources
+                            resource_lines = [f"{resource.capitalize()}: +{amount}" for resource, amount in resources.items()]
+                            self.notification_dialog_data = {
+                                'title': '✓ Resources Scavenged',
+                                'messages': ['Successfully scavenged:'] + resource_lines + ['', 'Resources added to unit inventory.'],
+                                'type': 'info',
+                                'callback': None
+                            }
+                            self.notification_dialog_open = True
                             self.log_message(f"Scavenged: {resources} (now in unit's inventory)")
 
                 # Deposit resources to city (T key)
@@ -1283,6 +1344,10 @@ class ZombieStrategyGame:
         elif self.game_over:
             self.render_game_over()
 
+        # Render notification dialog on top of everything
+        if self.notification_dialog_open:
+            self.render_notification_dialog()
+
         pygame.display.flip()
 
     def render_difficulty_dialog(self):
@@ -1620,6 +1685,66 @@ class ZombieStrategyGame:
         options = options_font.render("Press Y to Exit  |  Press N to Cancel  |  ESC to Cancel", True, (200, 255, 200))
         options_rect = options.get_rect(center=(self.screen_width // 2, dialog_y + 200))
         self.screen.blit(options, options_rect)
+
+    def render_notification_dialog(self):
+        """Render a standard notification dialog box"""
+        # Semi-transparent overlay
+        overlay = pygame.Surface((self.screen_width, self.screen_height))
+        overlay.set_alpha(180)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+
+        # Calculate dialog size based on content
+        num_messages = len(self.notification_dialog_data['messages'])
+        base_height = 200
+        message_height = num_messages * 35
+        dialog_height = base_height + message_height
+
+        dialog_width = 650
+        dialog_x = self.screen_width // 2 - dialog_width // 2
+        dialog_y = self.screen_height // 2 - dialog_height // 2
+
+        # Color scheme based on type
+        if self.notification_dialog_data['type'] == 'confirm':
+            bg_color = (60, 50, 40)
+            border_color = (255, 200, 100)
+            title_color = (255, 200, 100)
+        else:  # info
+            bg_color = (40, 50, 60)
+            border_color = (100, 150, 255)
+            title_color = (150, 200, 255)
+
+        # Dialog panel
+        pygame.draw.rect(self.screen, bg_color, (dialog_x, dialog_y, dialog_width, dialog_height))
+        pygame.draw.rect(self.screen, border_color, (dialog_x, dialog_y, dialog_width, dialog_height), 4)
+
+        # Title
+        title_font = pygame.font.Font(None, 42)
+        title = title_font.render(self.notification_dialog_data['title'], True, title_color)
+        title_rect = title.get_rect(center=(self.screen_width // 2, dialog_y + 40))
+        self.screen.blit(title, title_rect)
+
+        # Messages
+        message_font = pygame.font.Font(None, 26)
+        y_offset = dialog_y + 90
+        for msg in self.notification_dialog_data['messages']:
+            message_text = message_font.render(msg, True, (255, 255, 255))
+            message_rect = message_text.get_rect(center=(self.screen_width // 2, y_offset))
+            self.screen.blit(message_text, message_rect)
+            y_offset += 35
+
+        # Controls based on type
+        controls_font = pygame.font.Font(None, 28)
+        if self.notification_dialog_data['type'] == 'confirm':
+            controls_text = "Press Y to Confirm  |  Press N or ESC to Cancel"
+            controls_color = (200, 255, 200)
+        else:  # info
+            controls_text = "Press SPACE or ESC to Close"
+            controls_color = (200, 200, 255)
+
+        controls = controls_font.render(controls_text, True, controls_color)
+        controls_rect = controls.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 40))
+        self.screen.blit(controls, controls_rect)
 
     def render_game_over(self):
         """Render the game over screen with high scores"""
