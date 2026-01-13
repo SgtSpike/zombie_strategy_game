@@ -112,6 +112,12 @@ class ZombieStrategyGame:
         # Initialize renderer
         self.renderer = Renderer(self.screen_width, self.screen_height, self.tile_size)
 
+        # Center camera on first player unit (survivor)
+        player_units = [u for u in self.game_state.units if u.team == 'player']
+        if player_units:
+            first_unit = player_units[0]
+            self.renderer.center_camera_on_tile(first_unit.x, first_unit.y)
+
         # Add welcome message
         self.log_message("Welcome to Zombie Apocalypse Strategy!")
         self.log_message(f"Difficulty: {difficulty.upper()}")
@@ -434,10 +440,12 @@ class ZombieStrategyGame:
                                 ]
                                 # Filter valid positions (within bounds, not water, no units)
                                 from map_generator import TileType
+                                map_width = len(self.game_state.map_grid[0])
+                                map_height = len(self.game_state.map_grid)
                                 valid_positions = [
                                     (x, y) for x, y in adjacent_positions
-                                    if (0 <= x < self.game_state.map_width and
-                                        0 <= y < self.game_state.map_height and
+                                    if (0 <= x < map_width and
+                                        0 <= y < map_height and
                                         self.game_state.map_grid[y][x] != TileType.WATER and
                                         not any(u.x == x and u.y == y for u in self.game_state.units))
                                 ]
