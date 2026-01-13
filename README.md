@@ -62,8 +62,55 @@ When a city is selected:
 ### System
 - **Ctrl+S** - Open save menu
 - **Ctrl+L** - Open load menu
+- **Y** - Open/close Tech Tree
 - **F1** - Debug: Toggle full map reveal
 - **ESC** - Exit game (shows warning if unsaved changes)
+
+## Tech Tree
+
+The tech tree allows you to research technologies that provide permanent gameplay bonuses. Access it by pressing **Y** during your turn.
+
+### Earning Tech Points
+
+Tech points are earned automatically from:
+- **2 points per turn** - Passive income each turn
+- **1 point per 10 tiles explored** - Reward for exploration
+- **5 points per zombie killed** - Combat rewards
+- **20 points per super zombie killed** - Major combat rewards
+- **1 point per 100 resources produced** - Economic rewards from city production
+
+### Technologies
+
+**Units & Combat Tree:**
+
+1. **Scavenging Efficiency** (10 pts) - Scavenged resources +25%
+2. **Scout Training** (20 pts) - Scouts get +1 vision range (4 instead of 3)
+3. **Combat Training** (20 pts) - New units spawn at level 2
+4. **Tactical Medicine** (20 pts) - Medics heal +20 HP
+5. **Rapid Response** (40 pts) - All units get +1 movement
+6. **Armor Plating** (40 pts) - All units get +40 max HP
+7. **Advanced Weaponry** (30 pts, requires Combat Training) - Soldiers get +10 attack
+8. **Super Soldier Program** (40 pts, requires Advanced Weaponry) - Unlock elite soldier recruitment
+
+**Cities & Economy Tree:**
+
+1. **Fortification** (10 pts) - Units on walls get +50% HP bonus
+2. **Advanced Farming** (10 pts) - Farms produce +2 food/turn
+3. **Industrial Workshops** (10 pts) - Workshops produce +3 materials/turn
+4. **Basic Medicine** (10 pts) - Hospitals produce +2 medicine/turn
+5. **Research Documentation** (20 pts, requires any 3 techs) - All research costs -30%
+6. **Quick Start** (20 pts, requires Fortification) - New cities start with +30 food and +30 materials
+7. **Watchtower** (20 pts, requires Fortification) - Cities get +2 vision range (5 instead of 3)
+8. **Cure Research** (20 pts, requires Basic Medicine) - Cure costs reduced to 350/350 (from 500/500)
+9. **Automated Defenses** (30 pts, requires Watchtower) - Cities damage adjacent zombies each turn
+10. **Helicopter Transport** (50 pts, requires Watchtower) - Units can teleport between cities
+
+### Tech Tree Strategy
+
+- **Early Game**: Prioritize economic techs (Advanced Farming, Industrial Workshops, Scavenging Efficiency) for faster resource generation
+- **Mid Game**: Invest in combat techs (Combat Training, Scout Training) to strengthen your forces
+- **Late Game**: Research Cure Research to make manufacturing the cure more affordable
+- **Research Documentation**: Very valuable if unlocked early, reduces the cost of all future research by 30%
 
 ## Gameplay
 
@@ -336,6 +383,7 @@ Located in bottom-right corner (200×200 pixels):
 3. Found your first city in a defensible location
 4. Build farms to ensure food supply
 5. Scout the map systematically to reveal terrain
+6. **Research early techs**: Scavenging Efficiency, Advanced Farming, Industrial Workshops
 
 ### Mid Game (Turns 11-25)
 1. Build multiple cities for resource production
@@ -344,14 +392,16 @@ Located in bottom-right corner (200×200 pixels):
 4. Level up units through combat
 5. Establish resource networks between cities
 6. Build hospitals in preparation for cure manufacturing
+7. **Research combat techs**: Combat Training, Scout Training, Tactical Medicine
 
 ### Late Game (Turn 25+)
 1. Super zombies appear - very dangerous!
 2. Protect cities with walls
-3. Accumulate 1000 food + 1000 materials
+3. Accumulate resources for cure (reduced to 350/350 with Cure Research tech)
 4. Transfer The Cure to a city with hospital
 5. Manufacture The Cure to win!
-6. OR continue surviving the endless hordes
+6. **Research end-game techs**: Armor Plating, Rapid Response, Cure Research
+7. OR continue surviving the endless hordes
 
 ### Pro Tips
 
@@ -366,6 +416,14 @@ Located in bottom-right corner (200×200 pixels):
 - Place workshops on intact buildings for materials
 - Build hospitals on intact buildings for medicine
 - Docks provide excellent food but require water
+
+**Tech Tree:**
+- Press Y to open the tech tree at any time during your turn
+- Hover over technologies to see detailed descriptions
+- Economic techs (farms/workshops/hospitals bonuses) pay off quickly
+- Research Documentation reduces all future tech costs by 30%
+- Combat Training is extremely valuable - all new units start at level 2
+- Cure Research saves 300 resources when manufacturing the cure
 
 **Combat:**
 - Super zombies deal 50 damage - avoid until you have leveled soldiers

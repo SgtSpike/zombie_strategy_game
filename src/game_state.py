@@ -2,7 +2,7 @@ import json
 import os
 
 class Unit:
-    def __init__(self, x, y, unit_type, team, difficulty='medium'):
+    def __init__(self, x, y, unit_type, team, difficulty='medium', game_state=None):
         self.x = x
         self.y = y
         self.unit_type = unit_type  # 'survivor', 'scout', 'soldier', 'medic', 'zombie', 'super_zombie'
@@ -33,6 +33,12 @@ class Unit:
             self.max_moves = 2
             self.attack_power = 20
             self.size = 1
+        elif unit_type == 'super_soldier':
+            self.health = 150
+            self.max_health = 150
+            self.max_moves = 3
+            self.attack_power = 30
+            self.size = 1
         elif unit_type == 'medic':
             self.health = 80
             self.max_health = 80
@@ -59,6 +65,22 @@ class Unit:
             self.size = 1
 
         self.moves_remaining = self.max_moves
+
+        # Apply tech bonuses for player units
+        if team == 'player' and game_state:
+            # armor_plating: +40 max HP for all units
+            if game_state.has_tech('armor_plating'):
+                self.max_health += 40
+                self.health += 40
+
+            # rapid_response: +1 movement for all units
+            if game_state.has_tech('rapid_response'):
+                self.max_moves += 1
+                self.moves_remaining += 1
+
+            # advanced_weaponry: +10 attack for soldiers
+            if game_state.has_tech('advanced_weaponry') and unit_type == 'soldier':
+                self.attack_power += 10
 
         # XP and leveling system
         self.xp = 0
@@ -162,8 +184,17 @@ class City:
         self.health = 50
         self.max_health = 50
 
-    def can_build(self, building_type):
+    def can_build(self, building_type, game_state=None):
         """Check if city has resources to build"""
+        # Base cure cost
+        cure_food = 500
+        cure_materials = 500
+
+        # Apply cure_research tech if available
+        if game_state and game_state.has_tech('cure_research'):
+            cure_food = 350
+            cure_materials = 350
+
         costs = {
             'farm': {'materials': 30},
             'workshop': {'materials': 50},
@@ -174,7 +205,7 @@ class City:
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
             'medic': {'food': 25, 'materials': 15, 'medicine': 10},
-            'manufacture_cure': {'food': 500, 'materials': 500, 'medicine': 200, 'cure': 1}
+            'manufacture_cure': {'food': cure_food, 'materials': cure_materials, 'medicine': 200, 'cure': 1}
         }
 
         # Special requirement: can only manufacture cure if city has a hospital
@@ -191,8 +222,17 @@ class City:
                 return False
         return True
 
-    def build(self, building_type, tile_x, tile_y, terrain_type):
+    def build(self, building_type, tile_x, tile_y, terrain_type, game_state=None):
         """Construct a building at a specific location"""
+        # Base cure cost
+        cure_food = 500
+        cure_materials = 500
+
+        # Apply cure_research tech if available
+        if game_state and game_state.has_tech('cure_research'):
+            cure_food = 350
+            cure_materials = 350
+
         costs = {
             'farm': {'materials': 30},
             'workshop': {'materials': 50},
@@ -203,10 +243,10 @@ class City:
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
             'medic': {'food': 25, 'materials': 15, 'medicine': 10},
-            'manufacture_cure': {'food': 500, 'materials': 500, 'medicine': 200, 'cure': 1}
+            'manufacture_cure': {'food': cure_food, 'materials': cure_materials, 'medicine': 200, 'cure': 1}
         }
 
-        if self.can_build(building_type):
+        if self.can_build(building_type, game_state):
             cost = costs.get(building_type, {})
             for resource, amount in cost.items():
                 self.resources[resource] -= amount
@@ -238,7 +278,7 @@ class City:
                 return True
         return False
 
-    def produce_resources(self):
+    def produce_resources(self, game_state):
         """Produce resources based on buildings and their terrain each turn"""
         from map_generator import TileType
 
@@ -249,12 +289,17 @@ class City:
         }
 
         # Calculate production from placed buildings with terrain bonuses
+        farm_count = 0
+        workshop_count = 0
+        hospital_count = 0
+
         for location, building_info in self.building_locations.items():
             building_type = building_info['type']
             terrain = building_info['terrain']
             level = building_info.get('level', 1)
 
             if building_type == 'farm':
+                farm_count += 1
                 # Farm: 6 on grass, 3 on forest, 0 base
                 food_production = 0
                 if terrain == TileType.GRASS:
@@ -269,6 +314,7 @@ class City:
                 production['food'] += food_production * level
 
             elif building_type == 'workshop':
+                workshop_count += 1
                 # Workshop: 2 on rubble, 4 on ruined/road, 8 on intact, 0 base
                 materials_production = 0
                 if terrain == TileType.RUBBLE:
@@ -280,11 +326,20 @@ class City:
                 production['materials'] += materials_production * level
 
             elif building_type == 'hospital':
+                hospital_count += 1
                 # Hospital: 2 base, +4 on intact building
                 medicine_production = 2
                 if terrain == TileType.BUILDING_INTACT:
                     medicine_production += 4
                 production['medicine'] += medicine_production * level
+
+        # Apply tech bonuses
+        if game_state.has_tech('advanced_farming'):
+            production['food'] += farm_count * 2
+        if game_state.has_tech('industrial_workshops'):
+            production['materials'] += workshop_count * 3
+        if game_state.has_tech('basic_medicine'):
+            production['medicine'] += hospital_count * 2
 
         # Add production to city resources
         for resource, amount in production.items():
@@ -292,7 +347,7 @@ class City:
 
         return production
 
-    def calculate_production(self):
+    def calculate_production(self, game_state=None):
         """Calculate total resource production per turn without actually producing"""
         from map_generator import TileType
 
@@ -314,6 +369,9 @@ class City:
                     food_production = 6
                 elif terrain == TileType.FOREST:
                     food_production = 3
+                # Apply tech bonus
+                if game_state and game_state.has_tech('advanced_farming'):
+                    food_production += 2
                 production['food'] += food_production * level
 
             elif building_type == 'dock':
@@ -328,12 +386,18 @@ class City:
                     materials_production = 4
                 elif terrain == TileType.BUILDING_INTACT:
                     materials_production = 8
+                # Apply tech bonus
+                if game_state and game_state.has_tech('industrial_workshops'):
+                    materials_production += 3
                 production['materials'] += materials_production * level
 
             elif building_type == 'hospital':
                 medicine_production = 2
                 if terrain == TileType.BUILDING_INTACT:
                     medicine_production += 4
+                # Apply tech bonus
+                if game_state and game_state.has_tech('basic_medicine'):
+                    medicine_production += 2
                 production['medicine'] += medicine_production * level
 
         return production
@@ -407,17 +471,17 @@ class GameState:
 
         # Difficulty settings
         if difficulty == 'easy':
-            self.zombie_spawn_rate = 0.15  # 15% chance per turn
+            self.zombie_spawn_rate = 0.50  # 50% chance per turn
             self.zombie_spawn_count_min = 1
             self.zombie_spawn_count_max = 2
             self.starting_resources_multiplier = 1.5
         elif difficulty == 'hard':
-            self.zombie_spawn_rate = 0.35  # 35% chance per turn
+            self.zombie_spawn_rate = 1  # 100% chance per turn
             self.zombie_spawn_count_min = 2
             self.zombie_spawn_count_max = 4
             self.starting_resources_multiplier = 0.7
         else:  # medium
-            self.zombie_spawn_rate = 0.25  # 25% chance per turn
+            self.zombie_spawn_rate = 0.75  # 75% chance per turn
             self.zombie_spawn_count_min = 1
             self.zombie_spawn_count_max = 3
             self.starting_resources_multiplier = 1.0
@@ -437,6 +501,13 @@ class GameState:
 
         # Lab triangulation state
         self.triangulation_level = 0  # 0=not started, 1-3=partial, 4=revealed
+
+        # Tech tree state
+        self.tech_points = 0
+        self.researched_techs = set()  # Set of researched tech names
+        self.tiles_explored_count = 0  # Track for tech point rewards
+        self.total_resources_produced = 0  # Track for tech point rewards
+        self.zombies_killed_count = 0  # Track for tech point rewards
 
         # Initialize player units
         self.units = []
@@ -460,7 +531,7 @@ class GameState:
 
         # Spawn 3 player survivors with starting resources (clustered together)
         for i in range(3):
-            survivor = Unit(start_x + i, start_y, 'survivor', 'player', self.difficulty)
+            survivor = Unit(start_x + i, start_y, 'survivor', 'player', self.difficulty, self)
             # Give each survivor some starting resources (adjusted by difficulty)
             # Medicine cannot be found - must be produced by hospitals
             survivor.inventory['food'] = int(20 * self.starting_resources_multiplier)
@@ -475,13 +546,76 @@ class GameState:
             zombie = Unit(x, y, 'zombie', 'enemy', self.difficulty)
             self.units.append(zombie)
 
+    def apply_automated_defenses(self):
+        """Cities and buildings damage adjacent zombies (Automated Defenses tech)"""
+        if not self.has_tech('automated_defenses'):
+            return {'damaged': 0, 'killed': 0}
+
+        damage_per_hit = 10  # Fixed damage amount
+        zombies_to_remove = []
+        damaged_count = 0
+
+        # Track tiles that deal damage (cities and buildings)
+        defense_tiles = set()
+
+        # Add all city tiles
+        for city in self.cities:
+            defense_tiles.add((city.x, city.y))
+
+        # Add all building tiles
+        for city in self.cities:
+            for (bx, by) in city.building_locations.keys():
+                defense_tiles.add((bx, by))
+
+        # Track which zombies have been damaged this turn
+        processed_zombies = set()
+
+        # Check each defense tile for adjacent zombies
+        for def_x, def_y in defense_tiles:
+            # Check all 8 adjacent tiles
+            for dy in [-1, 0, 1]:
+                for dx in [-1, 0, 1]:
+                    if dx == 0 and dy == 0:
+                        continue
+
+                    check_x = def_x + dx
+                    check_y = def_y + dy
+
+                    # Find zombie at this location
+                    zombie = self.get_unit_at(check_x, check_y)
+                    if zombie and zombie.team == 'enemy' and zombie not in processed_zombies:
+                        # Only damage each zombie once per turn
+                        processed_zombies.add(zombie)
+                        zombie.health -= damage_per_hit
+                        damaged_count += 1
+
+                        if zombie.health <= 0:
+                            # Mark zombie for removal
+                            zombies_to_remove.append(zombie)
+                            # Award tech points for kill
+                            self.zombies_killed_count += 1
+                            if zombie.unit_type == 'super_zombie':
+                                self.tech_points += 20
+                            else:
+                                self.tech_points += 5
+
+        # Remove dead zombies
+        for zombie in zombies_to_remove:
+            self.units.remove(zombie)
+
+        return {'damaged': damaged_count, 'killed': len(zombies_to_remove)}
+
     def spawn_zombies(self):
         """Spawn zombies at map edges, escalating with turn count and difficulty"""
         import random
 
         # Spawn zombies based on difficulty spawn rate
-        if random.random() > self.zombie_spawn_rate:
+        spawn_roll = random.random()
+        if spawn_roll > self.zombie_spawn_rate:
+            print(f"[Turn {self.turn}] No zombies spawned this turn (rolled {spawn_roll:.2f} > {self.zombie_spawn_rate})")
             return  # No zombies this turn
+
+        print(f"[Turn {self.turn}] Zombies spawning! (rolled {spawn_roll:.2f} <= {self.zombie_spawn_rate})")
 
         # Calculate base spawn count based on turn (escalating difficulty)
         # Turn 1-5: 1-2 zombies per turn
@@ -682,16 +816,27 @@ class GameState:
                 if unit.team == 'player':
                     unit.reset_moves()
 
+            # Award tech points for surviving (2 per turn)
+            self.tech_points += 2
+
             # Autosave at the start of player's turn
             self.autosave()
 
             # Produce resources in all cities at the start of player's turn
             for city in self.cities:
-                production = city.produce_resources()
+                production = city.produce_resources(self)
                 # Print production report
                 if any(production.values()):
                     prod_str = ', '.join([f"{k}: +{v}" for k, v in production.items() if v > 0])
                     print(f"{city.name} produced: {prod_str}")
+
+                # Track resources for tech points (1 point per 100 resources)
+                total_produced = sum(production.values())
+                self.total_resources_produced += total_produced
+                tech_points_from_resources = self.total_resources_produced // 100
+                if tech_points_from_resources > 0:
+                    self.total_resources_produced -= tech_points_from_resources * 100
+                    self.tech_points += tech_points_from_resources
 
             # Spawn new zombies (escalating with turn count)
             self.spawn_zombies()
@@ -984,8 +1129,21 @@ class GameState:
 
                             if target_unit and target_unit.team != unit.team:
                                 # Attack the enemy unit
-                                target_unit.health -= unit.attack_power
-                                print(f"Zombie attacks {target_unit.unit_type}! Health: {target_unit.health}")
+                                damage = unit.attack_power
+
+                                # Check if target is standing on a wall tile and has fortification tech
+                                if target_unit.team == 'player' and self.has_tech('fortification'):
+                                    building_at_location = self.get_building_at(target_unit.x, target_unit.y)
+                                    if building_at_location and building_at_location['type'] == 'wall':
+                                        damage = int(damage * 0.5)  # 50% damage reduction
+                                        print(f"Fortification: Damage reduced by 50%!")
+
+                                target_unit.health -= damage
+                                print(f"Zombie attacks {target_unit.unit_type} for {damage} damage! Health: {target_unit.health}")
+
+                                # Record attack target for animation
+                                unit.last_attack_target = (new_x, new_y)
+
                                 if target_unit.health <= 0:
                                     # Drop inventory before removing unit
                                     self.drop_unit_inventory(target_unit)
@@ -1000,6 +1158,10 @@ class GameState:
                                 # Attack the city
                                 target_city.health -= unit.attack_power
                                 print(f"Zombie attacks {target_city.name}! City Health: {target_city.health}/{target_city.max_health}")
+
+                                # Record attack target for animation
+                                unit.last_attack_target = (new_x, new_y)
+
                                 if target_city.health <= 0:
                                     print(f"{target_city.name} has been destroyed by zombies!")
                                     self.cities.remove(target_city)
@@ -1012,8 +1174,21 @@ class GameState:
                                 unit_on_building = self.get_unit_at(new_x, new_y, exclude_unit=unit)
                                 if unit_on_building and unit_on_building.team == 'player':
                                     # Attack the unit instead of the building
-                                    unit_on_building.health -= unit.attack_power
-                                    print(f"Zombie attacks {unit_on_building.unit_type} on {target_building['type']}! Health: {unit_on_building.health}")
+                                    damage = unit.attack_power
+
+                                    # Check if target is standing on a wall tile and has fortification tech
+                                    if self.has_tech('fortification'):
+                                        building_at_location = self.get_building_at(unit_on_building.x, unit_on_building.y)
+                                        if building_at_location and building_at_location['type'] == 'wall':
+                                            damage = int(damage * 0.5)  # 50% damage reduction
+                                            print(f"Fortification: Damage reduced by 50%!")
+
+                                    unit_on_building.health -= damage
+                                    print(f"Zombie attacks {unit_on_building.unit_type} on {target_building['type']} for {damage} damage! Health: {unit_on_building.health}")
+
+                                    # Record attack target for animation
+                                    unit.last_attack_target = (new_x, new_y)
+
                                     if unit_on_building.health <= 0:
                                         # Drop inventory before removing unit
                                         self.drop_unit_inventory(unit_on_building)
@@ -1024,6 +1199,10 @@ class GameState:
                                     # Attack the building
                                     target_building['health'] -= unit.attack_power
                                     print(f"Zombie attacks {target_building['type']}! Building Health: {target_building['health']}/{target_building['max_health']}")
+
+                                    # Record attack target for animation
+                                    unit.last_attack_target = (new_x, new_y)
+
                                     if target_building['health'] <= 0:
                                         print(f"{target_building['type']} has been destroyed by zombies!")
                                         # Find and remove the building
@@ -1129,26 +1308,46 @@ class GameState:
         # Mark tiles visible from player units and cities
         for unit in self.units:
             if unit.team == 'player':
-                # Scouts have vision range of 3, others have 2
-                vision_range = 3 if unit.unit_type == 'scout' else 2
+                # Scouts have vision range of 3 (or 4 with tech), others have 2
+                if unit.unit_type == 'scout':
+                    vision_range = 4 if self.has_tech('scout_training') else 3
+                else:
+                    vision_range = 2
                 self._reveal_area(unit.x, unit.y, vision_range)
 
         for city in self.cities:
-            self._reveal_area(city.x, city.y, 3)
+            # Cities have vision range of 3 (or 5 with watchtower tech)
+            city_vision = 5 if self.has_tech('watchtower') else 3
+            self._reveal_area(city.x, city.y, city_vision)
 
             # Buildings also provide vision
             for (bx, by), building in city.building_locations.items():
-                self._reveal_area(bx, by, 3)
+                self._reveal_area(bx, by, city_vision)
 
     def _reveal_area(self, center_x, center_y, radius):
         """Reveal tiles in a square area around a point"""
+        newly_explored = 0
         for dy in range(-radius, radius + 1):
             for dx in range(-radius, radius + 1):
                 x = center_x + dx
                 y = center_y + dy
                 if 0 <= x < len(self.map_grid[0]) and 0 <= y < len(self.map_grid):
                     self.visible[y][x] = True
-                    self.explored[y][x] = True
+                    if not self.explored[y][x]:
+                        self.explored[y][x] = True
+                        newly_explored += 1
+
+        # Award tech points for exploration (1 point per 10 tiles)
+        if newly_explored > 0:
+            self.tiles_explored_count += newly_explored
+            tech_points_from_exploration = self.tiles_explored_count // 10
+            if tech_points_from_exploration > 0:
+                self.tiles_explored_count -= tech_points_from_exploration * 10
+                self.tech_points += tech_points_from_exploration
+
+    def has_tech(self, tech_id):
+        """Check if a technology has been researched"""
+        return tech_id in self.researched_techs
 
     def can_found_city(self, x, y):
         """Check if a city can be founded at this location"""
@@ -1198,6 +1397,12 @@ class GameState:
         if not self.can_found_city(x, y):
             return None
         city = City(x, y, name)
+
+        # Apply quick_start tech - new cities get bonus resources
+        if self.has_tech('quick_start'):
+            city.resources['food'] += 30
+            city.resources['materials'] += 30
+
         self.cities.append(city)
         self.update_visibility()  # Update fog of war
         return city
@@ -1226,12 +1431,12 @@ class GameState:
 
         return total
 
-    def autosave(self):
+    def autosave(self, camera_x=0, camera_y=0):
         """Automatically save the game to a single autosave file"""
         # Always use the same filename for autosave
-        self.save_game('autosave.json')
+        self.save_game('autosave.json', camera_x, camera_y)
 
-    def save_game(self, filename='savegame.json'):
+    def save_game(self, filename='savegame.json', camera_x=0, camera_y=0):
         """Save the game state to a JSON file"""
         from map_generator import TileType
 
@@ -1242,6 +1447,13 @@ class GameState:
             'difficulty': self.difficulty,
             'research_lab_pos': list(self.research_lab_pos) if self.research_lab_pos else None,
             'triangulation_level': self.triangulation_level,
+            'tech_points': self.tech_points,
+            'researched_techs': list(self.researched_techs),
+            'tiles_explored_count': self.tiles_explored_count,
+            'total_resources_produced': self.total_resources_produced,
+            'zombies_killed_count': self.zombies_killed_count,
+            'camera_x': camera_x,
+            'camera_y': camera_y,
             'map_grid': [[int(tile) for tile in row] for row in self.map_grid],
             'resources': {f"{x},{y}": res for (x, y), res in self.resources.items()},
             'explored': [[bool(cell) for cell in row] for row in self.explored],
@@ -1342,19 +1554,26 @@ class GameState:
         # Load triangulation level (default to 0 for backwards compatibility with old saves)
         game_state.triangulation_level = save_data.get('triangulation_level', 0)
 
+        # Load tech tree data (default to 0/empty for backwards compatibility)
+        game_state.tech_points = save_data.get('tech_points', 0)
+        game_state.researched_techs = set(save_data.get('researched_techs', []))
+        game_state.tiles_explored_count = save_data.get('tiles_explored_count', 0)
+        game_state.total_resources_produced = save_data.get('total_resources_produced', 0)
+        game_state.zombies_killed_count = save_data.get('zombies_killed_count', 0)
+
         # Re-initialize difficulty settings based on loaded difficulty
         if game_state.difficulty == 'easy':
-            game_state.zombie_spawn_rate = 0.15
+            game_state.zombie_spawn_rate = 0.50
             game_state.zombie_spawn_count_min = 1
             game_state.zombie_spawn_count_max = 2
             game_state.starting_resources_multiplier = 1.5
         elif game_state.difficulty == 'hard':
-            game_state.zombie_spawn_rate = 0.35
+            game_state.zombie_spawn_rate = 1
             game_state.zombie_spawn_count_min = 2
             game_state.zombie_spawn_count_max = 4
             game_state.starting_resources_multiplier = 0.7
         else:  # medium
-            game_state.zombie_spawn_rate = 0.25
+            game_state.zombie_spawn_rate = 0.75
             game_state.zombie_spawn_count_min = 1
             game_state.zombie_spawn_count_max = 3
             game_state.starting_resources_multiplier = 1.0
@@ -1399,8 +1618,12 @@ class GameState:
         # Update visibility
         game_state.update_visibility()
 
+        # Load camera position (default to 0,0 for backward compatibility)
+        camera_x = save_data.get('camera_x', 0)
+        camera_y = save_data.get('camera_y', 0)
+
         print(f"Game loaded from {filepath}")
-        return game_state
+        return game_state, camera_x, camera_y
 
     @staticmethod
     def save_high_score(turns_survived):

@@ -43,8 +43,17 @@ class MapGenerator:
                 elif noise_val > 0.4:
                     map_grid[y][x] = TileType.FOREST
 
-        # Generate ruined city clusters
-        num_cities = random.randint(3, 6)
+        # Generate ruined city clusters (scale with map size)
+        # Base: 3-6 cities for 50x50 (2500 tiles)
+        # Scale proportionally: larger maps get more cities
+        map_area = self.width * self.height
+        base_area = 50 * 50  # 2500 tiles
+        scale_factor = map_area / base_area
+
+        min_cities = max(3, int(3 * scale_factor))
+        max_cities = max(6, int(6 * scale_factor))
+        num_cities = random.randint(min_cities, max_cities)
+
         for _ in range(num_cities):
             self._generate_ruined_city(map_grid)
 
@@ -86,9 +95,19 @@ class MapGenerator:
                         map_grid[ny][nx] = TileType.RUBBLE
 
     def _generate_roads(self, map_grid):
-        """Create road networks"""
+        """Create road networks (scale with map size)"""
+        # Base: 3-5 roads for 50x50 map
+        # Scale proportionally with map dimensions
+        map_area = self.width * self.height
+        base_area = 50 * 50
+        scale_factor = map_area / base_area
+
+        min_roads = max(3, int(3 * scale_factor))
+        max_roads = max(5, int(5 * scale_factor))
+        num_roads = random.randint(min_roads, max_roads)
+
         # Simple horizontal and vertical roads
-        for _ in range(random.randint(3, 5)):
+        for _ in range(num_roads):
             if random.random() < 0.5:
                 # Horizontal road
                 y = random.randint(0, self.height - 1)

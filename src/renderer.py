@@ -27,6 +27,7 @@ class Renderer:
             'survivor': (0, 200, 255),      # Blue
             'scout': (100, 255, 100),       # Green
             'soldier': (255, 150, 0),       # Orange
+            'super_soldier': (255, 100, 0), # Bright orange
             'medic': (255, 255, 255),       # White
             'zombie': (200, 50, 50),        # Red
             'super_zombie': (150, 0, 0),    # Dark red
@@ -47,6 +48,7 @@ class Renderer:
             'survivor': 'survivor.png',
             'scout': 'scout.png',
             'soldier': 'soldier.png',
+            'super_soldier': 'super_soldier.png',
             'medic': 'medic.png',
             'zombie': 'zombie.png',
             'super_zombie': 'super_zombie.png'
@@ -658,7 +660,7 @@ class Renderer:
 
         # Total resources across all units and cities (positioned to the right of turn panel)
         total_resources = game_state.get_total_resources()
-        resources_text = f"Total Resources - Food: {total_resources['food']} | Materials: {total_resources['materials']} | Medicine: {total_resources['medicine']} | Cure: {total_resources.get('cure', 0)}"
+        resources_text = f"Total Resources - Food: {total_resources['food']} | Materials: {total_resources['materials']} | Medicine: {total_resources['medicine']} | Cure: {total_resources.get('cure', 0)} | Tech: {game_state.tech_points}"
         res_surface = font.render(resources_text, True, (255, 255, 255))
         screen.blit(res_surface, (turn_panel_x + turn_panel_width + 20, turn_panel_y + 20))  # To the right of turn panel
 
@@ -689,44 +691,10 @@ class Renderer:
             panel_x = self.screen_width - 420
             panel_y = 80
             panel_width = 410
-            panel_height = 350
 
-            # Draw panel background
-            pygame.draw.rect(screen, (40, 40, 40), (panel_x, panel_y, panel_width, panel_height))
-            pygame.draw.rect(screen, (200, 200, 200), (panel_x, panel_y, panel_width, panel_height), 2)
-
-            # City title
-            title_font = pygame.font.Font(None, 28)
-            title = title_font.render(f"{selected_city.name}", True, (255, 215, 0))
-            screen.blit(title, (panel_x + 10, panel_y + 10))
-
-            # City stats
-            stats_font = pygame.font.Font(None, 20)
-            stats = [
-                f"Population: {selected_city.population} | Level: {selected_city.level}",
-                f"City Resources - Food: {selected_city.resources['food']} | Materials: {selected_city.resources['materials']} | Med: {selected_city.resources['medicine']} | Cure: {selected_city.resources.get('cure', 0)}",
-                f"Buildings: {', '.join(selected_city.buildings)}"
-            ]
-            for i, stat in enumerate(stats):
-                stat_surface = stats_font.render(stat, True, (220, 220, 220))
-                screen.blit(stat_surface, (panel_x + 10, panel_y + 45 + i * 22))
-
-            # Production display
-            production = selected_city.calculate_production()
-            prod_font = pygame.font.Font(None, 20)
-            prod_text = f"Production/turn: +{production['food']} food, +{production['materials']} materials, +{production['medicine']} medicine"
-            prod_surface = prod_font.render(prod_text, True, (150, 255, 150))
-            screen.blit(prod_surface, (panel_x + 10, panel_y + 112))
-
-            # Building menu
-            menu_font = pygame.font.Font(None, 22)
-            menu_y = panel_y + 142
-            menu_title = menu_font.render("Build:", True, (255, 255, 255))
-            screen.blit(menu_title, (panel_x + 10, menu_y))
-
-            help_small = pygame.font.Font(None, 16)
-            help_text = help_small.render("Buildings use city resources | Units use city resources", True, (180, 180, 180))
-            screen.blit(help_text, (panel_x + 10, menu_y + 22))
+            # Calculate cure cost based on tech
+            cure_food = 350 if game_state.has_tech('cure_research') else 500
+            cure_materials = 350 if game_state.has_tech('cure_research') else 500
 
             buildings = [
                 ("1: Farm", "30 mat (place on tile)"),
@@ -741,9 +709,56 @@ class Renderer:
                 ("U: Upgrade", "Click building to upgrade")
             ]
 
+            # Add super soldier option if tech is researched
+            if game_state.has_tech('super_soldier_program'):
+                buildings.append(("0: Super Soldier", "50 food, 40 mat (elite)"))
+
             # Add cure manufacturing option if city has hospital and the cure
             if selected_city and 'hospital' in selected_city.buildings and selected_city.resources.get('cure', 0) > 0:
-                buildings.append(("C: MANUFACTURE CURE", "500 food, 500 mat, 200 med, 1 cure"))
+                buildings.append(("C: MANUFACTURE CURE", f"{cure_food} food, {cure_materials} mat, 200 med, 1 cure"))
+
+            # Calculate dynamic panel height based on content
+            # Base: 142 (title + stats + production) + 22 (menu title) + 22 (help text) + 45 (spacing before items) + (items * 20) + 10 (bottom padding)
+            panel_height = 142 + 22 + 22 + 45 + (len(buildings) * 20) + 10
+
+            # Draw panel background
+            pygame.draw.rect(screen, (40, 40, 40), (panel_x, panel_y, panel_width, panel_height))
+            pygame.draw.rect(screen, (200, 200, 200), (panel_x, panel_y, panel_width, panel_height), 2)
+
+            # City title
+            title_font = pygame.font.Font(None, 28)
+            title = title_font.render(f"{selected_city.name}", True, (255, 215, 0))
+            screen.blit(title, (panel_x + 10, panel_y + 10))
+
+            # City stats
+            stats_font = pygame.font.Font(None, 20)
+            # Filter out walls from buildings list for display
+            buildings_display = [b for b in selected_city.buildings if b != 'wall']
+            stats = [
+                f"Population: {selected_city.population} | Level: {selected_city.level}",
+                f"City Resources - Food: {selected_city.resources['food']} | Materials: {selected_city.resources['materials']} | Med: {selected_city.resources['medicine']} | Cure: {selected_city.resources.get('cure', 0)}",
+                f"Buildings: {', '.join(buildings_display)}"
+            ]
+            for i, stat in enumerate(stats):
+                stat_surface = stats_font.render(stat, True, (220, 220, 220))
+                screen.blit(stat_surface, (panel_x + 10, panel_y + 45 + i * 22))
+
+            # Production display
+            production = selected_city.calculate_production(game_state)
+            prod_font = pygame.font.Font(None, 20)
+            prod_text = f"Production/turn: +{production['food']} food, +{production['materials']} materials, +{production['medicine']} medicine"
+            prod_surface = prod_font.render(prod_text, True, (150, 255, 150))
+            screen.blit(prod_surface, (panel_x + 10, panel_y + 112))
+
+            # Building menu
+            menu_font = pygame.font.Font(None, 22)
+            menu_y = panel_y + 142
+            menu_title = menu_font.render("Build:", True, (255, 255, 255))
+            screen.blit(menu_title, (panel_x + 10, menu_y))
+
+            help_small = pygame.font.Font(None, 16)
+            help_text = help_small.render("Buildings use city resources | Units use city resources", True, (180, 180, 180))
+            screen.blit(help_text, (panel_x + 10, menu_y + 22))
 
             option_font = pygame.font.Font(None, 16)
             for i, (name, cost) in enumerate(buildings):
@@ -864,6 +879,9 @@ class Renderer:
                             prod = 6
                         elif tile_type == TileType.FOREST:
                             prod = 3
+                        # Apply tech bonus
+                        if game_state.has_tech('advanced_farming'):
+                            prod += 2
                         if prod > 0:
                             preview_text = preview_font.render(f"PREVIEW: {preview_building.capitalize()} would produce {prod} food/turn", True, (100, 255, 100))
                         else:
@@ -883,6 +901,9 @@ class Renderer:
                             prod = 4
                         elif tile_type == TileType.BUILDING_INTACT:
                             prod = 8
+                        # Apply tech bonus
+                        if game_state.has_tech('industrial_workshops'):
+                            prod += 3
                         if prod > 0:
                             preview_text = preview_font.render(f"PREVIEW: {preview_building.capitalize()} would produce {prod} materials/turn", True, (100, 255, 100))
                         else:
@@ -892,6 +913,9 @@ class Renderer:
                         prod = 2
                         if tile_type == TileType.BUILDING_INTACT:
                             prod += 4
+                        # Apply tech bonus
+                        if game_state.has_tech('basic_medicine'):
+                            prod += 2
                         preview_text = preview_font.render(f"PREVIEW: {preview_building.capitalize()} would produce {prod} medicine/turn", True, (100, 255, 100))
                         screen.blit(preview_text, (panel_x + 10, panel_y + y_offset))
                     elif preview_building == 'wall':
@@ -918,8 +942,10 @@ class Renderer:
                                     current_prod = 6
                                 elif terrain == TileType.FOREST:
                                     current_prod = 3
-                                current_prod *= current_level
-                                next_prod = current_prod // current_level * next_level if current_level > 0 else 0
+                                # Apply tech bonus
+                                tech_bonus = 2 if game_state.has_tech('advanced_farming') else 0
+                                current_prod = (current_prod + tech_bonus) * current_level
+                                next_prod = (current_prod // current_level) * next_level if current_level > 0 else 0
 
                                 upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
                                 screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
@@ -951,8 +977,10 @@ class Renderer:
                                     current_prod = 4
                                 elif terrain == TileType.BUILDING_INTACT:
                                     current_prod = 8
-                                current_prod *= current_level
-                                next_prod = current_prod // current_level * next_level if current_level > 0 else 0
+                                # Apply tech bonus
+                                tech_bonus = 3 if game_state.has_tech('industrial_workshops') else 0
+                                current_prod = (current_prod + tech_bonus) * current_level
+                                next_prod = (current_prod // current_level) * next_level if current_level > 0 else 0
 
                                 upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
                                 screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
@@ -967,8 +995,10 @@ class Renderer:
                                 current_prod = 2
                                 if terrain == TileType.BUILDING_INTACT:
                                     current_prod += 4
-                                current_prod *= current_level
-                                next_prod = current_prod // current_level * next_level if current_level > 0 else 0
+                                # Apply tech bonus
+                                tech_bonus = 2 if game_state.has_tech('basic_medicine') else 0
+                                current_prod = (current_prod + tech_bonus) * current_level
+                                next_prod = (current_prod // current_level) * next_level if current_level > 0 else 0
 
                                 upgrade_text = preview_font.render(f"UPGRADE: {building_type.capitalize()} L{current_level} → L{next_level}", True, (100, 255, 255))
                                 screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
@@ -1007,7 +1037,9 @@ class Renderer:
                                 prod = 6
                             elif terrain == TileType.FOREST:
                                 prod = 3
-                            prod *= level
+                            # Apply tech bonus
+                            tech_bonus = 2 if game_state.has_tech('advanced_farming') else 0
+                            prod = (prod + tech_bonus) * level
                             prod_text = bonus_font.render(f"Current: {building_type.capitalize()} L{level} producing {prod} food/turn", True, (255, 255, 100))
                             screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
                         elif building_type == 'dock':
@@ -1022,14 +1054,18 @@ class Renderer:
                                 prod = 4
                             elif terrain == TileType.BUILDING_INTACT:
                                 prod = 8
-                            prod *= level
+                            # Apply tech bonus
+                            tech_bonus = 3 if game_state.has_tech('industrial_workshops') else 0
+                            prod = (prod + tech_bonus) * level
                             prod_text = bonus_font.render(f"Current: {building_type.capitalize()} L{level} producing {prod} materials/turn", True, (255, 255, 100))
                             screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
                         elif building_type == 'hospital':
                             prod = 2
                             if terrain == TileType.BUILDING_INTACT:
                                 prod += 4
-                            prod *= level
+                            # Apply tech bonus
+                            tech_bonus = 2 if game_state.has_tech('basic_medicine') else 0
+                            prod = (prod + tech_bonus) * level
                             prod_text = bonus_font.render(f"Current: {building_type.capitalize()} L{level} producing {prod} medicine/turn", True, (255, 255, 100))
                             screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
                         elif building_type == 'wall':

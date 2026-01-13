@@ -1,6 +1,7 @@
 import pygame
 import sys
 import math
+import random
 from map_generator import MapGenerator
 from game_state import GameState, Unit
 from renderer import Renderer
@@ -23,7 +24,7 @@ class ZombieStrategyGame:
         self.difficulty_dialog_open = True
         self.difficulty = None  # Will be set to 'easy', 'medium', or 'hard'
         self.selected_difficulty_button = None  # No default selection
-        self.selected_map_size = 50  # Default map size: 30, 50, or 100
+        self.selected_map_size = 60  # Default map size: 40, 60, or 100
 
         # Map and game state will be initialized after difficulty selection
         self.game_state = None
@@ -76,9 +77,17 @@ class ZombieStrategyGame:
             'callback': None  # Function to call on confirmation
         }
 
+        # Tech tree UI
+        self.tech_tree_open = False
+        self.selected_tech = None  # Currently hovered/selected tech
+
         # Console message log
         self.message_log = []
         self.message_log_open = False
+
+        # Helicopter transport menu
+        self.helicopter_menu_open = False
+        self.teleporting_unit = None
 
         # Animation state for zombie movements
         self.animating_zombies = False
@@ -241,6 +250,20 @@ class ZombieStrategyGame:
                         self.running = False
                     continue
 
+                # Handle helicopter menu
+                if self.helicopter_menu_open:
+                    if event.key == pygame.K_ESCAPE or event.key == pygame.K_p:
+                        self.helicopter_menu_open = False
+                        self.teleporting_unit = None
+                        self.log_message("Helicopter transport cancelled")
+                    continue
+
+                # Handle tech tree
+                if self.tech_tree_open:
+                    if event.key == pygame.K_ESCAPE or event.key == pygame.K_TAB:
+                        self.tech_tree_open = False
+                    continue
+
                 # Handle message log
                 if self.message_log_open:
                     if event.key == pygame.K_ESCAPE:
@@ -257,7 +280,7 @@ class ZombieStrategyGame:
                         if self.save_menu_open and self.menu_input_text:
                             # Save the game
                             filename = self.menu_input_text if self.menu_input_text.endswith('.json') else f"{self.menu_input_text}.json"
-                            self.game_state.save_game(filename)
+                            self.game_state.save_game(filename, self.renderer.camera_x, self.renderer.camera_y)
                             self.last_save_turn = self.game_state.turn
                             self.has_unsaved_changes = False
                             self.save_menu_open = False
@@ -265,9 +288,12 @@ class ZombieStrategyGame:
                         elif self.load_menu_open and self.menu_input_text:
                             # Load the game
                             filename = self.menu_input_text if self.menu_input_text.endswith('.json') else f"{self.menu_input_text}.json"
-                            loaded_state = GameState.load_game(filename)
-                            if loaded_state:
+                            result = GameState.load_game(filename)
+                            if result:
+                                loaded_state, camera_x, camera_y = result
                                 self.game_state = loaded_state
+                                self.renderer.camera_x = camera_x
+                                self.renderer.camera_y = camera_y
                                 self.selected_unit = None
                                 self.selected_city = None
                                 self.selected_tile = None
@@ -389,20 +415,56 @@ class ZombieStrategyGame:
                                     continue
 
                             # Scavenge all resources
+                            scavenged = {}
                             for resource, amount in resources.items():
+                                # Apply scavenging efficiency tech bonus
+                                if self.game_state.has_tech('scavenging_efficiency'):
+                                    amount = int(amount * 1.25)
                                 self.selected_unit.inventory[resource] += amount
+                                scavenged[resource] = amount
                             del self.game_state.resources[pos]
 
+                            # Small chance (10%) to find a survivor when scavenging
+                            found_survivor = False
+                            if random.random() < 0.10:
+                                # Try to spawn survivor on adjacent tile
+                                adjacent_positions = [
+                                    (self.selected_unit.x + dx, self.selected_unit.y + dy)
+                                    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+                                ]
+                                # Filter valid positions (within bounds, not water, no units)
+                                from map_generator import TileType
+                                valid_positions = [
+                                    (x, y) for x, y in adjacent_positions
+                                    if (0 <= x < self.game_state.map_width and
+                                        0 <= y < self.game_state.map_height and
+                                        self.game_state.map_grid[y][x] != TileType.WATER and
+                                        not any(u.x == x and u.y == y for u in self.game_state.units))
+                                ]
+
+                                if valid_positions:
+                                    spawn_x, spawn_y = random.choice(valid_positions)
+                                    new_survivor = self.game_state.create_unit('survivor', spawn_x, spawn_y, 'player')
+                                    self.game_state.units.append(new_survivor)
+                                    found_survivor = True
+                                    self.log_message(f"Found a survivor! They joined your group at ({spawn_x}, {spawn_y})")
+
                             # Show notification dialog with scavenged resources
-                            resource_lines = [f"{resource.capitalize()}: +{amount}" for resource, amount in resources.items()]
+                            resource_lines = [f"{resource.capitalize()}: +{amount}" for resource, amount in scavenged.items()]
+                            messages = ['Successfully scavenged:'] + resource_lines + ['', 'Resources added to unit inventory.']
+                            if found_survivor:
+                                messages.append('')
+                                messages.append('BONUS: Found a survivor!')
+                                messages.append('A survivor has joined your group!')
+
                             self.notification_dialog_data = {
                                 'title': '✓ Resources Scavenged',
-                                'messages': ['Successfully scavenged:'] + resource_lines + ['', 'Resources added to unit inventory.'],
+                                'messages': messages,
                                 'type': 'info',
                                 'callback': None
                             }
                             self.notification_dialog_open = True
-                            self.log_message(f"Scavenged: {resources} (now in unit's inventory)")
+                            self.log_message(f"Scavenged: {scavenged} (now in unit's inventory)")
 
                 # Deposit resources to city (T key)
                 elif event.key == pygame.K_t:
@@ -460,6 +522,9 @@ class ZombieStrategyGame:
                                     if target_unit and target_unit.team == 'player' and target_unit.health < target_unit.max_health:
                                         # Heal the unit (scales with medic level: 30 + 10 per level)
                                         base_heal = 30
+                                        # Apply tactical_medicine tech for +20 healing
+                                        if self.game_state.has_tech('tactical_medicine'):
+                                            base_heal += 20
                                         heal_amount = base_heal + (self.selected_unit.level - 1) * 10
                                         old_health = target_unit.health
                                         target_unit.health = min(target_unit.max_health, target_unit.health + heal_amount)
@@ -511,6 +576,29 @@ class ZombieStrategyGame:
                         self.log_message("Only scouts can triangulate lab signals")
                     else:
                         self.log_message("Select a scout to triangulate")
+
+                # Helicopter transport (P key)
+                elif event.key == pygame.K_p:
+                    if self.game_state and self.game_state.has_tech('helicopter_transport'):
+                        if self.selected_unit and self.selected_unit.team == 'player':
+                            # Check if unit is on a city tile
+                            city = self.game_state.get_city_at(self.selected_unit.x, self.selected_unit.y)
+                            if city:
+                                # Open helicopter menu
+                                self.helicopter_menu_open = True
+                                self.teleporting_unit = self.selected_unit
+                                self.log_message(f"Select destination city for {self.selected_unit.unit_type}")
+                            else:
+                                self.log_message("Unit must be on a city tile to use helicopter transport")
+                        else:
+                            self.log_message("Select a unit to use helicopter transport")
+                    elif self.game_state:
+                        self.log_message("Helicopter Transport technology required")
+
+                # Open tech tree (TAB key)
+                elif event.key == pygame.K_TAB:
+                    if self.game_state:
+                        self.tech_tree_open = not self.tech_tree_open
 
                 # Enter building placement mode
                 elif event.key == pygame.K_1:  # Farm
@@ -576,6 +664,16 @@ class ZombieStrategyGame:
                         self.building_placement_mode = 'medic'
                         self.log_message("Recruit Medic unit at city location")
 
+                elif event.key == pygame.K_0:  # Recruit Super Soldier (requires tech)
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot recruit units during enemy turn!")
+                    elif self.selected_city:
+                        if self.game_state.has_tech('super_soldier_program'):
+                            self.building_placement_mode = 'super_soldier'
+                            self.log_message("Recruit Super Soldier unit at city location (elite)")
+                        else:
+                            self.log_message("Research Super Soldier Program first!")
+
                 elif event.key == pygame.K_u:  # Upgrade building
                     if self.game_state.current_team != 'player':
                         self.log_message("Cannot upgrade buildings during enemy turn!")
@@ -589,11 +687,14 @@ class ZombieStrategyGame:
                     elif self.selected_city:
                         # Check if city has hospital and the cure
                         if 'hospital' in self.selected_city.buildings and self.selected_city.resources.get('cure', 0) > 0:
-                            if self.selected_city.can_build('manufacture_cure'):
+                            if self.selected_city.can_build('manufacture_cure', self.game_state):
                                 self.building_placement_mode = 'manufacture_cure'
                                 self.log_message("🧪 Initiating cure manufacturing... Click city to confirm!")
                             else:
-                                self.log_message("Not enough resources! Need 1000 food, 1000 materials, 200 medicine, and 1 cure.")
+                                # Show dynamic cost based on tech
+                                food_cost = 350 if self.game_state.has_tech('cure_research') else 500
+                                materials_cost = 350 if self.game_state.has_tech('cure_research') else 500
+                                self.log_message(f"Not enough resources! Need {food_cost} food, {materials_cost} materials, 200 medicine, and 1 cure.")
                         else:
                             if 'hospital' not in self.selected_city.buildings:
                                 self.log_message("City needs a hospital to manufacture the cure!")
@@ -620,6 +721,17 @@ class ZombieStrategyGame:
                         self.log_message("DEBUG: Full map revealed")
                     else:
                         self.log_message("DEBUG: Map visibility restored to normal")
+
+                # Debug: Give resources and tech points (F2)
+                elif event.key == pygame.K_F2:
+                    if self.selected_unit and self.selected_unit.team == 'player':
+                        self.selected_unit.inventory['food'] += 1000
+                        self.selected_unit.inventory['materials'] += 1000
+                        self.selected_unit.inventory['medicine'] += 1000
+                        self.game_state.tech_points += 1000
+                        self.log_message("DEBUG: Added 1000 of each resource to unit and 1000 tech points")
+                    else:
+                        self.log_message("DEBUG: Select a player unit first!")
 
                 # Save game (Ctrl+S) - Open save menu
                 elif event.key == pygame.K_s and (pygame.key.get_mods() & pygame.KMOD_CTRL):
@@ -648,6 +760,82 @@ class ZombieStrategyGame:
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 mouse_x, mouse_y = pygame.mouse.get_pos()
+
+                # Handle helicopter menu clicks
+                if self.helicopter_menu_open and event.button == 1:
+                    # Convert mouse position to tile coordinates
+                    tile_x, tile_y = self.renderer.screen_to_tile(mouse_x, mouse_y)
+
+                    # Check if clicked on a city
+                    destination_city = self.game_state.get_city_at(tile_x, tile_y)
+                    if destination_city and self.teleporting_unit:
+                        # Get source city
+                        source_city = self.game_state.get_city_at(self.teleporting_unit.x, self.teleporting_unit.y)
+
+                        if destination_city == source_city:
+                            self.log_message("Already at this city!")
+                        else:
+                            # Teleport the unit
+                            self.teleporting_unit.x = destination_city.x
+                            self.teleporting_unit.y = destination_city.y
+                            self.teleporting_unit.moves_remaining = 0  # Use up movement
+                            self.log_message(f"🚁 {self.teleporting_unit.unit_type} teleported to {destination_city.name}!")
+                            self.has_unsaved_changes = True
+
+                            # Update fog of war
+                            self.game_state.update_visibility()
+
+                            # Close menu
+                            self.helicopter_menu_open = False
+                            self.teleporting_unit = None
+                    continue  # Don't process other click handlers
+
+                # Handle tech tree clicks
+                if self.tech_tree_open and event.button == 1:
+                    from tech_tree import TECH_TREE, can_research, get_tech_cost
+                    # Check if any tech was clicked
+                    if hasattr(self, 'tech_positions'):
+                        for tech_id, (tx, ty, tw, th) in self.tech_positions.items():
+                            if tx <= mouse_x <= tx + tw and ty <= mouse_y <= ty + th:
+                                # Check if can research
+                                if tech_id not in self.game_state.researched_techs:
+                                    can_afford = can_research(tech_id, self.game_state.researched_techs)
+                                    tech_cost = get_tech_cost(tech_id, self.game_state.researched_techs)
+                                    if can_afford and self.game_state.tech_points >= tech_cost:
+                                        # Research the tech!
+                                        self.game_state.tech_points -= tech_cost
+                                        self.game_state.researched_techs.add(tech_id)
+                                        self.log_message(f"Researched: {TECH_TREE[tech_id]['name']}!")
+                                        self.has_unsaved_changes = True
+
+                                        # Apply immediate effects for vision-related techs
+                                        if tech_id in ['scout_training', 'watchtower']:
+                                            self.game_state.update_visibility()
+
+                                        # Apply immediate effects for advanced_weaponry
+                                        if tech_id == 'advanced_weaponry':
+                                            for unit in self.game_state.units:
+                                                if unit.team == 'player' and unit.unit_type == 'soldier':
+                                                    unit.attack_power += 10
+                                                    self.log_message(f"Soldier at ({unit.x}, {unit.y}) attack increased to {unit.attack_power}!")
+
+                                        # Apply immediate effects for armor_plating
+                                        if tech_id == 'armor_plating':
+                                            for unit in self.game_state.units:
+                                                if unit.team == 'player':
+                                                    unit.max_health += 40
+                                                    unit.health += 40
+                                            self.log_message("All player units gained +40 max HP!")
+
+                                        # Apply immediate effects for rapid_response
+                                        if tech_id == 'rapid_response':
+                                            for unit in self.game_state.units:
+                                                if unit.team == 'player':
+                                                    unit.max_moves += 1
+                                                    unit.moves_remaining += 1
+                                            self.log_message("All player units gained +1 movement!")
+                                break
+                    continue
 
                 # Handle difficulty dialog clicks (only if load menu is not open)
                 if self.difficulty_dialog_open and not self.load_menu_open:
@@ -681,8 +869,9 @@ class ZombieStrategyGame:
                     if clicked_save:
                         if self.load_menu_open:
                             # Load the clicked save file
-                            loaded_state = GameState.load_game(clicked_save)
-                            if loaded_state:
+                            result = GameState.load_game(clicked_save)
+                            if result:
+                                loaded_state, camera_x, camera_y = result
                                 self.game_state = loaded_state
                                 self.difficulty = loaded_state.difficulty  # Update main game difficulty
                                 self.difficulty_dialog_open = False  # Game is now started
@@ -691,6 +880,8 @@ class ZombieStrategyGame:
                                 if not self.renderer:
                                     self.renderer = Renderer(self.screen_width, self.screen_height, self.tile_size)
 
+                                self.renderer.camera_x = camera_x
+                                self.renderer.camera_y = camera_y
                                 self.selected_unit = None
                                 self.selected_city = None
                                 self.selected_tile = None
@@ -745,8 +936,8 @@ class ZombieStrategyGame:
 
                         # Handle cure manufacturing (special case - triggers immediately)
                         elif building_type == 'manufacture_cure':
-                            if self.selected_city.can_build('manufacture_cure'):
-                                result = self.selected_city.build('manufacture_cure', self.selected_city.x, self.selected_city.y, 0)
+                            if self.selected_city.can_build('manufacture_cure', self.game_state):
+                                result = self.selected_city.build('manufacture_cure', self.selected_city.x, self.selected_city.y, 0, self.game_state)
                                 if result == 'cure_manufactured':
                                     self.game_state.manufacture_cure()
                                     # Save to cure leaderboard and set victory state
@@ -760,7 +951,7 @@ class ZombieStrategyGame:
                             self.building_placement_mode = None
 
                         # Handle unit recruitment (special case - spawns at city, no adjacency needed)
-                        elif building_type in ['survivor', 'scout', 'soldier', 'medic']:
+                        elif building_type in ['survivor', 'scout', 'soldier', 'medic', 'super_soldier']:
                             # Check if city tile is already occupied by a unit
                             if self.game_state.get_unit_at(self.selected_city.x, self.selected_city.y):
                                 self.log_message("Cannot recruit - city tile is occupied by another unit!")
@@ -770,7 +961,8 @@ class ZombieStrategyGame:
                                     'survivor': {'food': 20, 'materials': 10},
                                     'scout': {'food': 15, 'materials': 5},
                                     'soldier': {'food': 30, 'materials': 20},
-                                    'medic': {'food': 25, 'materials': 15, 'medicine': 10}
+                                    'medic': {'food': 25, 'materials': 15, 'medicine': 10},
+                                    'super_soldier': {'food': 50, 'materials': 40}
                                 }
                                 cost = costs[building_type]
 
@@ -780,9 +972,16 @@ class ZombieStrategyGame:
                                 if can_afford:
                                     for res, amt in cost.items():
                                         self.selected_city.resources[res] -= amt
-                                    new_unit = Unit(self.selected_city.x, self.selected_city.y, building_type, 'player', self.difficulty)
+                                    new_unit = Unit(self.selected_city.x, self.selected_city.y, building_type, 'player', self.difficulty, self.game_state)
+
+                                    # Apply combat_training tech - new units spawn at level 2
+                                    if self.game_state.has_tech('combat_training'):
+                                        # Level units up to level 2 (which requires 10 XP)
+                                        while new_unit.level < 2:
+                                            new_unit.gain_xp(10)  # Give enough XP to level up
+
                                     self.game_state.units.append(new_unit)
-                                    self.log_message(f"Recruited {building_type.capitalize()} at {self.selected_city.name}!")
+                                    self.log_message(f"Recruited {building_type.replace('_', ' ').title()} at {self.selected_city.name}!")
                                 else:
                                     cost_str = ', '.join([f"{amt} {res}" for res, amt in cost.items()])
                                     self.log_message(f"Not enough city resources! {building_type.capitalize()} costs: {cost_str}")
@@ -825,8 +1024,8 @@ class ZombieStrategyGame:
                                             self.building_placement_mode = None
                                         else:
                                             # Regular building placement using city resources
-                                            if self.selected_city.can_build(building_type):
-                                                result = self.selected_city.build(building_type, tile_x, tile_y, terrain)
+                                            if self.selected_city.can_build(building_type, self.game_state):
+                                                result = self.selected_city.build(building_type, tile_x, tile_y, terrain, self.game_state)
 
                                                 # Check if cure was manufactured (special win condition)
                                                 if result == 'cure_manufactured':
@@ -928,6 +1127,12 @@ class ZombieStrategyGame:
                                     if blocking_unit.health <= 0:
                                         # Drop inventory before removing unit
                                         self.game_state.drop_unit_inventory(blocking_unit)
+
+                                        # Award tech points for killing enemies (player only)
+                                        if self.selected_unit.team == 'player' and blocking_unit.team == 'enemy':
+                                            tech_points = 20 if blocking_unit.size > 1 else 5  # 20 for super zombies, 5 for regular
+                                            self.game_state.tech_points += tech_points
+                                            self.game_state.zombies_killed_count += 1
 
                                         self.game_state.units.remove(blocking_unit)
                                         self.log_message(f"{blocking_unit.unit_type} defeated!")
@@ -1044,8 +1249,13 @@ class ZombieStrategyGame:
         self.animation_start_time = pygame.time.get_ticks()
 
     def _find_nearest_target_for_attack_animation(self, zombie):
-        """Find the nearest target tile for attack animation"""
-        # Check all adjacent tiles for units, cities, or buildings
+        """Find the actual target tile for attack animation"""
+        # Use the recorded attack target if available
+        if hasattr(zombie, 'last_attack_target') and zombie.last_attack_target:
+            return zombie.last_attack_target
+
+        # Fallback: check all adjacent tiles for units, cities, or buildings
+        # (This shouldn't happen if the zombie attacked, but provides backward compatibility)
         for dy in [-1, 0, 1]:
             for dx in [-1, 0, 1]:
                 if dx == 0 and dy == 0:
@@ -1145,6 +1355,12 @@ class ZombieStrategyGame:
                 # Animation complete, end enemy turn
                 self.animating_zombies = False
                 self.zombie_animations = {}
+
+                # Clear last_attack_target from all zombies
+                for unit in self.game_state.units:
+                    if unit.team == 'enemy' and hasattr(unit, 'last_attack_target'):
+                        unit.last_attack_target = None
+
                 # Now end enemy turn and start player turn
                 self.game_state.current_team = 'player'
                 self.game_state.turn += 1
@@ -1153,13 +1369,24 @@ class ZombieStrategyGame:
                     if unit.team == 'player':
                         unit.reset_moves()
                 # Autosave at the start of player's turn
-                self.game_state.autosave()
+                self.game_state.autosave(self.renderer.camera_x, self.renderer.camera_y)
                 # Produce resources in all cities
                 for city in self.game_state.cities:
-                    production = city.produce_resources()
+                    production = city.produce_resources(self.game_state)
                     if any(production.values()):
                         prod_str = ', '.join([f"{k}: +{v}" for k, v in production.items() if v > 0])
                         self.log_message(f"{city.name} produced: {prod_str}")
+                # Apply automated defenses damage to adjacent zombies
+                defense_results = self.game_state.apply_automated_defenses()
+                if defense_results['damaged'] > 0 or defense_results['killed'] > 0:
+                    killed = defense_results['killed']
+                    damaged = defense_results['damaged'] - killed  # Subtract killed from total damaged
+                    if killed > 0 and damaged > 0:
+                        self.log_message(f"⚡ Automated Defenses: {killed} zombie(s) destroyed, {damaged} damaged!")
+                    elif killed > 0:
+                        self.log_message(f"⚡ Automated Defenses: {killed} zombie(s) destroyed!")
+                    elif damaged > 0:
+                        self.log_message(f"⚡ Automated Defenses: {damaged} zombie(s) damaged!")
                 # Spawn new zombies
                 self.game_state.spawn_zombies()
                 # Update fog of war
@@ -1261,7 +1488,7 @@ class ZombieStrategyGame:
                 return None  # Don't start immediately, wait for START button
 
         # Check map size buttons
-        map_sizes = [30, 50, 100]
+        map_sizes = [40, 60, 100]
         small_button_width = 180
         small_button_height = 70
         spacing = 20
@@ -1348,6 +1575,14 @@ class ZombieStrategyGame:
         if self.notification_dialog_open:
             self.render_notification_dialog()
 
+        # Render tech tree on top of everything
+        if self.tech_tree_open:
+            self.render_tech_tree()
+
+        # Render helicopter menu on top of everything
+        if self.helicopter_menu_open:
+            self.render_helicopter_menu()
+
         pygame.display.flip()
 
     def render_difficulty_dialog(self):
@@ -1432,10 +1667,10 @@ class ZombieStrategyGame:
         self.screen.blit(map_title, map_title_rect)
 
         # Map size buttons (horizontal layout)
-        map_sizes = [30, 50, 100]
+        map_sizes = [40, 60, 100]
         map_descriptions = {
-            30: 'Small - Quick games',
-            50: 'Medium - Balanced',
+            40: 'Small - Quick games',
+            60: 'Medium - Balanced',
             100: 'Large - Epic battles'
         }
 
@@ -1745,6 +1980,273 @@ class ZombieStrategyGame:
         controls = controls_font.render(controls_text, True, controls_color)
         controls_rect = controls.get_rect(center=(self.screen_width // 2, dialog_y + dialog_height - 40))
         self.screen.blit(controls, controls_rect)
+
+    def render_tech_tree(self):
+        """Render the tech tree interface"""
+        from tech_tree import TECH_TREE, can_research, get_tech_cost
+
+        # Semi-transparent overlay
+        overlay = pygame.Surface((self.screen_width, self.screen_height))
+        overlay.set_alpha(200)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+
+        # Main panel
+        panel_width = 1400
+        panel_height = 850
+        panel_x = self.screen_width // 2 - panel_width // 2
+        panel_y = self.screen_height // 2 - panel_height // 2
+
+        pygame.draw.rect(self.screen, (30, 30, 40), (panel_x, panel_y, panel_width, panel_height))
+        pygame.draw.rect(self.screen, (100, 150, 200), (panel_x, panel_y, panel_width, panel_height), 4)
+
+        # Title
+        title_font = pygame.font.Font(None, 48)
+        title = title_font.render("🔬 Technology Tree", True, (150, 200, 255))
+        title_rect = title.get_rect(center=(self.screen_width // 2, panel_y + 35))
+        self.screen.blit(title, title_rect)
+
+        # Tech points display
+        points_font = pygame.font.Font(None, 36)
+        points_text = points_font.render(f"Tech Points: {self.game_state.tech_points}", True, (255, 255, 100))
+        points_rect = points_text.get_rect(center=(self.screen_width // 2, panel_y + 80))
+        self.screen.blit(points_text, points_rect)
+
+        # Categories
+        cat_y = panel_y + 130
+        cat_font = pygame.font.Font(None, 32)
+
+        # Units category
+        units_title = cat_font.render("UNITS & COMBAT", True, (255, 200, 100))
+        self.screen.blit(units_title, (panel_x + 50, cat_y))
+
+        # City category
+        city_title = cat_font.render("CITIES & ECONOMY", True, (100, 255, 200))
+        self.screen.blit(city_title, (panel_x + 750, cat_y))
+
+        # Render tech boxes
+        tech_font = pygame.font.Font(None, 20)
+        cost_font = pygame.font.Font(None, 18)
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+
+        # Define tech positions (manual layout for clarity)
+        tech_positions = {
+            # Units tree (left side)
+            'scavenging_efficiency': (panel_x + 80, cat_y + 50),
+            'scout_training': (panel_x + 80, cat_y + 140),
+            'combat_training': (panel_x + 80, cat_y + 230),
+            'tactical_medicine': (panel_x + 300, cat_y + 50),
+            'rapid_response': (panel_x + 300, cat_y + 140),
+            'armor_plating': (panel_x + 300, cat_y + 230),
+            'advanced_weaponry': (panel_x + 300, cat_y + 320),
+            'super_soldier_program': (panel_x + 520, cat_y + 320),
+
+            # City tree (right side)
+            'fortification': (panel_x + 780, cat_y + 50),
+            'advanced_farming': (panel_x + 780, cat_y + 140),
+            'industrial_workshops': (panel_x + 780, cat_y + 230),
+            'basic_medicine': (panel_x + 780, cat_y + 320),
+            'research_documentation': (panel_x + 1000, cat_y + 50),
+            'quick_start': (panel_x + 1000, cat_y + 140),
+            'watchtower': (panel_x + 1000, cat_y + 230),
+            'cure_research': (panel_x + 1000, cat_y + 320),
+            'automated_defenses': (panel_x + 1000, cat_y + 410),
+            'helicopter_transport': (panel_x + 1000, cat_y + 500),
+        }
+
+        # Draw prerequisite lines first
+        for tech_id, pos in tech_positions.items():
+            tech = TECH_TREE[tech_id]
+            for prereq in tech['prerequisites']:
+                if prereq in tech_positions:
+                    prereq_pos = tech_positions[prereq]
+                    # Draw line from prereq to tech
+                    start_x = prereq_pos[0] + 100  # Right edge of prereq box
+                    start_y = prereq_pos[1] + 20   # Middle of prereq box
+                    end_x = pos[0]                 # Left edge of tech box
+                    end_y = pos[1] + 20            # Middle of tech box
+                    pygame.draw.line(self.screen, (80, 80, 100), (start_x, start_y), (end_x, end_y), 2)
+
+        # Draw tech boxes
+        for tech_id, pos in tech_positions.items():
+            tech = TECH_TREE[tech_id]
+            box_width = 200
+            box_height = 70
+
+            # Determine tech state
+            is_researched = tech_id in self.game_state.researched_techs
+            can_afford = can_research(tech_id, self.game_state.researched_techs)
+            tech_cost = get_tech_cost(tech_id, self.game_state.researched_techs)
+            has_points = self.game_state.tech_points >= tech_cost
+
+            # Check if mouse is hovering
+            is_hovering = (pos[0] <= mouse_x <= pos[0] + box_width and
+                          pos[1] <= mouse_y <= pos[1] + box_height)
+
+            # Set colors based on state
+            if is_researched:
+                box_color = (50, 100, 50)
+                border_color = (100, 200, 100)
+                text_color = (200, 255, 200)
+            elif can_afford and has_points:
+                box_color = (70, 70, 100) if not is_hovering else (90, 90, 130)
+                border_color = (150, 200, 255)
+                text_color = (255, 255, 255)
+            elif can_afford:
+                box_color = (60, 60, 80)
+                border_color = (120, 120, 150)
+                text_color = (200, 200, 200)
+            else:
+                box_color = (40, 40, 50)
+                border_color = (80, 80, 90)
+                text_color = (120, 120, 130)
+
+            # Draw box
+            pygame.draw.rect(self.screen, box_color, (pos[0], pos[1], box_width, box_height))
+            pygame.draw.rect(self.screen, border_color, (pos[0], pos[1], box_width, box_height), 2)
+
+            # Draw tech name
+            name_text = tech_font.render(tech['name'], True, text_color)
+            name_rect = name_text.get_rect(center=(pos[0] + box_width // 2, pos[1] + 18))
+            self.screen.blit(name_text, name_rect)
+
+            # Draw cost
+            cost_text = cost_font.render(f"Cost: {tech_cost} pts", True, text_color)
+            cost_rect = cost_text.get_rect(center=(pos[0] + box_width // 2, pos[1] + 38))
+            self.screen.blit(cost_text, cost_rect)
+
+            # Draw status
+            if is_researched:
+                status_text = cost_font.render("✓ RESEARCHED", True, (150, 255, 150))
+            elif can_afford and has_points:
+                status_text = cost_font.render("Click to Research", True, (255, 255, 150))
+            elif can_afford:
+                status_text = cost_font.render("Need points", True, (255, 150, 100))
+            else:
+                status_text = cost_font.render("Locked", True, (150, 150, 150))
+
+            status_rect = status_text.get_rect(center=(pos[0] + box_width // 2, pos[1] + 55))
+            self.screen.blit(status_text, status_rect)
+
+            # Store position for click detection
+            if not hasattr(self, 'tech_positions'):
+                self.tech_positions = {}
+            self.tech_positions[tech_id] = (pos[0], pos[1], box_width, box_height)
+
+            # Draw tooltip on hover
+            if is_hovering:
+                self.hovered_tech = tech_id
+
+        # Draw tooltip for hovered tech
+        if hasattr(self, 'hovered_tech') and self.hovered_tech:
+            tech_id = self.hovered_tech
+            if tech_id in tech_positions:
+                tech = TECH_TREE[tech_id]
+                tooltip_width = 450
+                tooltip_height = 80
+
+                # Position tooltip to the right of the mouse, but keep it on screen
+                tooltip_x = min(mouse_x + 20, self.screen_width - tooltip_width - 10)
+                tooltip_y = min(mouse_y + 10, self.screen_height - tooltip_height - 10)
+
+                # Draw tooltip background
+                pygame.draw.rect(self.screen, (20, 25, 35), (tooltip_x, tooltip_y, tooltip_width, tooltip_height))
+                pygame.draw.rect(self.screen, (150, 200, 255), (tooltip_x, tooltip_y, tooltip_width, tooltip_height), 3)
+
+                # Draw tech name
+                tooltip_font = pygame.font.Font(None, 24)
+                name_text = tooltip_font.render(tech['name'], True, (255, 255, 150))
+                self.screen.blit(name_text, (tooltip_x + 10, tooltip_y + 10))
+
+                # Draw description (word wrap)
+                desc_font = pygame.font.Font(None, 20)
+                desc_text = tech['description']
+                words = desc_text.split(' ')
+                lines = []
+                current_line = ''
+
+                for word in words:
+                    test_line = current_line + word + ' '
+                    if desc_font.size(test_line)[0] < tooltip_width - 20:
+                        current_line = test_line
+                    else:
+                        if current_line:
+                            lines.append(current_line)
+                        current_line = word + ' '
+                if current_line:
+                    lines.append(current_line)
+
+                for i, line in enumerate(lines[:2]):  # Max 2 lines
+                    desc_surface = desc_font.render(line.strip(), True, (220, 220, 255))
+                    self.screen.blit(desc_surface, (tooltip_x + 10, tooltip_y + 38 + i * 20))
+
+        # Reset hovered tech for next frame
+        self.hovered_tech = None
+
+        # Instructions
+        instructions_font = pygame.font.Font(None, 24)
+        instructions = instructions_font.render("Hover for details  |  Click available tech to research  |  Press TAB or ESC to close", True, (200, 200, 200))
+        instructions_rect = instructions.get_rect(center=(self.screen_width // 2, panel_y + panel_height - 30))
+        self.screen.blit(instructions, instructions_rect)
+
+    def render_helicopter_menu(self):
+        """Render the helicopter transport menu"""
+        # Semi-transparent overlay
+        overlay = pygame.Surface((self.screen_width, self.screen_height))
+        overlay.set_alpha(180)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+
+        # Instruction panel
+        panel_width = 600
+        panel_height = 150
+        panel_x = self.screen_width // 2 - panel_width // 2
+        panel_y = 50
+
+        pygame.draw.rect(self.screen, (20, 40, 60), (panel_x, panel_y, panel_width, panel_height))
+        pygame.draw.rect(self.screen, (100, 150, 200), (panel_x, panel_y, panel_width, panel_height), 3)
+
+        # Title
+        title_font = pygame.font.Font(None, 48)
+        title = title_font.render("🚁 Helicopter Transport", True, (150, 200, 255))
+        title_rect = title.get_rect(center=(self.screen_width // 2, panel_y + 35))
+        self.screen.blit(title, title_rect)
+
+        # Instructions
+        inst_font = pygame.font.Font(None, 24)
+        inst1 = inst_font.render("Click on any city to teleport", True, (200, 220, 255))
+        inst1_rect = inst1.get_rect(center=(self.screen_width // 2, panel_y + 80))
+        self.screen.blit(inst1, inst1_rect)
+
+        inst2 = inst_font.render("Press P or ESC to cancel", True, (180, 200, 230))
+        inst2_rect = inst2.get_rect(center=(self.screen_width // 2, panel_y + 110))
+        self.screen.blit(inst2, inst2_rect)
+
+        # Highlight all cities on the map
+        for city in self.game_state.cities:
+            # Convert tile coordinates to screen coordinates
+            screen_x = city.x * self.renderer.tile_size - self.renderer.camera_x + self.renderer.tile_size // 2
+            screen_y = city.y * self.renderer.tile_size - self.renderer.camera_y + self.renderer.tile_size // 2
+
+            # Check if city is visible on screen
+            if 0 <= screen_x < self.screen_width and 0 <= screen_y < self.screen_height:
+                # Draw pulsing highlight circle
+                import math
+                pulse = abs(math.sin(pygame.time.get_ticks() / 300.0))
+                radius = int(20 + pulse * 10)
+                pygame.draw.circle(self.screen, (150, 200, 255, 180), (screen_x, screen_y), radius, 3)
+
+                # Draw city name
+                name_font = pygame.font.Font(None, 20)
+                name_text = name_font.render(city.name, True, (200, 230, 255))
+                name_rect = name_text.get_rect(center=(screen_x, screen_y - radius - 10))
+
+                # Draw background for text
+                bg_rect = name_rect.inflate(10, 4)
+                pygame.draw.rect(self.screen, (20, 40, 60), bg_rect)
+                pygame.draw.rect(self.screen, (100, 150, 200), bg_rect, 1)
+
+                self.screen.blit(name_text, name_rect)
 
     def render_game_over(self):
         """Render the game over screen with high scores"""
