@@ -62,7 +62,7 @@ When a city is selected:
 ### System
 - **Ctrl+S** - Open save menu
 - **Ctrl+L** - Open load menu
-- **Y** - Open/close Tech Tree
+- **TAB** - Open/close Tech Tree
 - **F1** - Debug: Toggle full map reveal
 - **ESC** - Exit game (shows warning if unsaved changes)
 

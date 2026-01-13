@@ -69,30 +69,69 @@ class MapGenerator:
         return map_grid
 
     def _generate_ruined_city(self, map_grid):
-        """Generate a cluster of ruined buildings"""
-        center_x = random.randint(5, self.width - 5)
-        center_y = random.randint(5, self.height - 5)
-        city_size = random.randint(8, 15)
+        """Generate a dense cluster of ruined buildings with city-like patterns"""
+        center_x = random.randint(8, self.width - 8)
+        center_y = random.randint(8, self.height - 8)
+        city_size = random.randint(25, 45)  # Increased from 8-15
+        city_radius = random.randint(6, 10)  # Tighter clustering
 
+        # First pass: Create a grid-like road network within the city
+        for i in range(-city_radius, city_radius + 1, 3):  # Roads every 3 tiles
+            for offset in range(-city_radius, city_radius + 1):
+                # Horizontal roads
+                x = center_x + offset
+                y = center_y + i
+                if 0 <= x < self.width and 0 <= y < self.height:
+                    if map_grid[y][x] != TileType.WATER:
+                        map_grid[y][x] = TileType.ROAD
+
+                # Vertical roads
+                x = center_x + i
+                y = center_y + offset
+                if 0 <= x < self.width and 0 <= y < self.height:
+                    if map_grid[y][x] != TileType.WATER:
+                        map_grid[y][x] = TileType.ROAD
+
+        # Second pass: Place buildings in a denser pattern
         for _ in range(city_size):
-            offset_x = random.randint(-7, 7)
-            offset_y = random.randint(-7, 7)
+            offset_x = random.randint(-city_radius, city_radius)
+            offset_y = random.randint(-city_radius, city_radius)
             x = max(0, min(self.width - 1, center_x + offset_x))
             y = max(0, min(self.height - 1, center_y + offset_y))
 
-            # 70% ruined, 30% intact buildings
-            if random.random() < 0.7:
+            # Don't place buildings on water or roads (unless it's a corner)
+            if map_grid[y][x] == TileType.WATER:
+                continue
+            if map_grid[y][x] == TileType.ROAD and random.random() < 0.7:
+                continue
+
+            # 60% ruined, 40% intact buildings (more intact for better resources)
+            if random.random() < 0.6:
                 map_grid[y][x] = TileType.BUILDING_RUINED
             else:
                 map_grid[y][x] = TileType.BUILDING_INTACT
 
-            # Add rubble around buildings
-            for dy in [-1, 0, 1]:
-                for dx in [-1, 0, 1]:
-                    nx, ny = x + dx, y + dy
-                    if (0 <= nx < self.width and 0 <= ny < self.height and
-                        map_grid[ny][nx] == TileType.GRASS and random.random() < 0.3):
-                        map_grid[ny][nx] = TileType.RUBBLE
+        # Third pass: Add rubble around buildings for atmosphere
+        for dy in range(-city_radius - 2, city_radius + 3):
+            for dx in range(-city_radius - 2, city_radius + 3):
+                x = center_x + dx
+                y = center_y + dy
+                if (0 <= x < self.width and 0 <= y < self.height and
+                    map_grid[y][x] == TileType.GRASS):
+                    # Check if near a building
+                    near_building = False
+                    for ndy in [-1, 0, 1]:
+                        for ndx in [-1, 0, 1]:
+                            nx, ny = x + ndx, y + ndy
+                            if (0 <= nx < self.width and 0 <= ny < self.height and
+                                map_grid[ny][nx] in [TileType.BUILDING_RUINED, TileType.BUILDING_INTACT]):
+                                near_building = True
+                                break
+                        if near_building:
+                            break
+
+                    if near_building and random.random() < 0.4:
+                        map_grid[y][x] = TileType.RUBBLE
 
     def _generate_roads(self, map_grid):
         """Create road networks (scale with map size)"""
