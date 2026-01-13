@@ -85,6 +85,9 @@ class ZombieStrategyGame:
         self.message_log = []
         self.message_log_open = False
 
+        # Help panel
+        self.help_panel_open = False
+
         # Helicopter transport menu
         self.helicopter_menu_open = False
         self.teleporting_unit = None
@@ -323,6 +326,12 @@ class ZombieStrategyGame:
                         if event.unicode and (event.unicode.isalnum() or event.unicode in ['_', '-', ' ']):
                             if len(self.menu_input_text) < 30:
                                 self.menu_input_text += event.unicode
+                    continue
+
+                # Handle help panel
+                if self.help_panel_open:
+                    if event.key == pygame.K_ESCAPE or event.key == pygame.K_k:
+                        self.help_panel_open = False
                     continue
 
                 if event.key == pygame.K_ESCAPE:
@@ -709,7 +718,7 @@ class ZombieStrategyGame:
                             else:
                                 self.log_message("No cure available! Find it at the Research Lab.")
 
-                # Handle exit confirmation Y/N
+                # Handle exit confirmation Y/N/K
                 elif event.key == pygame.K_y:
                     if self.exit_confirmation_open:
                         # Exit without saving
@@ -721,6 +730,15 @@ class ZombieStrategyGame:
                         # Cancel exit
                         self.exit_confirmation_open = False
                         self.log_message("Exit cancelled. Continue playing!")
+
+                elif event.key == pygame.K_k:
+                    if self.exit_confirmation_open:
+                        # Open help panel from exit confirmation
+                        self.exit_confirmation_open = False
+                        self.help_panel_open = True
+                    else:
+                        # Open help panel directly
+                        self.help_panel_open = True
 
                 # Debug: Toggle full map reveal (F1)
                 elif event.key == pygame.K_F1:
@@ -1587,6 +1605,10 @@ class ZombieStrategyGame:
         if self.tech_tree_open:
             self.render_tech_tree()
 
+        # Render help panel on top of everything
+        if self.help_panel_open:
+            self.render_help_panel()
+
         # Render helicopter menu on top of everything
         if self.helicopter_menu_open:
             self.render_helicopter_menu()
@@ -1924,10 +1946,118 @@ class ZombieStrategyGame:
         self.screen.blit(message2, message2_rect)
 
         # Options
-        options_font = pygame.font.Font(None, 32)
-        options = options_font.render("Press Y to Exit  |  Press N to Cancel  |  ESC to Cancel", True, (200, 255, 200))
-        options_rect = options.get_rect(center=(self.screen_width // 2, dialog_y + 200))
-        self.screen.blit(options, options_rect)
+        options_font = pygame.font.Font(None, 28)
+        options1 = options_font.render("Y - Exit  |  N - Cancel  |  K - Shortcut Keys  |  ESC - Cancel", True, (200, 255, 200))
+        options1_rect = options1.get_rect(center=(self.screen_width // 2, dialog_y + 200))
+        self.screen.blit(options1, options1_rect)
+
+    def render_help_panel(self):
+        """Render the keyboard shortcuts help panel"""
+        # Semi-transparent overlay
+        overlay = pygame.Surface((self.screen_width, self.screen_height))
+        overlay.set_alpha(200)
+        overlay.fill((0, 0, 0))
+        self.screen.blit(overlay, (0, 0))
+
+        # Dialog panel
+        panel_width = 900
+        panel_height = 700
+        panel_x = self.screen_width // 2 - panel_width // 2
+        panel_y = self.screen_height // 2 - panel_height // 2
+
+        pygame.draw.rect(self.screen, (40, 50, 60), (panel_x, panel_y, panel_width, panel_height))
+        pygame.draw.rect(self.screen, (100, 200, 255), (panel_x, panel_y, panel_width, panel_height), 4)
+
+        # Title
+        title_font = pygame.font.Font(None, 48)
+        title = title_font.render("Keyboard Shortcuts", True, (100, 200, 255))
+        title_rect = title.get_rect(center=(self.screen_width // 2, panel_y + 40))
+        self.screen.blit(title, title_rect)
+
+        # Define shortcuts in categories
+        shortcuts = [
+            ("CAMERA", [
+                ("W/A/S/D", "Move camera (Ctrl not pressed)"),
+                ("Mini-Map Click", "Jump to location"),
+            ]),
+            ("UNIT CONTROL", [
+                ("Left Click", "Select unit / Select tile"),
+                ("Shift + Click", "Select city"),
+                ("Right Click", "Move unit / Attack / Heal"),
+                ("E", "End turn"),
+            ]),
+            ("CITY MANAGEMENT (City Selected)", [
+                ("1/2/3", "Build Farm/Workshop/Hospital"),
+                ("4/5", "Build Wall/Dock"),
+                ("6/7/8/9", "Recruit Survivor/Scout/Soldier/Medic"),
+                ("U", "Upgrade building"),
+                ("C", "Manufacture The Cure"),
+            ]),
+            ("UNIT ACTIONS", [
+                ("F", "Found new city"),
+                ("R", "Scavenge resources"),
+                ("T", "Transfer resources to city"),
+                ("G", "Gather resources from city"),
+                ("Q", "Triangulate lab (scouts only)"),
+                ("P", "Helicopter transport (if researched)"),
+            ]),
+            ("SYSTEM", [
+                ("Ctrl+S", "Save game"),
+                ("Ctrl+L", "Load game"),
+                ("TAB", "Tech tree"),
+                ("ESC", "Exit (shows warning if unsaved)"),
+            ]),
+        ]
+
+        # Render shortcuts
+        y_offset = panel_y + 90
+        section_font = pygame.font.Font(None, 28)
+        key_font = pygame.font.Font(None, 24)
+        desc_font = pygame.font.Font(None, 24)
+
+        left_column_x = panel_x + 40
+        right_column_x = panel_x + panel_width // 2 + 20
+        column_width = panel_width // 2 - 60
+
+        current_column = 0
+        column_y = y_offset
+
+        for category, items in shortcuts:
+            # Determine which column to use
+            if current_column == 0:
+                x_pos = left_column_x
+            else:
+                x_pos = right_column_x
+
+            # Section header
+            section_text = section_font.render(category, True, (255, 200, 100))
+            self.screen.blit(section_text, (x_pos, column_y))
+            column_y += 35
+
+            # Shortcuts
+            for key, description in items:
+                # Key (in yellow/gold)
+                key_text = key_font.render(key, True, (255, 255, 150))
+                self.screen.blit(key_text, (x_pos + 10, column_y))
+
+                # Description (in white)
+                desc_text = desc_font.render(description, True, (200, 200, 200))
+                self.screen.blit(desc_text, (x_pos + 180, column_y))
+
+                column_y += 28
+
+            column_y += 15  # Extra space after section
+
+            # Switch to right column after 2 sections
+            if current_column == 0 and category == "CITY MANAGEMENT (City Selected)":
+                current_column = 1
+                column_y = y_offset
+
+        # Close instruction at bottom
+        close_font = pygame.font.Font(None, 32)
+        close_text = close_font.render("Press ESC or K to close", True, (150, 255, 150))
+        close_rect = close_text.get_rect(center=(self.screen_width // 2, panel_y + panel_height - 40))
+        self.screen.blit(close_text, close_rect)
 
     def render_notification_dialog(self):
         """Render a standard notification dialog box"""

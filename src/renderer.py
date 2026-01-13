@@ -773,14 +773,11 @@ class Renderer:
         help_font = pygame.font.Font(None, 17)
         if selected_city:
             instructions = [
-                "1-5: Buildings (click tile) | 6-9: Recruit units | U: Upgrade (click building) | ESC: Cancel",
-                "T/G: Transfer resources | E: End turn"
+                "1-5: Buildings | 6-9: Recruit | U: Upgrade | K: Keyboard Shortcuts"
             ]
         else:
             instructions = [
-                "WASD: Camera | Click: Select unit | Shift+Click: Select city | E: End turn",
-                "F: Found city (3+ tiles apart) | R: Scavenge | T/G: Transfer | H: Heal (medic)",
-                "Ctrl+S: Save | Ctrl+L: Load | ESC: Quit"
+                "K: Keyboard Shortcuts"
             ]
         for i, instruction in enumerate(instructions):
             help_surface = help_font.render(instruction, True, (200, 200, 200))

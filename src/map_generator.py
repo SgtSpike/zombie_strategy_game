@@ -76,7 +76,7 @@ class MapGenerator:
         city_radius = random.randint(6, 10)  # Tighter clustering
 
         # First pass: Create a grid-like road network within the city
-        for i in range(-city_radius, city_radius + 1, 3):  # Roads every 3 tiles
+        for i in range(-city_radius, city_radius + 1, 5):  # Roads every 5 tiles (reduced from 3)
             for offset in range(-city_radius, city_radius + 1):
                 # Horizontal roads
                 x = center_x + offset
