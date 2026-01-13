@@ -448,7 +448,7 @@ Located in bottom-right corner (200×200 pixels):
 ### Procedural Generation
 - Maps are 50×50 tiles
 - Noise-based terrain generation
-- Random city placement (3-6 ruined cities per map)
+- Random city placement (1-3 ruined cities based on map size)
 - Road networks connecting major locations
 - One Research Lab per map
 - Resource distribution based on building types
