@@ -452,7 +452,7 @@ class ZombieStrategyGame:
 
                                 if valid_positions:
                                     spawn_x, spawn_y = random.choice(valid_positions)
-                                    new_survivor = self.game_state.create_unit('survivor', spawn_x, spawn_y, 'player')
+                                    new_survivor = Unit(spawn_x, spawn_y, 'survivor', 'player', self.game_state.difficulty)
                                     self.game_state.units.append(new_survivor)
                                     found_survivor = True
                                     self.log_message(f"Found a survivor! They joined your group at ({spawn_x}, {spawn_y})")
