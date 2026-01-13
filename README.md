@@ -73,11 +73,11 @@ The tech tree allows you to research technologies that provide permanent gamepla
 ### Earning Tech Points
 
 Tech points are earned automatically from:
-- **2 points per turn** - Passive income each turn
-- **1 point per 10 tiles explored** - Reward for exploration
-- **5 points per zombie killed** - Combat rewards
-- **20 points per super zombie killed** - Major combat rewards
-- **1 point per 100 resources produced** - Economic rewards from city production
+- **1 point per turn** - Passive income each turn
+- **1 point per 20 tiles explored** - Reward for exploration
+- **2 points per zombie killed** - Combat rewards
+- **10 points per super zombie killed** - Major combat rewards
+- **1 point per 200 resources produced** - Economic rewards from city production
 
 ### Technologies
 

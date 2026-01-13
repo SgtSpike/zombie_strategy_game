@@ -595,9 +595,9 @@ class GameState:
                             # Award tech points for kill
                             self.zombies_killed_count += 1
                             if zombie.unit_type == 'super_zombie':
-                                self.tech_points += 20
+                                self.tech_points += 10
                             else:
-                                self.tech_points += 5
+                                self.tech_points += 2
 
         # Remove dead zombies
         for zombie in zombies_to_remove:
@@ -816,8 +816,8 @@ class GameState:
                 if unit.team == 'player':
                     unit.reset_moves()
 
-            # Award tech points for surviving (2 per turn)
-            self.tech_points += 2
+            # Award tech points for surviving (1 per turn)
+            self.tech_points += 1
 
             # Autosave at the start of player's turn
             self.autosave()
@@ -830,12 +830,12 @@ class GameState:
                     prod_str = ', '.join([f"{k}: +{v}" for k, v in production.items() if v > 0])
                     print(f"{city.name} produced: {prod_str}")
 
-                # Track resources for tech points (1 point per 100 resources)
+                # Track resources for tech points (1 point per 200 resources)
                 total_produced = sum(production.values())
                 self.total_resources_produced += total_produced
-                tech_points_from_resources = self.total_resources_produced // 100
+                tech_points_from_resources = self.total_resources_produced // 200
                 if tech_points_from_resources > 0:
-                    self.total_resources_produced -= tech_points_from_resources * 100
+                    self.total_resources_produced -= tech_points_from_resources * 200
                     self.tech_points += tech_points_from_resources
 
             # Spawn new zombies (escalating with turn count)
@@ -1337,12 +1337,12 @@ class GameState:
                         self.explored[y][x] = True
                         newly_explored += 1
 
-        # Award tech points for exploration (1 point per 10 tiles)
+        # Award tech points for exploration (1 point per 20 tiles)
         if newly_explored > 0:
             self.tiles_explored_count += newly_explored
-            tech_points_from_exploration = self.tiles_explored_count // 10
+            tech_points_from_exploration = self.tiles_explored_count // 20
             if tech_points_from_exploration > 0:
-                self.tiles_explored_count -= tech_points_from_exploration * 10
+                self.tiles_explored_count -= tech_points_from_exploration * 20
                 self.tech_points += tech_points_from_exploration
 
     def has_tech(self, tech_id):

@@ -44,15 +44,16 @@ class MapGenerator:
                     map_grid[y][x] = TileType.FOREST
 
         # Generate ruined city clusters (scale with map size)
-        # Base: 3-6 cities for 50x50 (2500 tiles)
-        # Scale proportionally: larger maps get more cities
+        # Fewer cities to prevent overlapping with denser city generation
         map_area = self.width * self.height
-        base_area = 50 * 50  # 2500 tiles
-        scale_factor = map_area / base_area
 
-        min_cities = max(3, int(3 * scale_factor))
-        max_cities = max(6, int(6 * scale_factor))
-        num_cities = random.randint(min_cities, max_cities)
+        # Determine number of cities based on map size
+        if map_area < 2000:  # Small maps (< 45x45)
+            num_cities = 1
+        elif map_area < 4000:  # Medium maps (45x45 to 63x63)
+            num_cities = 2
+        else:  # Large maps (> 63x63)
+            num_cities = 3
 
         for _ in range(num_cities):
             self._generate_ruined_city(map_grid)
