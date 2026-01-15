@@ -523,8 +523,14 @@ class Renderer:
         # Draw triangulation circles for lab location
         if game_state.research_lab_pos and game_state.triangulation_level > 0 and game_state.triangulation_level < 4:
             lab_x, lab_y = game_state.research_lab_pos
-            pixel_x = minimap_x + int(lab_x * scale_x)
-            pixel_y = minimap_y + int(lab_y * scale_y)
+
+            # Apply random offset so circle isn't centered on lab
+            offset_x, offset_y = getattr(game_state, 'triangulation_circle_offset', (0, 0))
+            circle_center_x = lab_x + offset_x
+            circle_center_y = lab_y + offset_y
+
+            pixel_x = minimap_x + int(circle_center_x * scale_x)
+            pixel_y = minimap_y + int(circle_center_y * scale_y)
 
             # Calculate radius based on triangulation level and map size
             map_width = len(game_state.map_grid[0])

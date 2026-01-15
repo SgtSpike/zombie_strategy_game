@@ -567,6 +567,28 @@ class ZombieStrategyGame:
                                 self.selected_unit.moves_remaining = 0
                                 self.game_state.triangulation_level += 1
 
+                                # Generate random offset for the circle (lab must still be inside)
+                                # The offset is in tile coordinates, will be scaled when rendering
+                                import random
+                                import math
+                                # Radius percentages match renderer: Level 1: 50%, Level 2: 30%, Level 3: 15%
+                                # Map these to approximate tile radii based on map size
+                                map_width = len(self.game_state.map_grid[0])
+                                map_height = len(self.game_state.map_grid)
+                                radius_percentages = {1: 0.50, 2: 0.30, 3: 0.15, 4: 0}
+                                # Calculate max offset (circle radius in tiles, minus some margin)
+                                circle_radius_tiles = min(map_width, map_height) * radius_percentages.get(self.game_state.triangulation_level, 0) * 0.5
+                                # Random offset within 70% of the radius so lab is comfortably inside
+                                max_offset = circle_radius_tiles * 0.7
+                                if max_offset > 0:
+                                    angle = random.uniform(0, 2 * math.pi)
+                                    distance = random.uniform(0, max_offset)
+                                    offset_x = distance * math.cos(angle)
+                                    offset_y = distance * math.sin(angle)
+                                    self.game_state.triangulation_circle_offset = (offset_x, offset_y)
+                                else:
+                                    self.game_state.triangulation_circle_offset = (0, 0)
+
                                 level_messages = {
                                     1: "Scout detected faint radio signals from the lab. Area marked on minimap (very large radius).",
                                     2: "Scout triangulated signals more precisely. Search area narrowed (large radius).",

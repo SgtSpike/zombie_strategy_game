@@ -501,6 +501,7 @@ class GameState:
 
         # Lab triangulation state
         self.triangulation_level = 0  # 0=not started, 1-3=partial, 4=revealed
+        self.triangulation_circle_offset = (0, 0)  # Random offset so circle isn't centered on lab
 
         # Tech tree state
         self.tech_points = 0
@@ -1551,6 +1552,7 @@ class GameState:
             'difficulty': self.difficulty,
             'research_lab_pos': list(self.research_lab_pos) if self.research_lab_pos else None,
             'triangulation_level': self.triangulation_level,
+            'triangulation_circle_offset': list(self.triangulation_circle_offset),
             'tech_points': self.tech_points,
             'researched_techs': list(self.researched_techs),
             'tiles_explored_count': self.tiles_explored_count,
@@ -1659,6 +1661,7 @@ class GameState:
 
         # Load triangulation level (default to 0 for backwards compatibility with old saves)
         game_state.triangulation_level = save_data.get('triangulation_level', 0)
+        game_state.triangulation_circle_offset = tuple(save_data.get('triangulation_circle_offset', (0, 0)))
 
         # Load tech tree data (default to 0/empty for backwards compatibility)
         game_state.tech_points = save_data.get('tech_points', 0)
