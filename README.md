@@ -50,7 +50,7 @@ When a city is selected:
 - **8** - Recruit Soldier (30 food, 20 materials)
 - **9** - Recruit Medic (25 food, 15 materials, 10 medicine)
 - **U** - Upgrade building (click on building after pressing U)
-- **C** - Manufacture The Cure (requires hospital, 1000 food, 1000 materials, 1 cure)
+- **C** - Manufacture The Cure (requires hospital, 500 food, 500 materials, 200 medicine, 1 cure)
 
 ### Unit Actions
 - **F** - Found a new city at selected unit's location

@@ -350,16 +350,6 @@ class ZombieStrategyGame:
                         else:
                             self.running = False
 
-                # Camera movement (only if Ctrl is not pressed)
-                elif event.key == pygame.K_w and not (pygame.key.get_mods() & pygame.KMOD_CTRL):
-                    self.renderer.move_camera(0, -self.tile_size * 2)
-                elif event.key == pygame.K_s and not (pygame.key.get_mods() & pygame.KMOD_CTRL):
-                    self.renderer.move_camera(0, self.tile_size * 2)
-                elif event.key == pygame.K_a and not (pygame.key.get_mods() & pygame.KMOD_CTRL):
-                    self.renderer.move_camera(-self.tile_size * 2, 0)
-                elif event.key == pygame.K_d and not (pygame.key.get_mods() & pygame.KMOD_CTRL):
-                    self.renderer.move_camera(self.tile_size * 2, 0)
-
                 # End turn
                 elif event.key == pygame.K_e:
                     if self.game_state.current_team == 'player':
@@ -754,8 +744,9 @@ class ZombieStrategyGame:
                         self.selected_unit.inventory['food'] += 1000
                         self.selected_unit.inventory['materials'] += 1000
                         self.selected_unit.inventory['medicine'] += 1000
+                        self.selected_unit.inventory['cure'] = self.selected_unit.inventory.get('cure', 0) + 1
                         self.game_state.tech_points += 1000
-                        self.log_message("DEBUG: Added 1000 of each resource to unit and 1000 tech points")
+                        self.log_message("DEBUG: Added 1000 resources, 1 cure, and 1000 tech points to unit")
                     else:
                         self.log_message("DEBUG: Select a player unit first!")
 
@@ -962,16 +953,15 @@ class ZombieStrategyGame:
 
                         # Handle cure manufacturing (special case - triggers immediately)
                         elif building_type == 'manufacture_cure':
+                            print(f"DEBUG: manufacture_cure clicked, can_build={self.selected_city.can_build('manufacture_cure', self.game_state)}")
                             if self.selected_city.can_build('manufacture_cure', self.game_state):
                                 result = self.selected_city.build('manufacture_cure', self.selected_city.x, self.selected_city.y, 0, self.game_state)
+                                print(f"DEBUG: build() returned: {result}")
                                 if result == 'cure_manufactured':
-                                    self.game_state.manufacture_cure()
-                                    # Save to cure leaderboard and set victory state
-                                    self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
-                                    self.game_won = True
-                                    self.victory_panel_open = True
-                                    self.final_score = self.game_state.turn
-                                    self.log_message(f"🎉 VICTORY! Cure manufactured on turn {self.game_state.turn}!")
+                                    # Start the cure manufacturing process
+                                    self.game_state.start_cure_manufacturing(self.selected_city)
+                                    turns_needed = self.game_state.cure_manufacturing_turns_required[self.game_state.difficulty]
+                                    self.log_message(f"🧪 Cure manufacturing started! {turns_needed} turns remaining. ALL ZOMBIES are now attracted to this city!")
                             else:
                                 self.log_message("Not enough resources to manufacture cure!")
                             self.building_placement_mode = None
@@ -1055,13 +1045,10 @@ class ZombieStrategyGame:
 
                                                 # Check if cure was manufactured (special win condition)
                                                 if result == 'cure_manufactured':
-                                                    self.game_state.manufacture_cure()
-                                                    # Save to cure leaderboard and set victory state
-                                                    self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
-                                                    self.game_won = True
-                                                    self.victory_panel_open = True
-                                                    self.final_score = self.game_state.turn
-                                                    self.log_message(f"🎉 VICTORY! Cure manufactured on turn {self.game_state.turn}!")
+                                                    # Start the cure manufacturing process
+                                                    self.game_state.start_cure_manufacturing(self.selected_city)
+                                                    turns_needed = self.game_state.cure_manufacturing_turns_required[self.game_state.difficulty]
+                                                    self.log_message(f"🧪 Cure manufacturing started! {turns_needed} turns remaining. ALL ZOMBIES are now attracted to this city!")
                                                 else:
                                                     self.log_message(f"Built {building_type} at ({tile_x}, {tile_y})!")
                                             else:
@@ -1176,25 +1163,31 @@ class ZombieStrategyGame:
                                     self.selected_unit.moves_remaining -= 1
                             else:
                                 # Move to empty tile
+                                from map_generator import TileType
                                 terrain = self.game_state.map_grid[new_y][new_x]
-                                self.selected_unit.move(step_x, step_y, terrain)
 
-                                # Award XP to scouts for exploring new tiles
-                                if self.selected_unit.unit_type == 'scout' and self.selected_unit.team == 'player':
-                                    tile_pos = (new_x, new_y)
-                                    if tile_pos not in self.selected_unit.tiles_explored:
-                                        self.selected_unit.tiles_explored.add(tile_pos)
-                                        xp_gained = 1  # 1 XP per new tile explored
-                                        leveled_up = self.selected_unit.gain_xp(xp_gained)
-                                        if leveled_up:
-                                            self.log_message(f"LEVEL UP! Scout is now level {self.selected_unit.level}! HP: {self.selected_unit.max_health}, Attack: {self.selected_unit.attack_power}")
+                                # Block movement into water
+                                if terrain == TileType.WATER:
+                                    self.log_message("Cannot move into water!")
+                                else:
+                                    self.selected_unit.move(step_x, step_y, terrain)
 
-                                # Update fog of war after movement
-                                self.game_state.update_visibility()
+                                    # Award XP to scouts for exploring new tiles
+                                    if self.selected_unit.unit_type == 'scout' and self.selected_unit.team == 'player':
+                                        tile_pos = (new_x, new_y)
+                                        if tile_pos not in self.selected_unit.tiles_explored:
+                                            self.selected_unit.tiles_explored.add(tile_pos)
+                                            xp_gained = 1  # 1 XP per new tile explored
+                                            leveled_up = self.selected_unit.gain_xp(xp_gained)
+                                            if leveled_up:
+                                                self.log_message(f"LEVEL UP! Scout is now level {self.selected_unit.level}! HP: {self.selected_unit.max_health}, Attack: {self.selected_unit.attack_power}")
 
-                                # If unit is out of moves, start timer to auto-select next unit
-                                if not self.selected_unit.can_move():
-                                    self.auto_select_timer = self.auto_select_delay
+                                    # Update fog of war after movement
+                                    self.game_state.update_visibility()
+
+                                    # If unit is out of moves, start timer to auto-select next unit
+                                    if not self.selected_unit.can_move():
+                                        self.auto_select_timer = self.auto_select_delay
 
     def start_zombie_turn_animated(self):
         """Start the animated zombie turn"""
@@ -1374,6 +1367,22 @@ class ZombieStrategyGame:
         # Get delta time for timer
         dt = self.clock.get_time() / 1000.0  # Convert to seconds
 
+        # Handle continuous camera scrolling (WASD keys held down)
+        keys = pygame.key.get_pressed()
+        ctrl_pressed = keys[pygame.K_LCTRL] or keys[pygame.K_RCTRL]
+
+        # Only scroll if Ctrl is not pressed
+        if not ctrl_pressed:
+            scroll_speed = 15  # pixels per frame at 60 FPS
+            if keys[pygame.K_w]:
+                self.renderer.move_camera(0, -scroll_speed)
+            if keys[pygame.K_s]:
+                self.renderer.move_camera(0, scroll_speed)
+            if keys[pygame.K_a]:
+                self.renderer.move_camera(-scroll_speed, 0)
+            if keys[pygame.K_d]:
+                self.renderer.move_camera(scroll_speed, 0)
+
         # Handle zombie animation
         if self.animating_zombies:
             elapsed = (pygame.time.get_ticks() - self.animation_start_time) / 1000.0
@@ -1394,6 +1403,16 @@ class ZombieStrategyGame:
                 for unit in self.game_state.units:
                     if unit.team == 'player':
                         unit.reset_moves()
+
+                # Handle cure manufacturing progress
+                if self.game_state.cure_manufacturing_city:
+                    self.game_state.cure_manufacturing_turns_remaining -= 1
+                    self.log_message(f"🧪 Cure manufacturing: {self.game_state.cure_manufacturing_turns_remaining} turns remaining!")
+                    if self.game_state.cure_manufacturing_turns_remaining <= 0:
+                        # Cure is complete!
+                        self.game_state.manufacture_cure()
+                        self.log_message(f"🎉 CURE COMPLETE! The city survived the onslaught!")
+
                 # Autosave at the start of player's turn
                 self.game_state.autosave(self.renderer.camera_x, self.renderer.camera_y)
                 # Produce resources in all cities
@@ -1402,6 +1421,22 @@ class ZombieStrategyGame:
                     if any(production.values()):
                         prod_str = ', '.join([f"{k}: +{v}" for k, v in production.items() if v > 0])
                         self.log_message(f"{city.name} produced: {prod_str}")
+                # Check for cure manufacturing completion
+                if self.game_state.game_won:
+                    self.cure_leaderboard = GameState.save_cure_victory(self.game_state.turn, self.game_state.difficulty)
+                    self.game_won = True
+                    self.victory_panel_open = True
+                    self.final_score = self.game_state.turn
+                    self.log_message(f"🎉 VICTORY! Cure manufactured on turn {self.game_state.turn}!")
+
+                # Check if cure manufacturing city was destroyed
+                if self.game_state.cure_manufacturing_city:
+                    if self.game_state.cure_manufacturing_city not in self.game_state.cities:
+                        self.log_message(f"💀 GAME OVER! The city manufacturing the cure was destroyed!")
+                        self.game_over = True
+                        self.game_state.cure_manufacturing_city = None
+                        self.game_state.cure_manufacturing_turns_remaining = 0
+
                 # Apply automated defenses damage to adjacent zombies
                 defense_results = self.game_state.apply_automated_defenses()
                 if defense_results['damaged'] > 0 or defense_results['killed'] > 0:

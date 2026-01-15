@@ -509,6 +509,15 @@ class GameState:
         self.total_resources_produced = 0  # Track for tech point rewards
         self.zombies_killed_count = 0  # Track for tech point rewards
 
+        # Cure manufacturing state
+        self.cure_manufacturing_city = None  # City currently manufacturing cure
+        self.cure_manufacturing_turns_remaining = 0  # Turns until cure is complete
+        self.cure_manufacturing_turns_required = {
+            'easy': 4,
+            'medium': 7,
+            'hard': 10
+        }
+
         # Initialize player units
         self.units = []
         self.spawn_initial_units()
@@ -522,12 +531,21 @@ class GameState:
     def spawn_initial_units(self):
         """Spawn starting survivors and zombies"""
         import random
+        from map_generator import TileType
 
-        # Choose random starting location for survivors (avoid edges)
+        # Choose random starting location for survivors (avoid edges and water)
         map_width = len(self.map_grid[0])
         map_height = len(self.map_grid)
-        start_x = random.randint(10, map_width - 10)
-        start_y = random.randint(10, map_height - 10)
+
+        # Find valid spawn location not on water
+        attempts = 0
+        while attempts < 100:
+            start_x = random.randint(10, map_width - 10)
+            start_y = random.randint(10, map_height - 10)
+            # Check if all 3 survivor positions are not water
+            if all(self.map_grid[start_y][start_x + i] != TileType.WATER for i in range(3) if start_x + i < map_width):
+                break
+            attempts += 1
 
         # Spawn 3 player survivors with starting resources (clustered together)
         for i in range(3):
@@ -539,10 +557,15 @@ class GameState:
             survivor.inventory['medicine'] = 0
             self.units.append(survivor)
 
-        # Spawn some zombies scattered around
+        # Spawn some zombies scattered around (avoid water)
         for _ in range(5):
-            x = random.randint(10, len(self.map_grid[0]) - 5)
-            y = random.randint(10, len(self.map_grid) - 5)
+            attempts = 0
+            while attempts < 100:
+                x = random.randint(10, len(self.map_grid[0]) - 5)
+                y = random.randint(10, len(self.map_grid) - 5)
+                if self.map_grid[y][x] != TileType.WATER:
+                    break
+                attempts += 1
             zombie = Unit(x, y, 'zombie', 'enemy', self.difficulty)
             self.units.append(zombie)
 
@@ -648,27 +671,34 @@ class GameState:
         map_width = len(self.map_grid[0])
         map_height = len(self.map_grid)
 
+        from map_generator import TileType
+
         for _ in range(spawn_count):
-            # Randomly choose which edge: 0=top, 1=right, 2=bottom, 3=left
-            edge = random.randint(0, 3)
+            # Try to find valid spawn location (not water, not occupied)
+            attempts = 0
+            while attempts < 20:
+                # Randomly choose which edge: 0=top, 1=right, 2=bottom, 3=left
+                edge = random.randint(0, 3)
 
-            if edge == 0:  # Top edge
-                x = random.randint(0, map_width - 1)
-                y = 0
-            elif edge == 1:  # Right edge
-                x = map_width - 1
-                y = random.randint(0, map_height - 1)
-            elif edge == 2:  # Bottom edge
-                x = random.randint(0, map_width - 1)
-                y = map_height - 1
-            else:  # Left edge
-                x = 0
-                y = random.randint(0, map_height - 1)
+                if edge == 0:  # Top edge
+                    x = random.randint(0, map_width - 1)
+                    y = 0
+                elif edge == 1:  # Right edge
+                    x = map_width - 1
+                    y = random.randint(0, map_height - 1)
+                elif edge == 2:  # Bottom edge
+                    x = random.randint(0, map_width - 1)
+                    y = map_height - 1
+                else:  # Left edge
+                    x = 0
+                    y = random.randint(0, map_height - 1)
 
-            # Make sure there's not already a unit at this position
-            if not self.get_unit_at(x, y):
-                zombie = Unit(x, y, 'zombie', 'enemy', self.difficulty)
-                self.units.append(zombie)
+                # Check if position is valid (not water, not occupied)
+                if (self.map_grid[y][x] != TileType.WATER and not self.get_unit_at(x, y)):
+                    zombie = Unit(x, y, 'zombie', 'enemy', self.difficulty)
+                    self.units.append(zombie)
+                    break
+                attempts += 1
 
         if spawn_count > 0:
             print(f"⚠ {spawn_count} zombie(s) have appeared at the map edges!")
@@ -699,11 +729,12 @@ class GameState:
                     x = 0
                     y = random.randint(0, map_height - 2)
 
-                # Check if all 4 tiles are free
+                # Check if all 4 tiles are free and not water
                 tiles_free = True
                 for dy in range(2):
                     for dx in range(2):
-                        if self.get_unit_at(x + dx, y + dy):
+                        if (self.get_unit_at(x + dx, y + dy) or
+                            self.map_grid[y + dy][x + dx] == TileType.WATER):
                             tiles_free = False
                             break
                     if not tiles_free:
@@ -819,6 +850,15 @@ class GameState:
             # Award tech points for surviving (1 per turn)
             self.tech_points += 1
 
+            # Handle cure manufacturing progress
+            if self.cure_manufacturing_city:
+                self.cure_manufacturing_turns_remaining -= 1
+                print(f"🧪 Cure manufacturing in progress: {self.cure_manufacturing_turns_remaining} turns remaining")
+                if self.cure_manufacturing_turns_remaining <= 0:
+                    # Cure is complete!
+                    self.manufacture_cure()
+                    print(f"🎉 CURE COMPLETE! The city survived the onslaught!")
+
             # Autosave at the start of player's turn
             self.autosave()
 
@@ -905,26 +945,52 @@ class GameState:
         old_x, old_y = unit.x, unit.y
         targets = []
 
-        # Add visible player units as targets (fog of war)
-        for pu in visible_player_units:
-            targets.append(('unit', pu, abs(pu.x - unit.x) + abs(pu.y - unit.y)))
+        # PRIORITY: If cure is being manufactured, ALL zombies target that city
+        if self.cure_manufacturing_city:
+            cure_city = self.cure_manufacturing_city
+            cure_city_distance = abs(cure_city.x - unit.x) + abs(cure_city.y - unit.y)
 
-        # Add cities as targets (permanent knowledge)
-        for city in self.cities:
-            targets.append(('city', city, abs(city.x - unit.x) + abs(city.y - unit.y)))
+            # Set cure city as primary target
+            targets.append(('city', cure_city, cure_city_distance))
 
-        # Add buildings as targets (permanent knowledge)
-        # Walls are deprioritized with a large distance penalty
-        for city in self.cities:
-            for (bx, by), building in city.building_locations.items():
+            # Also add nearby walls/units as fallback targets if zombie can't get closer to cure city
+            # Add visible player units near the zombie (within 3 tiles) as fallback
+            for pu in visible_player_units:
+                distance = abs(pu.x - unit.x) + abs(pu.y - unit.y)
+                if distance <= 3:
+                    # Add penalty so cure city is still preferred
+                    targets.append(('unit', pu, distance + 500))
+
+            # Add buildings near the cure city as fallback (especially walls blocking the path)
+            for (bx, by), building in cure_city.building_locations.items():
                 distance = abs(bx - unit.x) + abs(by - unit.y)
-                # Add large penalty to walls so they're only targeted if nothing else is available
+                # Walls get less penalty during cure manufacturing (zombies need to break through)
                 if building['type'] == 'wall':
-                    distance += 1000
-                targets.append(('building', (city, bx, by, building), distance))
+                    targets.append(('building', (cure_city, bx, by, building), distance + 100))
+                else:
+                    targets.append(('building', (cure_city, bx, by, building), distance + 500))
+        else:
+            # Normal targeting behavior (when cure is NOT being manufactured)
+            # Add visible player units as targets (fog of war)
+            for pu in visible_player_units:
+                targets.append(('unit', pu, abs(pu.x - unit.x) + abs(pu.y - unit.y)))
+
+            # Add cities as targets (permanent knowledge)
+            for city in self.cities:
+                targets.append(('city', city, abs(city.x - unit.x) + abs(city.y - unit.y)))
+
+            # Add buildings as targets (permanent knowledge)
+            # Walls are deprioritized with a large distance penalty
+            for city in self.cities:
+                for (bx, by), building in city.building_locations.items():
+                    distance = abs(bx - unit.x) + abs(by - unit.y)
+                    # Add large penalty to walls so they're only targeted if nothing else is available
+                    if building['type'] == 'wall':
+                        distance += 1000
+                    targets.append(('building', (city, bx, by, building), distance))
 
         if targets:
-            # Find nearest target (walls will have +1000 distance penalty)
+            # Find nearest target (walls will have +1000 distance penalty in normal mode, less during cure)
             target_type, target_data, _ = min(targets, key=lambda t: t[2])
 
             if target_type == 'unit':
@@ -1007,8 +1073,12 @@ class GameState:
                     # Check if target is a wall (impassable to zombies)
                     if target_building and target_building['type'] == 'wall':
                         continue
-                    # Return move action
+                    # Check if target is water (impassable)
+                    from map_generator import TileType
                     terrain = self.map_grid[new_y][new_x]
+                    if terrain == TileType.WATER:
+                        continue
+                    # Return move action
                     return (unit, old_x, old_y, new_x, new_y, 'move', terrain)
 
         return None  # No valid move found
@@ -1036,26 +1106,52 @@ class GameState:
                 while unit.can_move():
                     targets = []
 
-                    # Add visible player units as targets (fog of war)
-                    for pu in visible_player_units:
-                        targets.append(('unit', pu, abs(pu.x - unit.x) + abs(pu.y - unit.y)))
+                    # PRIORITY: If cure is being manufactured, ALL zombies target that city
+                    if self.cure_manufacturing_city:
+                        cure_city = self.cure_manufacturing_city
+                        cure_city_distance = abs(cure_city.x - unit.x) + abs(cure_city.y - unit.y)
 
-                    # Add cities as targets (permanent knowledge)
-                    for city in self.cities:
-                        targets.append(('city', city, abs(city.x - unit.x) + abs(city.y - unit.y)))
+                        # Set cure city as primary target
+                        targets.append(('city', cure_city, cure_city_distance))
 
-                    # Add buildings as targets (permanent knowledge)
-                    # Walls are deprioritized with a large distance penalty
-                    for city in self.cities:
-                        for (bx, by), building in city.building_locations.items():
+                        # Also add nearby walls/units as fallback targets if zombie can't get closer to cure city
+                        # Add visible player units near the zombie (within 3 tiles) as fallback
+                        for pu in visible_player_units:
+                            distance = abs(pu.x - unit.x) + abs(pu.y - unit.y)
+                            if distance <= 3:
+                                # Add penalty so cure city is still preferred
+                                targets.append(('unit', pu, distance + 500))
+
+                        # Add buildings near the cure city as fallback (especially walls blocking the path)
+                        for (bx, by), building in cure_city.building_locations.items():
                             distance = abs(bx - unit.x) + abs(by - unit.y)
-                            # Add large penalty to walls so they're only targeted if nothing else is available
+                            # Walls get less penalty during cure manufacturing (zombies need to break through)
                             if building['type'] == 'wall':
-                                distance += 1000
-                            targets.append(('building', (city, bx, by, building), distance))
+                                targets.append(('building', (cure_city, bx, by, building), distance + 100))
+                            else:
+                                targets.append(('building', (cure_city, bx, by, building), distance + 500))
+                    else:
+                        # Normal targeting behavior (when cure is NOT being manufactured)
+                        # Add visible player units as targets (fog of war)
+                        for pu in visible_player_units:
+                            targets.append(('unit', pu, abs(pu.x - unit.x) + abs(pu.y - unit.y)))
+
+                        # Add cities as targets (permanent knowledge)
+                        for city in self.cities:
+                            targets.append(('city', city, abs(city.x - unit.x) + abs(city.y - unit.y)))
+
+                        # Add buildings as targets (permanent knowledge)
+                        # Walls are deprioritized with a large distance penalty
+                        for city in self.cities:
+                            for (bx, by), building in city.building_locations.items():
+                                distance = abs(bx - unit.x) + abs(by - unit.y)
+                                # Add large penalty to walls so they're only targeted if nothing else is available
+                                if building['type'] == 'wall':
+                                    distance += 1000
+                                targets.append(('building', (city, bx, by, building), distance))
 
                     if targets:
-                        # Find nearest target (walls will have +1000 distance penalty)
+                        # Find nearest target (walls will have +1000 distance penalty in normal mode, less during cure)
                         target_type, target_data, _ = min(targets, key=lambda t: t[2])
 
                         if target_type == 'unit':
@@ -1365,9 +1461,17 @@ class GameState:
             return True
         return False
 
+    def start_cure_manufacturing(self, city):
+        """Start the cure manufacturing process"""
+        self.cure_manufacturing_city = city
+        self.cure_manufacturing_turns_remaining = self.cure_manufacturing_turns_required[self.difficulty]
+        print(f"🧪 DEBUG: start_cure_manufacturing called! City: {city.name}, Turns: {self.cure_manufacturing_turns_remaining}")
+
     def manufacture_cure(self):
         """Handle the manufacture of the cure - convert all zombies to survivors and reveal map"""
         self.game_won = True
+        self.cure_manufacturing_city = None
+        self.cure_manufacturing_turns_remaining = 0
 
         # Reveal entire map
         for y in range(len(self.explored)):
@@ -1452,6 +1556,8 @@ class GameState:
             'tiles_explored_count': self.tiles_explored_count,
             'total_resources_produced': self.total_resources_produced,
             'zombies_killed_count': self.zombies_killed_count,
+            'cure_manufacturing_city_coords': [self.cure_manufacturing_city.x, self.cure_manufacturing_city.y] if self.cure_manufacturing_city else None,
+            'cure_manufacturing_turns_remaining': self.cure_manufacturing_turns_remaining,
             'camera_x': camera_x,
             'camera_y': camera_y,
             'map_grid': [[int(tile) for tile in row] for row in self.map_grid],
@@ -1561,6 +1667,16 @@ class GameState:
         game_state.total_resources_produced = save_data.get('total_resources_produced', 0)
         game_state.zombies_killed_count = save_data.get('zombies_killed_count', 0)
 
+        # Load cure manufacturing state (default to None for backwards compatibility)
+        game_state.cure_manufacturing_city = None  # Will be set after cities are loaded
+        game_state.cure_manufacturing_turns_remaining = save_data.get('cure_manufacturing_turns_remaining', 0)
+        game_state.cure_manufacturing_turns_required = {
+            'easy': 4,
+            'medium': 7,
+            'hard': 10
+        }
+        cure_manufacturing_city_coords = save_data.get('cure_manufacturing_city_coords', None)
+
         # Re-initialize difficulty settings based on loaded difficulty
         if game_state.difficulty == 'easy':
             game_state.zombie_spawn_rate = 0.50
@@ -1614,6 +1730,14 @@ class GameState:
             city.health = city_data.get('health', 50)
             city.max_health = city_data.get('max_health', 50)
             game_state.cities.append(city)
+
+        # Restore cure manufacturing city reference (if it was saved)
+        if cure_manufacturing_city_coords:
+            cure_x, cure_y = cure_manufacturing_city_coords
+            for city in game_state.cities:
+                if city.x == cure_x and city.y == cure_y:
+                    game_state.cure_manufacturing_city = city
+                    break
 
         # Update visibility
         game_state.update_visibility()

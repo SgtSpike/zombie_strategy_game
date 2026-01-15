@@ -505,7 +505,20 @@ class Renderer:
             if game_state.explored[city.y][city.x]:
                 pixel_x = minimap_x + int(city.x * scale_x)
                 pixel_y = minimap_y + int(city.y * scale_y)
-                pygame.draw.circle(screen, (255, 255, 0), (pixel_x, pixel_y), 3)
+
+                # Special pulsing indicator for cure manufacturing city
+                if game_state.cure_manufacturing_city and city == game_state.cure_manufacturing_city:
+                    import math
+                    # Pulsing effect - larger and animated
+                    pulse = 0.7 + 0.3 * abs(math.sin(game_state.turn * 0.3))
+                    radius = int(5 * pulse)
+                    # Draw outer warning ring
+                    pygame.draw.circle(screen, (255, 100, 0), (pixel_x, pixel_y), radius + 2, 2)
+                    # Draw inner bright center
+                    pygame.draw.circle(screen, (255, 200, 0), (pixel_x, pixel_y), radius)
+                else:
+                    # Normal city indicator
+                    pygame.draw.circle(screen, (255, 255, 0), (pixel_x, pixel_y), 3)
 
         # Draw triangulation circles for lab location
         if game_state.research_lab_pos and game_state.triangulation_level > 0 and game_state.triangulation_level < 4:
@@ -658,6 +671,23 @@ class Renderer:
         info_text = info_font.render(f"Turn {game_state.turn} | {zombie_count} Zombies", True, (220, 220, 220))
         screen.blit(info_text, (turn_panel_x + 10, turn_panel_y + 38))
 
+        # Cure manufacturing indicator (if active)
+        if game_state.cure_manufacturing_city:
+            cure_font = pygame.font.Font(None, 20)  # Reduced from 24 to 20
+            turns_remaining = game_state.cure_manufacturing_turns_remaining
+            cure_city_name = f"City at ({game_state.cure_manufacturing_city.x}, {game_state.cure_manufacturing_city.y})"
+
+            # Pulsing warning effect
+            import math
+            pulse = int(255 * (0.7 + 0.3 * abs(math.sin(game_state.turn * 0.5))))
+            cure_color = (255, pulse, 0)  # Orange/yellow pulsing
+
+            cure_text = cure_font.render(f"🧪 CURE MANUFACTURING: {turns_remaining} turns remaining!", True, cure_color)
+            cure_bg_rect = pygame.Rect(turn_panel_x, turn_panel_y + 62, turn_panel_width, 28)
+            pygame.draw.rect(screen, (40, 20, 0), cure_bg_rect)
+            pygame.draw.rect(screen, cure_color, cure_bg_rect, 2)
+            screen.blit(cure_text, (turn_panel_x + 10, turn_panel_y + 67))
+
         # Total resources across all units and cities (positioned to the right of turn panel)
         total_resources = game_state.get_total_resources()
         resources_text = f"Total Resources - Food: {total_resources['food']} | Materials: {total_resources['materials']} | Medicine: {total_resources['medicine']} | Cure: {total_resources.get('cure', 0)} | Tech: {game_state.tech_points}"
@@ -790,7 +820,8 @@ class Renderer:
             # Only show if tile is explored
             if 0 <= tile_y < len(game_state.explored) and 0 <= tile_x < len(game_state.explored[0]) and game_state.explored[tile_y][tile_x]:
                 panel_x = 10
-                panel_y = 75
+                # Move panel down if cure manufacturing is active to avoid overlap
+                panel_y = 105 if game_state.cure_manufacturing_city else 75
                 panel_width = 350
                 panel_height = 120
 
