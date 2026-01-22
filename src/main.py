@@ -569,8 +569,6 @@ class ZombieStrategyGame:
 
                                 # Generate random offset for the circle (lab must still be inside)
                                 # The offset is in tile coordinates, will be scaled when rendering
-                                import random
-                                import math
                                 # Radius percentages match renderer: Level 1: 50%, Level 2: 30%, Level 3: 15%
                                 # Map these to approximate tile radii based on map size
                                 map_width = len(self.game_state.map_grid[0])
