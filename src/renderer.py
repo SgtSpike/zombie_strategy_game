@@ -749,6 +749,7 @@ class Renderer:
                 ("7: Scout", "15 food, 5 mat (fast)"),
                 ("8: Soldier", "30 food, 20 mat (strong)"),
                 ("9: Medic", "25 food, 15 mat, 10 med"),
+                ("B: Research Ctr", "30 mat (tech points)"),
                 ("U: Upgrade", "Click building to upgrade")
             ]
 
@@ -981,7 +982,8 @@ class Renderer:
                                 'workshop': 25 * (current_level + 1),
                                 'hospital': 20 * (current_level + 1),
                                 'wall': 12 * (current_level + 1),
-                                'dock': 20 * (current_level + 1)
+                                'dock': 20 * (current_level + 1),
+                                'research_center': 15 * (current_level + 1)
                             }
                             upgrade_cost = upgrade_costs.get(building_type, 20 * current_level)
 
@@ -1067,6 +1069,19 @@ class Renderer:
                                 screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
                                 y_offset += 20
                                 prod_text = preview_font.render(f"Effect: Increased defensive bonus", True, (100, 255, 100))
+                                screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
+
+                            elif building_type == 'research_center':
+                                current_prod = 2 * current_level
+                                next_prod = 2 * next_level
+
+                                upgrade_text = preview_font.render(f"UPGRADE: Research Center L{current_level} → L{next_level}", True, (100, 255, 255))
+                                screen.blit(upgrade_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                cost_text = preview_font.render(f"Cost: {upgrade_cost} materials", True, (255, 200, 100))
+                                screen.blit(cost_text, (panel_x + 10, panel_y + y_offset))
+                                y_offset += 20
+                                prod_text = preview_font.render(f"Production: {current_prod} → {next_prod} tech points/turn", True, (100, 255, 100))
                                 screen.blit(prod_text, (panel_x + 10, panel_y + y_offset))
                         else:
                             max_text = preview_font.render(f"{building_type.capitalize()} is at MAX LEVEL", True, (255, 100, 100))

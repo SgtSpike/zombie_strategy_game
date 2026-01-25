@@ -45,6 +45,7 @@ When a city is selected:
 - **3** - Build Hospital (40 materials)
 - **4** - Build Wall (5 materials)
 - **5** - Build Dock (40 materials, must be on water)
+- **B** - Build Research Center (30 materials, generates tech points)
 - **6** - Recruit Survivor (20 food, 10 materials)
 - **7** - Recruit Scout (15 food, 5 materials)
 - **8** - Recruit Soldier (30 food, 20 materials)

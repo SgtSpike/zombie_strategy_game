@@ -691,6 +691,13 @@ class ZombieStrategyGame:
                         self.building_placement_mode = 'medic'
                         self.log_message("Recruit Medic unit at city location")
 
+                elif event.key == pygame.K_b:  # Research Center
+                    if self.game_state.current_team != 'player':
+                        self.log_message("Cannot build during enemy turn!")
+                    elif self.selected_city:
+                        self.building_placement_mode = 'research_center'
+                        self.log_message("Select adjacent tile to place Research Center (click tile or ESC to cancel)")
+
                 elif event.key == pygame.K_0:  # Recruit Super Soldier (requires tech)
                     if self.game_state.current_team != 'player':
                         self.log_message("Cannot recruit units during enemy turn!")

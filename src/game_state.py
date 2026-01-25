@@ -201,6 +201,7 @@ class City:
             'hospital': {'materials': 40},
             'wall': {'materials': 5},
             'dock': {'materials': 40},
+            'research_center': {'materials': 30},
             'survivor': {'food': 20, 'materials': 10},
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
@@ -239,6 +240,7 @@ class City:
             'hospital': {'materials': 40},
             'wall': {'materials': 5},
             'dock': {'materials': 40},
+            'research_center': {'materials': 30},
             'survivor': {'food': 20, 'materials': 10},
             'scout': {'food': 15, 'materials': 5},
             'soldier': {'food': 30, 'materials': 20},
@@ -333,6 +335,15 @@ class City:
                     medicine_production += 4
                 production['medicine'] += medicine_production * level
 
+            elif building_type == 'research_center':
+                # Research Center: 2 tech points per level
+                tech_production = 2 * level
+                game_state.tech_points += tech_production
+                # Track for display purposes
+                if 'tech_points' not in production:
+                    production['tech_points'] = 0
+                production['tech_points'] += tech_production
+
         # Apply tech bonuses
         if game_state.has_tech('advanced_farming'):
             production['food'] += farm_count * 2
@@ -341,9 +352,10 @@ class City:
         if game_state.has_tech('basic_medicine'):
             production['medicine'] += hospital_count * 2
 
-        # Add production to city resources
+        # Add production to city resources (skip tech_points as they go to game_state)
         for resource, amount in production.items():
-            self.resources[resource] += amount
+            if resource != 'tech_points':
+                self.resources[resource] += amount
 
         return production
 
@@ -400,6 +412,13 @@ class City:
                     medicine_production += 2
                 production['medicine'] += medicine_production * level
 
+            elif building_type == 'research_center':
+                # Research Center: 2 tech points per level
+                tech_production = 2 * level
+                if 'tech_points' not in production:
+                    production['tech_points'] = 0
+                production['tech_points'] += tech_production
+
         return production
 
     def can_upgrade_building(self, tile_x, tile_y):
@@ -420,7 +439,8 @@ class City:
             'workshop': {'materials': 25 * (current_level + 1)},
             'hospital': {'materials': 20 * (current_level + 1)},
             'wall': {'materials': 12 * (current_level + 1)},
-            'dock': {'materials': 20 * (current_level + 1)}
+            'dock': {'materials': 20 * (current_level + 1)},
+            'research_center': {'materials': 15 * (current_level + 1)}
         }
 
         building_type = building_info['type']
@@ -448,7 +468,8 @@ class City:
             'workshop': {'materials': 25 * (current_level + 1)},
             'hospital': {'materials': 20 * (current_level + 1)},
             'wall': {'materials': 12 * (current_level + 1)},
-            'dock': {'materials': 20 * (current_level + 1)}
+            'dock': {'materials': 20 * (current_level + 1)},
+            'research_center': {'materials': 15 * (current_level + 1)}
         }
 
         cost = upgrade_costs[building_type]
