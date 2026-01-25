@@ -790,7 +790,11 @@ class Renderer:
             # Production display
             production = selected_city.calculate_production(game_state)
             prod_font = pygame.font.Font(None, 20)
-            prod_text = f"Production/turn: +{production['food']} food, +{production['materials']} materials, +{production['medicine']} medicine"
+            tech_points = production.get('tech_points', 0)
+            if tech_points > 0:
+                prod_text = f"Production/turn: +{production['food']} food, +{production['materials']} mat, +{production['medicine']} med, +{tech_points} tech"
+            else:
+                prod_text = f"Production/turn: +{production['food']} food, +{production['materials']} materials, +{production['medicine']} medicine"
             prod_surface = prod_font.render(prod_text, True, (150, 255, 150))
             screen.blit(prod_surface, (panel_x + 10, panel_y + 112))
 

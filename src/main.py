@@ -1478,6 +1478,9 @@ class ZombieStrategyGame:
                     if unit.team == 'player':
                         unit.reset_moves()
 
+                # Award tech points for surviving (1 per turn)
+                self.game_state.tech_points += 1
+
                 # Handle cure manufacturing progress
                 if self.game_state.cure_manufacturing_city:
                     self.game_state.cure_manufacturing_turns_remaining -= 1
