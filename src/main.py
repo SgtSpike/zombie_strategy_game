@@ -1163,7 +1163,7 @@ class ZombieStrategyGame:
 
                                         # Award tech points for killing enemies (player only)
                                         if self.selected_unit.team == 'player' and blocking_unit.team == 'enemy':
-                                            tech_points = 20 if blocking_unit.size > 1 else 5  # 20 for super zombies, 5 for regular
+                                            tech_points = 5 if blocking_unit.size > 1 else 2  # 20 for super zombies, 5 for regular
                                             self.game_state.tech_points += tech_points
                                             self.game_state.zombies_killed_count += 1
 

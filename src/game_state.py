@@ -25,7 +25,7 @@ class Unit:
             self.health = 75
             self.max_health = 75
             self.max_moves = 5
-            self.attack_power = 8
+            self.attack_power = 3
             self.size = 1  # Normal units are 1x1
         elif unit_type == 'soldier':
             self.health = 120
@@ -49,19 +49,19 @@ class Unit:
             self.health = int(100 * zombie_health_multiplier)
             self.max_health = int(100 * zombie_health_multiplier)
             self.max_moves = 2
-            self.attack_power = int(10 * zombie_attack_multiplier)
+            self.attack_power = int(20 * zombie_attack_multiplier)
             self.size = 1
         elif unit_type == 'super_zombie':
             self.health = int(200 * zombie_health_multiplier)
             self.max_health = int(200 * zombie_health_multiplier)
             self.max_moves = 2
-            self.attack_power = int(50 * zombie_attack_multiplier)
+            self.attack_power = int(80 * zombie_attack_multiplier)
             self.size = 2  # Super zombies are 2x2
         else:  # 'survivor' or default
             self.health = 100
             self.max_health = 100
             self.max_moves = 3
-            self.attack_power = 10
+            self.attack_power = 12
             self.size = 1
 
         self.moves_remaining = self.max_moves
@@ -619,7 +619,7 @@ class GameState:
                             # Award tech points for kill
                             self.zombies_killed_count += 1
                             if zombie.unit_type == 'super_zombie':
-                                self.tech_points += 10
+                                self.tech_points += 5
                             else:
                                 self.tech_points += 2
 
@@ -871,12 +871,12 @@ class GameState:
                     prod_str = ', '.join([f"{k}: +{v}" for k, v in production.items() if v > 0])
                     print(f"{city.name} produced: {prod_str}")
 
-                # Track resources for tech points (1 point per 200 resources)
+                # Track resources for tech points (1 point per 500 resources)
                 total_produced = sum(production.values())
                 self.total_resources_produced += total_produced
-                tech_points_from_resources = self.total_resources_produced // 200
+                tech_points_from_resources = self.total_resources_produced // 500
                 if tech_points_from_resources > 0:
-                    self.total_resources_produced -= tech_points_from_resources * 200
+                    self.total_resources_produced -= tech_points_from_resources * 500
                     self.tech_points += tech_points_from_resources
 
             # Spawn new zombies (escalating with turn count)
@@ -1434,12 +1434,12 @@ class GameState:
                         self.explored[y][x] = True
                         newly_explored += 1
 
-        # Award tech points for exploration (1 point per 20 tiles)
+        # Award tech points for exploration (1 point per 50 tiles)
         if newly_explored > 0:
             self.tiles_explored_count += newly_explored
-            tech_points_from_exploration = self.tiles_explored_count // 20
+            tech_points_from_exploration = self.tiles_explored_count // 50
             if tech_points_from_exploration > 0:
-                self.tiles_explored_count -= tech_points_from_exploration * 20
+                self.tiles_explored_count -= tech_points_from_exploration * 50
                 self.tech_points += tech_points_from_exploration
 
     def has_tech(self, tech_id):
