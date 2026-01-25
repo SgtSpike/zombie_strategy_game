@@ -974,7 +974,16 @@ class Renderer:
 
                         if current_level < 3:
                             next_level = current_level + 1
-                            upgrade_cost = 20 * current_level  # Cost increases per level
+
+                            # Upgrade costs match game_state.py: base_cost * (current_level + 1)
+                            upgrade_costs = {
+                                'farm': 15 * (current_level + 1),
+                                'workshop': 25 * (current_level + 1),
+                                'hospital': 20 * (current_level + 1),
+                                'wall': 12 * (current_level + 1),
+                                'dock': 20 * (current_level + 1)
+                            }
+                            upgrade_cost = upgrade_costs.get(building_type, 20 * current_level)
 
                             # Calculate current and next production
                             if building_type == 'farm':
