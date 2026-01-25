@@ -1205,6 +1205,53 @@ class ZombieStrategyGame:
                                     # Update fog of war after movement
                                     self.game_state.update_visibility()
 
+                                    # Auto-scavenge resources if present on the new tile
+                                    pos = (new_x, new_y)
+                                    if pos in self.game_state.resources:
+                                        resources = self.game_state.resources[pos]
+
+                                        # Check if cure is present - only medics can pick up cure
+                                        can_scavenge = True
+                                        if 'cure' in resources and resources.get('cure', 0) > 0:
+                                            if self.selected_unit.unit_type != 'medic':
+                                                # Can scavenge other resources but not cure
+                                                resources_without_cure = {k: v for k, v in resources.items() if k != 'cure'}
+                                                if resources_without_cure:
+                                                    resources = resources_without_cure
+                                                    self.log_message("Only medics can pick up The Cure!")
+                                                else:
+                                                    can_scavenge = False
+
+                                        if can_scavenge and resources:
+                                            scavenged = {}
+                                            for resource, amount in resources.items():
+                                                # Apply scavenging efficiency tech bonus
+                                                if self.game_state.has_tech('scavenging_efficiency'):
+                                                    amount = int(amount * 1.25)
+                                                self.selected_unit.inventory[resource] = self.selected_unit.inventory.get(resource, 0) + amount
+                                                scavenged[resource] = amount
+
+                                            # Remove scavenged resources (or just the non-cure ones)
+                                            if 'cure' in self.game_state.resources[pos] and self.selected_unit.unit_type != 'medic':
+                                                # Keep only the cure at this location
+                                                self.game_state.resources[pos] = {'cure': self.game_state.resources[pos]['cure']}
+                                            else:
+                                                del self.game_state.resources[pos]
+
+                                            scav_str = ', '.join([f"{r}: +{a}" for r, a in scavenged.items()])
+                                            self.log_message(f"Auto-scavenged: {scav_str}")
+
+                                            # Show notification dialog with scavenged resources
+                                            resource_lines = [f"{resource.capitalize()}: +{amount}" for resource, amount in scavenged.items()]
+                                            messages = ['Resources found:'] + resource_lines + ['', 'Added to unit inventory.']
+                                            self.notification_dialog_data = {
+                                                'title': '✓ Resources Scavenged',
+                                                'messages': messages,
+                                                'type': 'info',
+                                                'callback': None
+                                            }
+                                            self.notification_dialog_open = True
+
                                     # If unit is out of moves, start timer to auto-select next unit
                                     if not self.selected_unit.can_move():
                                         self.auto_select_timer = self.auto_select_delay

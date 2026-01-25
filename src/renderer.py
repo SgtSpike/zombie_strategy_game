@@ -199,11 +199,18 @@ class Renderer:
                     # Draw grid lines
                     pygame.draw.rect(screen, (50, 50, 50), (x, y, self.tile_size, self.tile_size), 1)
 
-                    # Only draw resource indicators on visible tiles
-                    if is_visible and (col, row) in game_state.resources:
-                        pygame.draw.circle(screen, (255, 215, 0),
-                                         (x + self.tile_size // 2, y + self.tile_size // 2),
-                                         5)
+                    # Draw resource indicators on explored tiles (visible or in fog)
+                    if (col, row) in game_state.resources:
+                        if is_visible:
+                            # Bright gold when visible
+                            pygame.draw.circle(screen, (255, 215, 0),
+                                             (x + self.tile_size // 2, y + self.tile_size // 2),
+                                             5)
+                        else:
+                            # Dimmer when in fog of war
+                            pygame.draw.circle(screen, (128, 108, 0),
+                                             (x + self.tile_size // 2, y + self.tile_size // 2),
+                                             5)
                 else:
                     # Unexplored - pure black
                     pygame.draw.rect(screen, (0, 0, 0), (x, y, self.tile_size, self.tile_size))
