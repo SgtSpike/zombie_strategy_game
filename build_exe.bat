@@ -1,0 +1,1 @@
+pyinstaller --onefile --windowed --name "ZombieStrategy" --add-data "src/sprites;sprites" "src/main.py"
