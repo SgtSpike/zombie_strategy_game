@@ -706,7 +706,13 @@ class Renderer:
         total_resources = game_state.get_total_resources()
         resources_text = f"Total Resources - Food: {total_resources['food']} | Materials: {total_resources['materials']} | Medicine: {total_resources['medicine']} | Cure: {total_resources.get('cure', 0)} | Tech: {game_state.tech_points}"
         res_surface = font.render(resources_text, True, (255, 255, 255))
-        screen.blit(res_surface, (turn_panel_x + turn_panel_width + 20, turn_panel_y + 20))  # To the right of turn panel
+        res_bar_x = turn_panel_x + turn_panel_width + 15
+        res_bar_y = turn_panel_y + 12
+        res_bar_width = res_surface.get_width() + 20
+        res_bar_height = 30
+        pygame.draw.rect(screen, (30, 40, 60), (res_bar_x, res_bar_y, res_bar_width, res_bar_height))
+        pygame.draw.rect(screen, (80, 120, 180), (res_bar_x, res_bar_y, res_bar_width, res_bar_height), 2)
+        screen.blit(res_surface, (res_bar_x + 10, res_bar_y + 6))
 
         # Selected unit info (positioned higher to avoid overlap with instructions)
         if selected_unit:
