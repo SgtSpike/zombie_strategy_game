@@ -1552,12 +1552,18 @@ class ZombieStrategyGame:
             self.auto_select_timer -= dt
             if self.auto_select_timer <= 0:
                 self.auto_select_timer = 0
-                # Find next available unit with moves (skip units with turn_skipped)
+                # Find nearest available unit with moves (skip units with turn_skipped)
                 next_unit = None
+                best_dist = float('inf')
+                ref_x = self.selected_unit.x if self.selected_unit else 0
+                ref_y = self.selected_unit.y if self.selected_unit else 0
                 for unit in self.game_state.units:
                     if unit.team == 'player' and unit.can_move() and not getattr(unit, 'turn_skipped', False):
-                        next_unit = unit
-                        break
+                        if unit is not self.selected_unit:
+                            dist = abs(unit.x - ref_x) + abs(unit.y - ref_y)
+                            if dist < best_dist:
+                                best_dist = dist
+                                next_unit = unit
 
                 if next_unit:
                     self.selected_unit = next_unit
