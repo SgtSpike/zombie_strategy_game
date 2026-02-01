@@ -1185,30 +1185,22 @@ class GameState:
                         else:  # building
                             _, target_x, target_y, _ = target_data
 
-                        # Calculate preferred direction toward target
-                        dx = 1 if target_x > unit.x else -1 if target_x < unit.x else 0
-                        dy = 1 if target_y > unit.y else -1 if target_y < unit.y else 0
+                        # Evaluate all 8 directions, sorted by which gets closest to target
+                        # Randomize among equally good options to prevent lining up
+                        all_directions = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+                        current_dist = abs(target_x - unit.x) + abs(target_y - unit.y)
 
-                        # Random movement if same position
-                        if dx == 0 and dy == 0:
-                            dx = random.choice([-1, 0, 1])
-                            dy = random.choice([-1, 0, 1])
+                        # Score each direction by resulting distance to target
+                        scored_dirs = []
+                        for d in all_directions:
+                            new_dist = abs(target_x - (unit.x + d[0])) + abs(target_y - (unit.y + d[1]))
+                            scored_dirs.append((new_dist, d))
 
-                        # Try primary direction first, then perpendicular directions if blocked by friendly
-                        # This prevents zombies from bunching in single file lines
-                        move_options = []
+                        # Sort by distance (closest first), then shuffle ties randomly
+                        random.shuffle(scored_dirs)  # Shuffle first so ties are random
+                        scored_dirs.sort(key=lambda x: x[0])
 
-                        # Primary diagonal move
-                        if dx != 0 and dy != 0:
-                            move_options = [(dx, dy), (dx, 0), (0, dy)]
-                        # Primary horizontal move
-                        elif dx != 0:
-                            move_options = [(dx, 0), (dx, 1), (dx, -1)]
-                        # Primary vertical move
-                        elif dy != 0:
-                            move_options = [(0, dy), (1, dy), (-1, dy)]
-                        else:
-                            move_options = [(random.choice([-1, 0, 1]), random.choice([-1, 0, 1]))]
+                        move_options = [d for _, d in scored_dirs]
 
                         # Try each move option until we find a valid one
                         moved = False
@@ -1338,10 +1330,13 @@ class GameState:
                             elif not target_unit:
                                 # Check if target is a wall (impassable to zombies)
                                 if target_building and target_building['type'] == 'wall':
-                                    # Walls are impassable to zombies, try next move option
+                                    continue
+                                # Check if target is water (impassable)
+                                from map_generator import TileType
+                                terrain = self.map_grid[new_y][new_x]
+                                if terrain == TileType.WATER:
                                     continue
                                 # Move to empty tile
-                                terrain = self.map_grid[new_y][new_x]
                                 unit.move(try_dx, try_dy, terrain)
                                 moved = True
                                 break
