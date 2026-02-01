@@ -353,8 +353,8 @@ class ZombieStrategyGame:
                 # End turn
                 elif event.key == pygame.K_e:
                     if self.game_state.current_team == 'player':
-                        # Check if any player units have moves remaining
-                        units_with_moves = [u for u in self.game_state.units if u.team == 'player' and u.moves_remaining > 0]
+                        # Check if any player units have moves remaining (exclude skipped units)
+                        units_with_moves = [u for u in self.game_state.units if u.team == 'player' and u.moves_remaining > 0 and not getattr(u, 'turn_skipped', False)]
 
                         if units_with_moves:
                             # Show confirmation dialog
@@ -378,6 +378,14 @@ class ZombieStrategyGame:
                         self.game_state.end_turn()
                         self.selected_unit = None
                         self.has_unsaved_changes = True
+
+                # Skip unit's turn (Space bar)
+                elif event.key == pygame.K_SPACE:
+                    if self.selected_unit and self.selected_unit.team == 'player' and self.selected_unit.can_move():
+                        self.selected_unit.turn_skipped = True
+                        self.log_message(f"Skipped {self.selected_unit.unit_type.capitalize()}'s turn")
+                        # Auto-select next available unit
+                        self.auto_select_timer = self.auto_select_delay
 
                 # Found city
                 elif event.key == pygame.K_f:
@@ -1447,7 +1455,7 @@ class ZombieStrategyGame:
 
         # Only scroll if Ctrl is not pressed
         if not ctrl_pressed:
-            scroll_speed = 15  # pixels per frame at 60 FPS
+            scroll_speed = 30  # pixels per frame at 60 FPS
             if keys[pygame.K_w]:
                 self.renderer.move_camera(0, -scroll_speed)
             if keys[pygame.K_s]:
@@ -1544,10 +1552,10 @@ class ZombieStrategyGame:
             self.auto_select_timer -= dt
             if self.auto_select_timer <= 0:
                 self.auto_select_timer = 0
-                # Find next available unit with moves
+                # Find next available unit with moves (skip units with turn_skipped)
                 next_unit = None
                 for unit in self.game_state.units:
-                    if unit.team == 'player' and unit.can_move():
+                    if unit.team == 'player' and unit.can_move() and not getattr(unit, 'turn_skipped', False):
                         next_unit = unit
                         break
 
@@ -2096,6 +2104,7 @@ class ZombieStrategyGame:
                 ("Left Click", "Select unit / Select tile"),
                 ("Shift + Click", "Select city"),
                 ("Right Click", "Move unit / Attack / Heal"),
+                ("Space", "Skip unit's turn"),
                 ("E", "End turn"),
             ]),
             ("CITY MANAGEMENT (City Selected)", [

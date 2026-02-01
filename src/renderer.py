@@ -420,8 +420,9 @@ class Renderer:
 
                 # Draw movement indicator for player units
                 if unit.team == 'player' and unit.can_move():
-                    # Draw a small green dot in the top-right corner
-                    pygame.draw.circle(screen, (0, 255, 0),
+                    # Yellow dot if turn is skipped, green dot otherwise
+                    dot_color = (255, 255, 0) if getattr(unit, 'turn_skipped', False) else (0, 255, 0)
+                    pygame.draw.circle(screen, dot_color,
                                      (x + self.tile_size - 6, y + 6),
                                      4)
 

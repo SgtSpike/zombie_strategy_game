@@ -65,6 +65,7 @@ class Unit:
             self.size = 1
 
         self.moves_remaining = self.max_moves
+        self.turn_skipped = False  # Set by spacebar to skip this unit's turn
 
         # Apply tech bonuses for player units
         if team == 'player' and game_state:
@@ -96,6 +97,7 @@ class Unit:
     def reset_moves(self):
         """Reset movement points at start of turn"""
         self.moves_remaining = self.max_moves
+        self.turn_skipped = False
 
     def can_move(self):
         return self.moves_remaining > 0
